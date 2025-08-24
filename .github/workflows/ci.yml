@@ -1,0 +1,39 @@
+name: CI (Build & Test)
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 👇 Si NO hay package.json, no hacemos nada y el job pasa igual
+      - name: No Node project detected — skipping
+        if: ${{ hashFiles('package.json') == '' }}
+        run: echo "No package.json found. Skipping build/test."
+
+      # 👇 A partir de acá solo corre si HAY package.json
+      - name: Setup Node.js
+        if: ${{ hashFiles('package.json') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm install
+
+      - name: Run tests
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm test --if-present
+
+      - name: Build project
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm run build --if-present
+

@@ -1,0 +1,71 @@
+name: Preview (PR → Vercel)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  APP_PATH: "."   # Cambia a "frontend" si tu app vive ahí
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Si no hay package.json, salimos "ok" (repo aún sin front)
+      - name: Skip (no Node project)
+        if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) == '' }}
+        run: echo "No package.json found in $APP_PATH. Skipping preview."
+
+      - name: Setup Node
+        if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Vercel CLI
+        if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
+        run: npm i -g vercel@latest
+
+      - name: Pull Vercel Project Settings (preview)
+        if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
+        working-directory: ${{ env.APP_PATH }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: vercel pull --yes --environment=preview --token "$VERCEL_TOKEN"
+
+      - name: Build (preview)
+        if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
+        working-directory: ${{ env.APP_PATH }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          # agrega aquí tus envs públicas si necesitas:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_PREVIEW }}
+          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL_PREVIEW }}
+        run: vercel build --token "$VERCEL_TOKEN"
+
+      - name: Deploy (preview)
+        id: deploy
+        if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
+        working-directory: ${{ env.APP_PATH }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          URL=$(vercel deploy --prebuilt --token "$VERCEL_TOKEN")
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Comment PR with Preview URL
+        if: ${{ steps.deploy.outputs.url != '' }}
+        uses: mshick/add-pr-comment@v2
+        with:
+          message: |
+            ✅ **Preview listo**: ${{ steps.deploy.outputs.url }}
+
