@@ -4,7 +4,6 @@ import "./NavBar.css";
 export default function NavBar() {
   const items = [
     { to: "/pagos", label: "Pagos" },
-    { to: "/detalle", label: "Detalle de pago"},
     { to: "/intenciones", label: "Intenciones" },
     { to: "/facturas", label: "Facturas" },
     { to: "/reembolsos", label: "Reembolsos"},
