@@ -1,35 +1,28 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import NavBar from "./components/NavBar";
+import PagosLista from "./views/Pagos-Lista";
+const Placeholder = ({ title }) => <div style={{ padding: 24 }}>{title}</div>;
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
 
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <BrowserRouter>
+      <NavBar />
+      <main className="app-main">
+        <Routes>
+          {/* redirige / a /pagos */}
+          <Route path="/" element={<Navigate to="/pagos" replace />} />
+          <Route path="/pagos" element={<PagosLista />} />
+          <Route path="/detalle" element={<Placeholder title="Detalle de pago" />} />
+          <Route path="/intenciones" element={<Placeholder title="Intenciones" />} />
+          <Route path="/facturas" element={<Placeholder title="Facturas" />} />
+          <Route path="/reembolsos" element={<Placeholder title="Reembolsos" />} />
+          <Route path="/disputas" element={<Placeholder title="Disputas" />} />
+          <Route path="/reconciliaciones" element={<Placeholder title="Reconciliaciones" />} />
+          <Route path="/auditoria" element={<Placeholder title="Auditoría" />} />
+        </Routes>
+      </main>
+    </BrowserRouter>
+  );
 }
-
-export default App
