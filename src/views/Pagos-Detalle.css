@@ -59,7 +59,7 @@
 .pd-kv b {
   font-weight: 600;
   color: #000;
-  min-width: 140px; /* ancho fijo para alinear labels */
+  min-width: 0; /* ancho fijo para alinear labels */
 }
 .pd-kv span {
   font-weight: normal;
