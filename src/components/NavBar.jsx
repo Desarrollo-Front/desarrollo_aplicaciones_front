@@ -24,7 +24,6 @@ export default function NavBar() {
                 isActive ? "nav-link active" : "nav-link"
               }
             >
-              <span className="icon">{item.icon}</span>
               <span className="label">{item.label}</span>
             </NavLink>
           </li>

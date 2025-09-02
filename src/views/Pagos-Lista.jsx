@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Pagos-Lista.css";
 
 
@@ -102,6 +103,7 @@ export default function PagosLista({ data = MOCK_PAGOS, onVer }) {
   const [hasta, setHasta] = useState("");
   const [orden, setOrden] = useState("Fecha ⬇"); 
   const [chips, setChips] = useState(new Set());
+  const navigate = useNavigate();
 
   
   const toggleChip = (name) => {
@@ -312,7 +314,7 @@ export default function PagosLista({ data = MOCK_PAGOS, onVer }) {
                   <td>
                     <button
                       className="pl-btn pl-btn--ghost"
-                      onClick={() => (onVer ? onVer(p) : alert(`Ver #${p.id}`))}
+                      onClick={() => navigate(`/detalle/${p.id}`)}
                     >
                       Ver
                     </button>
