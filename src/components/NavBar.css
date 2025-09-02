@@ -22,7 +22,13 @@
   align-items: center;
   padding: 0 20px;
 }
-
+.nav-container {
+  width: min(1100px, 100%);
+  margin-inline: auto;   /* centra el contenedor dentro de la navbar */
+  display: flex;
+  justify-content: center;  /* 👈 centra horizontalmente */
+  align-items: center;
+}
 /* lista horizontal */
 .navbar ul {
   list-style: none;
@@ -30,6 +36,7 @@
   margin: 0;
   padding: 0;
   gap: 12px;
+  justify-content: center;
 }
 
 /* item */
@@ -37,15 +44,26 @@
 
 /* link */
 .nav-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;       /* centra vertical */
+  justify-content: center;   /* centra horizontal */
+  gap: 6px;
+
+  height: 36px;              /* altura uniforme */
+  padding: 0 16px;           /* aire lateral */
+  line-height: 1;            /* evita que el texto se suba/baje */
+
   text-decoration: none;
   color: var(--nav-text);
   font-size: 14px;
-  border-radius: 999px;            /* pill */
+  font-weight: 500;
+  border-radius: 999px;      /* pill */
   transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.nav-link .label {
+  line-height: 1;            /* 👈 asegura que el texto esté centrado */
+  display: inline-block;
 }
 
 /* hover claro */
