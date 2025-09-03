@@ -1,0 +1,107 @@
+:root {
+  --navbar-h: 56px;
+
+  /* paleta clara alineada con la vista */
+  --nav-bg: #ffffff;
+  --nav-line: #e0e0e0;
+  --nav-text: #111111;
+  --nav-muted: #6c757d;
+  --nav-hover: #f3f4f6;       /* gris claro al pasar el mouse */
+  --nav-active-bg: #e9efff;   /* pill activo suave */
+  --nav-active-text: #0b2f8a; /* azul oscuro legible */
+}
+
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--navbar-h);
+  z-index: 1000;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-line);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+}
+.nav-container {
+  width: min(1100px, 100%);
+  margin-inline: auto;   /* centra el contenedor dentro de la navbar */
+  display: flex;
+  justify-content: center;  /* 👈 centra horizontalmente */
+  align-items: center;
+}
+/* lista horizontal */
+.navbar ul {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* item */
+.navbar li { margin: 0; }
+
+/* link */
+.nav-link {
+  display: inline-flex;
+  align-items: center;       /* centra vertical */
+  justify-content: center;   /* centra horizontal */
+  gap: 6px;
+
+  height: 36px;              /* altura uniforme */
+  padding: 0 16px;           /* aire lateral */
+  line-height: 1;            /* evita que el texto se suba/baje */
+
+  text-decoration: none;
+  color: var(--nav-text);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 999px;      /* pill */
+  transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.nav-link .label {
+  line-height: 1;            /* 👈 asegura que el texto esté centrado */
+  display: inline-block;
+}
+
+/* hover claro */
+.nav-link:hover {
+  background: var(--nav-hover);
+  color: var(--nav-text);
+}
+
+/* estado activo (pill suave) */
+.nav-link.active {
+  background: var(--nav-active-bg);
+  color: var(--nav-active-text);
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px #c7d4ff;
+}
+
+/* icono (si usás emoji/ícono) */
+.icon { font-size: 16px; line-height: 1; }
+
+/* accesibilidad */
+.nav-link:focus-visible {
+  outline: 2px solid #94b0ff;
+  outline-offset: 2px;
+  background: #eef3ff;
+}
+
+/* responsive: si no entra, que haga scroll horizontal suave */
+@media (max-width: 680px) {
+  .navbar { padding: 0 12px; }
+  .navbar ul {
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+}
+.nav-container {
+  width: min(1100px, 100%);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+}
