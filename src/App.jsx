@@ -4,6 +4,7 @@ import PagosLista from "./views/Pagos-Lista";
 import PagosDetalle from "./views/Pagos-Detalle";
 import Intenciones from "./views/Intenciones";
 import Facturas from "./views/Facturas";
+import Disputas from "./views/Disputas";
 const Placeholder = ({ title }) => <div style={{ padding: 24 }}>{title}</div>;
 import "./App.css";
 
@@ -19,8 +20,7 @@ export default function App() {
           <Route path="/detalle/:id" element={<PagosDetalle />} />
           <Route path="/intenciones" element={<Intenciones />} />
           <Route path="/facturas" element={<Facturas />} />
-          <Route path="/reembolsos" element={<Placeholder title="Reembolsos" />} />
-          <Route path="/disputas" element={<Placeholder title="Disputas" />} />
+          <Route path="/disputas" element={<Disputas />} />
           <Route path="/reconciliaciones" element={<Placeholder title="Reconciliaciones" />} />
           <Route path="/auditoria" element={<Placeholder title="Auditoría" />} />
         </Routes>
