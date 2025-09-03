@@ -274,8 +274,8 @@ export default function PagosLista({ data = MOCK_PAGOS, onVer }) {
       </div>
 
       {/* Tabla */}
-      <section className="pl-card">
-        <table className="pl-tbl">
+      <section className="table-card">
+        <table >
           <thead>
             <tr>
               <th>ID</th>
