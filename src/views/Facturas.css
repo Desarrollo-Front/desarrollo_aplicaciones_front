@@ -1,0 +1,112 @@
+:root{
+  --bg:#ffffff;
+  --panel:#f9f9f9;
+  --muted:#6c757d;
+  --text:#000000;
+  --line:#e0e0e0;
+  --chip:#e9ecef;
+}
+
+/* wrapper y títulos siguiendo el patrón pl- / pi- */
+.fa-wrap{
+  max-width:1100px;
+  margin:32px auto;
+  padding:0 20px;
+  color:var(--text);
+  background:var(--bg);
+
+  /* ocupa todo el ancho dentro de .app-main */
+  width: 100%;
+  flex: 1 1 100%;
+}
+.fa-title{
+  margin:0 0 8px;
+  font-size:28px;
+  color:var(--text);
+}
+.fa-sub{
+  margin:0 0 16px;
+  color:var(--muted);
+}
+
+/* monospace para Nº y Pago (como en Intenciones) */
+.fa-mono{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* botones alineados como en tu captura */
+.fa-actions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-start;
+}
+
+/* Botones (igual lenguaje visual que pl-/pi-) */
+.fa-btn{
+  height:32px;
+  padding:0 12px;
+  border-radius:10px;
+  border:1px solid #000;
+  background:#fff;
+  color:#000;
+  cursor:pointer;
+  transition:120ms;
+}
+.fa-btn:hover{
+  transform:translateY(-1px);
+  background:#f1f1f1;
+  border-color:#999;
+}
+.fa-btn--ghost{
+  background:transparent;
+  border-color:var(--line);
+}
+.fa-btn--pri{
+  /* botón destacado tipo "Descargar" */
+  background:#ffffff;
+  border-color:#000;
+}
+
+/* Badges */
+.fa-badge{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  border:1px solid transparent;
+}
+.fa-badge--emitida{
+  background:#e2f5e9;
+  color:#1b5e20;
+  border-color:#c8e6c9;
+}
+
+/* vacíos */
+.fa-empty{
+  text-align:center;
+  color:var(--muted);
+  padding:24px 12px;
+}
+
+/* Responsive: usar el patrón mobile de tus tablas */
+@media (max-width: 960px){
+  .table-card thead{ display:none; }
+  .table-card,
+  .table-card tbody,
+  .table-card tr,
+  .table-card td{
+    display:block;
+    width:100%;
+  }
+  .table-card tr{
+    border-bottom:1px solid var(--line);
+  }
+  .table-card td{
+    display:grid;
+    grid-template-columns: 140px 1fr;
+    gap:8px;
+  }
+  .fa-actions{
+    justify-content:flex-start;
+  }
+}
