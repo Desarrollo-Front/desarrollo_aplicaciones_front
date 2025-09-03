@@ -6,7 +6,6 @@ export default function NavBar() {
     { to: "/pagos", label: "Pagos" },
     { to: "/intenciones", label: "Intenciones" },
     { to: "/facturas", label: "Facturas" },
-    { to: "/reembolsos", label: "Reembolsos"},
     { to: "/disputas", label: "Disputas"},
     { to: "/reconciliaciones", label: "Reconciliaciones"},
     { to: "/auditoria", label: "Auditoría" },
