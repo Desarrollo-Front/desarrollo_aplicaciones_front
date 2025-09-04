@@ -292,42 +292,54 @@ export default function PagosLista({ data = MOCK_PAGOS, onVer }) {
             </tr>
           </thead>
           <tbody>
-            {pagos.map((p) => {
-              const { fecha, hora } = fechaFmt(p.fechaISO);
-              return (
-                <tr key={p.id}>
-                  <td>#{p.id}</td>
-                  <td>{p.cliente}</td>
-                  <td>{p.prestador}</td>
-                  <td><Badge kind={p.metodo}>{p.metodo}</Badge></td>
-                  <td><Badge kind={p.estado}>{p.estado}</Badge></td>
-                  <td>{money(p.subtotal, p.moneda)}</td>
-                  <td>{money(p.impuestos, p.moneda)}</td>
-                  <td className="pl-bold">{money(p.total, p.moneda)}</td>
-                  <td>{p.moneda}</td>
-                  <td>
-                    <div className="pl-fecha">
-                      <div>{fecha}</div>
-                      <small>{hora}</small>
-                    </div>
-                  </td>
-                  <td>
-                    <button
-                      className="pl-btn pl-btn--ghost"
-                      onClick={() => navigate(`/detalle/${p.id}`)}
-                    >
-                      Ver
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-            {pagos.length === 0 && (
-              <tr>
-                <td className="pl-empty" colSpan={11}>No hay resultados con los filtros aplicados.</td>
-              </tr>
-            )}
-          </tbody>
+  {pagos.map((p) => {
+    const { fecha, hora } = fechaFmt(p.fechaISO);
+    return (
+      <tr key={p.id}>
+        <td>#{p.id}</td>
+        <td>{p.cliente}</td>
+        <td>{p.prestador}</td>
+        <td><Badge kind={p.metodo}>{p.metodo}</Badge></td>
+        <td><Badge kind={p.estado}>{p.estado}</Badge></td>
+        <td>{money(p.subtotal, p.moneda)}</td>
+        <td>{money(p.impuestos, p.moneda)}</td>
+        <td className="pl-bold">{money(p.total, p.moneda)}</td>
+        <td>{p.moneda}</td>
+        <td>
+          <div className="pl-fecha">
+            <div>{fecha}</div>
+            <small>{hora}</small>
+          </div>
+        </td>
+        <td>
+          {p.estado === "Pendiente" ? (
+            <button
+              className="pl-btn pl-btn--pagar"
+              onClick={() => navigate(`/pago/${p.id}`)}
+            >
+              Pagar
+            </button>
+          ) : (
+            <button
+              className="pl-btn pl-btn--ghost"
+              onClick={() => navigate(`/detalle/${p.id}`)}
+            >
+              Ver
+            </button>
+          )}
+        </td>
+      </tr>
+    );
+  })}
+  {pagos.length === 0 && (
+    <tr>
+      <td className="pl-empty" colSpan={11}>
+        No hay resultados con los filtros aplicados.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </section>
     </div>
