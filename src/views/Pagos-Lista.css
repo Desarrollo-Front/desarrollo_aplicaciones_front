@@ -32,6 +32,7 @@
   gap: 12px;
   align-items: end;
   margin-bottom: 14px;
+  margin-top: 100px;
 }
 .pl-field label {
   display: block;
@@ -226,6 +227,83 @@
 .pl-btn--ver:hover {
   background: #0069d9;
   border-color: #005cbf;
+}
+
+/* Topbar con botón de logout a la derecha */
+.pl-headrow{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.pl-head-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.pl-user{
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* Botón rojo para cerrar sesión (sigue tu lenguaje pl-btn) */
+.pl-btn--logout{
+  border: 1px solid #dc3545;
+  background: #dc3545;
+  color:#fff;
+}
+.pl-btn--logout:hover{
+  background:#c82333;
+  border-color:#bd2130;
+}
+
+/* Responsive: que el título y el botón apilen en pantallas chicas */
+@media (max-width: 640px){
+  .pl-headrow{
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .pl-head-actions{
+    justify-content: flex-end;
+  }
+}
+/* Para colocar el botón sin mover el título */
+.pl-wrap { position: relative; }
+
+.logout-top{
+  position: absolute;
+  top: 40px;              /* ajustá si tu título ocupa más/menos */
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pl-user{
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* Botón rojo coherente */
+.pl-btn--logout{
+  border: 1px solid #dc3545;
+  background: #dc3545;
+  color:#fff;
+}
+.pl-btn--logout:hover{
+  background:#c82333;
+  border-color:#bd2130;
+}
+
+/* En mobile que baje debajo del título para que no se solape */
+@media (max-width: 640px){
+  .logout-top{
+    position: static;
+    margin-top: 6px;
+    justify-content: flex-end;
+  }
 }
 
 
