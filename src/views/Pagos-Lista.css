@@ -206,6 +206,30 @@
   padding: 28px 12px;
 }
 
+/* Botón pagar: verde */
+.pl-btn--pagar {
+  border: 1px solid #28a745;
+  background: #28a745;
+  color: #fff;
+}
+.pl-btn--pagar:hover {
+  background: #218838;
+  border-color: #1e7e34;
+}
+
+/* Botón ver: azul */
+.pl-btn--ver {
+  border: 1px solid #007bff;
+  background: #007bff;
+  color: #fff;
+}
+.pl-btn--ver:hover {
+  background: #0069d9;
+  border-color: #005cbf;
+}
+
+
+
 /* Responsive */
 @media (max-width: 960px) {
   .pl-filters {

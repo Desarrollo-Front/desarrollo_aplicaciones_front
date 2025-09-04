@@ -4,11 +4,6 @@ import "./NavBar.css";
 export default function NavBar() {
   const items = [
     { to: "/pagos", label: "Pagos" },
-    { to: "/intenciones", label: "Intenciones" },
-    { to: "/facturas", label: "Facturas" },
-    { to: "/disputas", label: "Disputas"},
-    { to: "/reconciliaciones", label: "Reconciliaciones"},
-    { to: "/auditoria", label: "Auditoría" },
   ];
 
   return (
