@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./Pagos-Detalle.css";
 
 /** Utils */
@@ -60,6 +60,7 @@ const MOCK_DETALLE_BASE = {
 
 export default function PagosDetalle() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   // “Hidratamos” el mock con el id de la URL
   const pago = useMemo(() => {
@@ -108,6 +109,12 @@ export default function PagosDetalle() {
 
   return (
     <div className="pd-wrap">
+       <button
+        className="pd-btn pd-btn--ghost pd-back"
+        onClick={() => navigate("/pagos")}
+      >
+        ← Volver
+      </button>
       <h1 className="pd-title">Detalle de pago #{pago.id}</h1>
       <p className="pd-sub">Resumen, datos fiscales &amp; referencia, timeline, comprobantes y reembolsos.</p>
 

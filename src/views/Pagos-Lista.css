@@ -373,3 +373,22 @@
     grid-column: 1 / -1;
   }
 }
+
+/* Para posicionar el botón sin empujar el título */
+.pd-wrap { position: relative; }
+
+.pd-back{
+  position: absolute;
+  left: 20px;
+  top: -6px;            /* ajustá si querés más/menos arriba */
+  padding: 0 12px;
+}
+
+/* En pantallas chicas que se apile para no solapar el título */
+@media (max-width: 640px){
+  .pd-back{
+    position: static;
+    margin-bottom: 6px;
+  }
+}
+
