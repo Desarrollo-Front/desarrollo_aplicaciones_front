@@ -19,6 +19,7 @@
   margin: 0 0 8px;
   font-size: 28px;
   color: var(--text);
+  margin-top: 30px;
 }
 
 .pl-sub {
@@ -339,3 +340,55 @@
     gap: 8px;
   }
 }
+/* 1) Cuando .pl-inline tiene un único hijo (tu input), que ocupe todo el ancho */
+.pl-inline > *:only-child {
+  grid-column: 1 / -1;    /* se extiende por todas las columnas */
+}
+
+/* (opcional) achico un poco el gap general en filtros */
+.pl-filters {
+  gap: 10px;
+  /* Si querés compactarlo un poco más, podés usar esta línea:
+  grid-template-columns: 1.6fr 1.1fr 1fr 1fr 0.9fr 0.9fr;
+  */
+}
+
+/* 2) Flechita del select: más padding-right y posiciones centradas */
+.pl-sel {
+  padding-right: 40px; /* deja espacio real para la flecha */
+  /* reemplazo el background-image por uno más simple y centrado */
+  background-image:
+    linear-gradient(45deg, transparent 50%, #000000 50%),
+    linear-gradient(135deg, #000000 50%, transparent 50%);
+  background-position:
+    right 16px center,
+    right 10px center;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+/* (opcional) En pantallas chicas el buscador ocupa toda la fila, queda más prolijo */
+@media (max-width: 960px){
+  .pl-inline > *:only-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Para posicionar el botón sin empujar el título */
+.pd-wrap { position: relative; }
+
+.pd-back{
+  position: absolute;
+  left: 20px;
+  top: -6px;            /* ajustá si querés más/menos arriba */
+  padding: 0 12px;
+}
+
+/* En pantallas chicas que se apile para no solapar el título */
+@media (max-width: 640px){
+  .pd-back{
+    position: static;
+    margin-bottom: 6px;
+  }
+}
+

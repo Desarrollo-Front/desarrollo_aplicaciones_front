@@ -1,13 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Pagos-Lista.css";
-
-const MOCK_PAGOS = [
-  { id: 98421, cliente: "Paula Álvarez", prestador: "Servicios Tigre SRL", metodo: "Crédito", estado: "Aprobado", subtotal: 52000, impuestos: 6200, total: 58200, moneda: "ARS", fechaISO: "2025-08-18T14:31:00" },
-  { id: 98420, cliente: "Juan Pérez", prestador: "Servicios Tigre SRL", metodo: "Billetera", estado: "Pendiente", subtotal: 10000, impuestos: 2000, total: 12000, moneda: "ARS", fechaISO: "2025-08-18T13:02:00" },
-  { id: 98419, cliente: "María Giménez", prestador: "Reparaciones Norte", metodo: "Débito", estado: "Rechazado", subtotal: 21100, impuestos: 21800, total: 42900, moneda: "ARS", fechaISO: "2025-08-17T19:47:00" },
-  { id: 98418, cliente: "Laura Soto", prestador: "Servicios Tigre SRL", metodo: "Crédito", estado: "Expirado", subtotal: 8000, impuestos: 960, total: 8960, moneda: "ARS", fechaISO: "2025-08-16T09:28:00" },
-];
 
 const METODOS = ["Todos los métodos", "Tarjeta crédito", "Tarjeta débito", "Billetera"];
 const ESTADOS_CHIPS = ["Pendiente","Aprobado","Rechazado","Disputa","Reembolsado","Expirado","Crédito","Débito","Billetera"];
@@ -34,9 +27,40 @@ function Chip({ active, onClick, children }) {
   );
 }
 
-export default function PagosLista({ data = MOCK_PAGOS }) {
+const mapStatus = (s) => {
+  const t = String(s || "").toUpperCase();
+  if (t === "PENDING") return "Pendiente";
+  if (t === "APPROVED" || t === "CAPTURED") return "Aprobado";
+  if (t === "REJECTED" || t === "FAILED") return "Rechazado";
+  if (t === "EXPIRED") return "Expirado";
+  if (t === "REFUNDED") return "Reembolsado";
+  if (t === "DISPUTE" || t === "DISPUTED") return "Disputa";
+  return "Pendiente";
+};
+const normalizeMetodo = (m) => {
+  const val = String(m || "").toLowerCase();
+  if (["credito","credit","tarjeta credito"].includes(val)) return "Crédito";
+  if (["debito","debit","tarjeta debito"].includes(val)) return "Débito";
+  if (["billetera","wallet","mp","mercadopago"].includes(val)) return "Billetera";
+  return "—";
+};
+
+export default function PagosLista() {
   const navigate = useNavigate();
-  const [rol, setRol] = useState("Cliente");
+
+  const [serverData, setServerData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [fetchErr, setFetchErr] = useState("");
+
+  // 🔎 ahora NO hay select de rol: lo derivamos del role del usuario
+  const authRole =
+    (JSON.parse(localStorage.getItem("auth") || "{}").role ||
+      localStorage.getItem("role") ||
+      "USER").toUpperCase();
+
+  // MERCHANT -> buscar por Cliente | USER -> buscar por Prestador
+  const searchBy = authRole === "MERCHANT" ? "Cliente" : authRole === "USER" ? "Prestador" : "Cliente";
+
   const [query, setQuery] = useState("");
   const [metodo, setMetodo] = useState(METODOS[0]);
   const [desde, setDesde] = useState("");
@@ -44,14 +68,12 @@ export default function PagosLista({ data = MOCK_PAGOS }) {
   const [orden, setOrden] = useState("Fecha ⬇");
   const [chips, setChips] = useState(new Set());
 
-  // Nombre de usuario (si existe en localStorage)
   const userName =
     (JSON.parse(localStorage.getItem("auth") || "{}").name) ||
     localStorage.getItem("name") ||
     "Usuario";
 
   const handleLogout = () => {
-    // Borra TODO el localStorage y redirige
     localStorage.clear();
     navigate("/login", { replace: true });
   };
@@ -62,21 +84,67 @@ export default function PagosLista({ data = MOCK_PAGOS }) {
     setChips(next);
   };
 
+  useEffect(() => {
+    const fetchPayments = async () => {
+      setLoading(true);
+      setFetchErr("");
+      try {
+        const authHeader =
+          localStorage.getItem("authHeader") ||
+          `${localStorage.getItem("tokenType") || "Bearer"} ${localStorage.getItem("token") || ""}`;
+
+        const res = await fetch("http://localhost:8080/api/payments/my-payments", {
+          headers: { "Content-Type": "application/json", Authorization: authHeader },
+        });
+
+        if (!res.ok) {
+          if (res.status === 401) throw new Error("No autorizado. Iniciá sesión nuevamente.");
+          throw new Error("No se pudieron obtener los pagos.");
+        }
+
+        const list = await res.json();
+        const mapped = (Array.isArray(list) ? list : []).map((p) => ({
+          id: p.id,
+          cliente: `Usuario #${p.user_id ?? "-"}`,
+          prestador: p.provider_id ? `Proveedor #${p.provider_id}` : "-",
+          metodo: normalizeMetodo(p?.metadata?.method),
+          estado: mapStatus(p.status),
+          subtotal: Number(p.amount_subtotal ?? 0),
+          impuestos: Number((p.taxes ?? 0) + (p.fees ?? 0)),
+          total: Number(p.amount_total ?? 0),
+          moneda: String(p.currency || "ARS").toUpperCase(),
+          fechaISO: p.created_at,
+        }));
+        setServerData(mapped);
+      } catch (e) {
+        setFetchErr(e.message || "Error inesperado obteniendo pagos.");
+        setServerData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPayments();
+  }, []);
+
+  // filtros sobre serverData usando 'searchBy'
   const pagos = useMemo(() => {
-    let arr = [...data];
+    let arr = [...serverData];
 
     if (query.trim()) {
       const q = query.toLowerCase();
       arr = arr.filter((p) =>
-        (rol === "Cliente" ? p.cliente : p.prestador).toLowerCase().includes(q)
+        (searchBy === "Cliente" ? p.cliente : p.prestador).toLowerCase().includes(q)
       );
     }
+
     if (metodo !== METODOS[0]) {
       const map = { "Tarjeta crédito": "Crédito", "Tarjeta débito": "Débito", Billetera: "Billetera" };
       arr = arr.filter((p) => p.metodo === map[metodo]);
     }
+
     if (desde) arr = arr.filter((p) => new Date(p.fechaISO) >= new Date(desde + "T00:00:00"));
     if (hasta) arr = arr.filter((p) => new Date(p.fechaISO) <= new Date(hasta + "T23:59:59"));
+
     if (chips.size) arr = arr.filter((p) => chips.has(p.estado) || chips.has(p.metodo));
 
     arr.sort((a, b) => {
@@ -89,7 +157,7 @@ export default function PagosLista({ data = MOCK_PAGOS }) {
     });
 
     return arr;
-  }, [data, rol, query, metodo, desde, hasta, chips, orden]);
+  }, [serverData, query, metodo, desde, hasta, chips, orden, searchBy]);
 
   const exportCSV = () => {
     const headers = ["ID","Cliente","Prestador","Método","Estado","Subtotal","Impuestos","Total","Moneda","Fecha","Hora"];
@@ -101,8 +169,8 @@ export default function PagosLista({ data = MOCK_PAGOS }) {
       .map((r) => r.map((v) => {
         const s = String(v ?? "");
         return s.includes(",") || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
-      }).join(","))
-      .join("\n");
+      }).join(",")).
+      join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -115,23 +183,19 @@ export default function PagosLista({ data = MOCK_PAGOS }) {
       <h1 className="pl-title">Pagos</h1>
       <div className="logout-top">
         <span className="pl-user">Hola, {userName}</span>
-        <button className="pl-btn pl-btn--logout" onClick={handleLogout}>
-          Cerrar sesión
-        </button>
+        <button className="pl-btn pl-btn--logout" onClick={handleLogout}>Cerrar sesión</button>
       </div>
 
       {/* Filtros */}
       <section className="pl-filters">
         <div className="pl-field">
-          <label>Buscar por {rol.toLowerCase()}</label>
+          {/* 🔎 label y placeholder cambian según el role */}
+          <label>Buscar por {searchBy.toLowerCase()}</label>
           <div className="pl-inline">
-            <select className="pl-sel" value={rol} onChange={(e) => setRol(e.target.value)}>
-              <option>Cliente</option>
-              <option>Prestador</option>
-            </select>
+            {/* Eliminamos el select; mantenemos la estructura/pl-inline para no tocar CSS */}
             <input
               className="pl-input"
-              placeholder={`Buscar por ${rol.toLowerCase()}...`}
+              placeholder={`Buscar por ${searchBy.toLowerCase()}...`}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -188,7 +252,9 @@ export default function PagosLista({ data = MOCK_PAGOS }) {
             </tr>
           </thead>
           <tbody>
-            {pagos.map((p) => {
+            {loading && <tr><td className="pl-empty" colSpan={11}>Cargando pagos…</td></tr>}
+            {!loading && fetchErr && <tr><td className="pl-empty" colSpan={11}>{fetchErr}</td></tr>}
+            {!loading && !fetchErr && pagos.map((p) => {
               const { fecha, hora } = fechaFmt(p.fechaISO);
               return (
                 <tr key={p.id}>
@@ -216,8 +282,8 @@ export default function PagosLista({ data = MOCK_PAGOS }) {
                 </tr>
               );
             })}
-            {pagos.length === 0 && (
-              <tr><td className="pl-empty" colSpan={11}>No hay resultados con los filtros aplicados.</td></tr>
+            {!loading && !fetchErr && pagos.length === 0 && (
+              <tr><td className="pl-empty" colSpan={11}>No hay pagos para mostrar.</td></tr>
             )}
           </tbody>
         </table>
