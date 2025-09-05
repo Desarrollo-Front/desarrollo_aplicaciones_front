@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./Pagos-Detalle.css";
 
-/** Utils */
 const money = (n, curr = "ARS", locale = "es-AR") =>
   new Intl.NumberFormat(locale, { style: "currency", currency: curr }).format(n);
 
@@ -62,11 +61,11 @@ export default function PagosDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // “Hidratamos” el mock con el id de la URL
+  
   const pago = useMemo(() => {
     const numId = Number(id);
     if (!id || Number.isNaN(numId)) return null;
-    // Para demo: si no es 98421, clonamos el mock y cambiamos campos clave
+   
     if (numId === 98421) return MOCK_DETALLE_BASE;
     return {
       ...MOCK_DETALLE_BASE,
@@ -118,9 +117,9 @@ export default function PagosDetalle() {
       <h1 className="pd-title">Detalle de pago #{pago.id}</h1>
       <p className="pd-sub">Resumen, datos fiscales &amp; referencia, timeline, comprobantes y reembolsos.</p>
 
-      {/* Tarjetas superiores */}
+      
       <section className="pd-grid">
-        {/* Resumen */}
+        
         <article className="pd-card">
           <header className="pd-card-h">Resumen</header>
           <div className="pd-kv">
@@ -145,7 +144,7 @@ export default function PagosDetalle() {
           </div>
         </article>
 
-        {/* Datos fiscales & referencia */}
+        
         <article className="pd-card">
           <header className="pd-card-h">Datos fiscales &amp; referencia</header>
           <div className="pd-kv">
@@ -160,7 +159,7 @@ export default function PagosDetalle() {
           </div>
         </article>
 
-        {/* Comprobantes */}
+        
         <article className="pd-card">
           <header className="pd-card-h">Comprobantes</header>
 
@@ -194,7 +193,7 @@ export default function PagosDetalle() {
         </article>
       </section>
 
-      {/* Reembolsos */}
+     
       <section className="pd-card pd-refunds">
         <header className="pd-card-h">Reembolsos</header>
         <table className="pd-tbl">
@@ -221,7 +220,7 @@ export default function PagosDetalle() {
         </table>
       </section>
 
-      {/* Timeline */}
+     
       <section className="pd-timeline">
         <header className="pd-card-h">Timeline</header>
         <ul className="pd-time">
@@ -237,7 +236,7 @@ export default function PagosDetalle() {
         </ul>
       </section>
 
-      {/* Modal Reembolso */}
+     
       {showRefund && (
         <div className="pd-modal-overlay" role="dialog" aria-modal="true">
           <form className="pd-modal" onSubmit={confirmarReembolso}>

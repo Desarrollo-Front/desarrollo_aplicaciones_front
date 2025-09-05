@@ -52,13 +52,13 @@ export default function PagosLista() {
   const [loading, setLoading] = useState(true);
   const [fetchErr, setFetchErr] = useState("");
 
-  // 🔎 ahora NO hay select de rol: lo derivamos del role del usuario
+  
   const authRole =
     (JSON.parse(localStorage.getItem("auth") || "{}").role ||
       localStorage.getItem("role") ||
       "USER").toUpperCase();
 
-  // MERCHANT -> buscar por Cliente | USER -> buscar por Prestador
+  
   const searchBy = authRole === "MERCHANT" ? "Cliente" : authRole === "USER" ? "Prestador" : "Cliente";
 
   const [query, setQuery] = useState("");
@@ -126,7 +126,7 @@ export default function PagosLista() {
     fetchPayments();
   }, []);
 
-  // filtros sobre serverData usando 'searchBy'
+  
   const pagos = useMemo(() => {
     let arr = [...serverData];
 
@@ -186,13 +186,13 @@ export default function PagosLista() {
         <button className="pl-btn pl-btn--logout" onClick={handleLogout}>Cerrar sesión</button>
       </div>
 
-      {/* Filtros */}
+     
       <section className="pl-filters">
         <div className="pl-field">
-          {/* 🔎 label y placeholder cambian según el role */}
+          
           <label>Buscar por {searchBy.toLowerCase()}</label>
           <div className="pl-inline">
-            {/* Eliminamos el select; mantenemos la estructura/pl-inline para no tocar CSS */}
+            
             <input
               className="pl-input"
               placeholder={`Buscar por ${searchBy.toLowerCase()}...`}
@@ -235,14 +235,14 @@ export default function PagosLista() {
         </div>
       </section>
 
-      {/* Chips */}
+      
       <div className="pl-chips">
         {ESTADOS_CHIPS.map((e) => (
           <Chip key={e} active={chips.has(e)} onClick={() => toggleChip(e)}>{e}</Chip>
         ))}
       </div>
 
-      {/* Tabla */}
+      
       <section className="table-card">
         <table>
           <thead>
