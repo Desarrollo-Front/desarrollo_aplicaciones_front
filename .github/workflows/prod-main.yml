@@ -5,7 +5,11 @@ on:
     branches: [main]
 
 env:
-  APP_PATH: '.' # Cambiá a "frontend" si tu app está ahí
+  APP_PATH: '.' # Cambia a "frontend" si tu app vive ahí
+
+concurrency:
+  group: prod-${{ github.sha }}
+  cancel-in-progress: false
 
 jobs:
   prod:
@@ -25,19 +29,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
       - name: Install Vercel CLI
         if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
         run: npm i -g vercel@latest
+
+      # Construimos flags opcionales para scope/proyecto si existen los secrets
+      - name: Build Vercel flags
+        id: flags
+        shell: bash
+        run: |
+          FLAGS=""
+          if [ -n "${{ secrets.VERCEL_ORG_ID }}" ]; then FLAGS="$FLAGS --scope ${{ secrets.VERCEL_ORG_ID }}"; fi
+          if [ -n "${{ secrets.VERCEL_PROJECT_ID }}" ]; then FLAGS="$FLAGS --project ${{ secrets.VERCEL_PROJECT_ID }}"; fi
+          echo "flags=$FLAGS" >> "$GITHUB_OUTPUT"
 
       - name: Pull Vercel Project Settings (production)
         if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
         working-directory: ${{ env.APP_PATH }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
+        run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN" ${{ steps.flags.outputs.flags }}
 
       - name: Build (production)
         if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
@@ -47,11 +60,11 @@ jobs:
           # agrega tus envs públicas prod si las tenés
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_PROD }}
           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL_PROD }}
-        run: vercel build --prod --token "$VERCEL_TOKEN"
+        run: vercel build --prod --token "$VERCEL_TOKEN" ${{ steps.flags.outputs.flags }}
 
       - name: Deploy (production)
         if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
         working-directory: ${{ env.APP_PATH }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN"
+        run: vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN" ${{ steps.flags.outputs.flags }}

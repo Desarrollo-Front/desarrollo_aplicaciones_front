@@ -4,6 +4,11 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+# Evita builds duplicados en el mismo PR/branch
+concurrency:
+  group: preview-${{ github.event.pull_request.head.ref }}
+  cancel-in-progress: true
+
 env:
   APP_PATH: '.' # Cambia a "frontend" si tu app vive ahí
 
@@ -28,19 +33,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
       - name: Install Vercel CLI
         if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
         run: npm i -g vercel@latest
+
+      # Construimos flags opcionales para scope/proyecto si existen los secrets
+      - name: Build Vercel flags
+        id: flags
+        shell: bash
+        run: |
+          FLAGS=""
+          if [ -n "${{ secrets.VERCEL_ORG_ID }}" ]; then FLAGS="$FLAGS --scope ${{ secrets.VERCEL_ORG_ID }}"; fi
+          if [ -n "${{ secrets.VERCEL_PROJECT_ID }}" ]; then FLAGS="$FLAGS --project ${{ secrets.VERCEL_PROJECT_ID }}"; fi
+          echo "flags=$FLAGS" >> "$GITHUB_OUTPUT"
 
       - name: Pull Vercel Project Settings (preview)
         if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
         working-directory: ${{ env.APP_PATH }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel pull --yes --environment=preview --token "$VERCEL_TOKEN"
+        run: vercel pull --yes --environment=preview --token "$VERCEL_TOKEN" ${{ steps.flags.outputs.flags }}
 
       - name: Build (preview)
         if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
@@ -50,7 +64,7 @@ jobs:
           # agrega aquí tus envs públicas si necesitas:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_PREVIEW }}
           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL_PREVIEW }}
-        run: vercel build --token "$VERCEL_TOKEN"
+        run: vercel build --token "$VERCEL_TOKEN" ${{ steps.flags.outputs.flags }}
 
       - name: Deploy (preview)
         id: deploy
@@ -59,7 +73,7 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          URL=$(vercel deploy --prebuilt --token "$VERCEL_TOKEN")
+          URL=$(vercel deploy --prebuilt --token "$VERCEL_TOKEN" ${{ steps.flags.outputs.flags }})
           echo "url=$URL" >> "$GITHUB_OUTPUT"
 
       - name: Comment PR with Preview URL
