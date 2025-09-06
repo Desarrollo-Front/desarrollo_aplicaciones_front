@@ -1,10 +1,10 @@
 :root {
-  --bg: #ffffff;       /* fondo general blanco */
-  --panel: #f9f9f9;    /* paneles, tarjetas */
-  --muted: #6c757d;    /* textos secundarios gris */
-  --text: #000000;     /* texto principal negro */
-  --line: #e0e0e0;     /* bordes claros */
-  --chip: #e9ecef;     /* chips/filtros */
+  --bg: #ffffff; /* fondo general blanco */
+  --panel: #f9f9f9; /* paneles, tarjetas */
+  --muted: #6c757d; /* textos secundarios gris */
+  --text: #000000; /* texto principal negro */
+  --line: #e0e0e0; /* bordes claros */
+  --chip: #e9ecef; /* chips/filtros */
 }
 
 .pl-wrap {
@@ -62,11 +62,18 @@
 }
 .pl-sel {
   appearance: none;
-  background-image: linear-gradient(45deg, transparent 50%, #000000 50%),
+  background-image:
+    linear-gradient(45deg, transparent 50%, #000000 50%),
     linear-gradient(135deg, #000000 50%, transparent 50%),
     linear-gradient(to right, #ffffff, #ffffff);
-  background-position: calc(100% - 18px) 16px, calc(100% - 12px) 16px, 100% 0;
-  background-size: 6px 6px, 6px 6px, 2.5em 2.5em;
+  background-position:
+    calc(100% - 18px) 16px,
+    calc(100% - 12px) 16px,
+    100% 0;
+  background-size:
+    6px 6px,
+    6px 6px,
+    2.5em 2.5em;
   background-repeat: no-repeat;
 }
 .pl-btn {
@@ -231,83 +238,83 @@
 }
 
 /* Topbar con botón de logout a la derecha */
-.pl-headrow{
-  display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
-  gap:12px;
+.pl-headrow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.pl-head-actions{
-  display:flex;
-  align-items:center;
-  gap:10px;
+.pl-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.pl-user{
+.pl-user {
   color: var(--muted);
   font-size: 14px;
 }
 
 /* Botón rojo para cerrar sesión (sigue tu lenguaje pl-btn) */
-.pl-btn--logout{
+.pl-btn--logout {
   border: 1px solid #dc3545;
   background: #dc3545;
-  color:#fff;
+  color: #fff;
 }
-.pl-btn--logout:hover{
-  background:#c82333;
-  border-color:#bd2130;
+.pl-btn--logout:hover {
+  background: #c82333;
+  border-color: #bd2130;
 }
 
 /* Responsive: que el título y el botón apilen en pantallas chicas */
-@media (max-width: 640px){
-  .pl-headrow{
+@media (max-width: 640px) {
+  .pl-headrow {
     align-items: stretch;
     flex-direction: column;
   }
-  .pl-head-actions{
+  .pl-head-actions {
     justify-content: flex-end;
   }
 }
 /* Para colocar el botón sin mover el título */
-.pl-wrap { position: relative; }
+.pl-wrap {
+  position: relative;
+}
 
-.logout-top{
+.logout-top {
   position: absolute;
-  top: 40px;              /* ajustá si tu título ocupa más/menos */
+  top: 40px; /* ajustá si tu título ocupa más/menos */
   right: 20px;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.pl-user{
+.pl-user {
   color: var(--muted);
   font-size: 14px;
 }
 
 /* Botón rojo coherente */
-.pl-btn--logout{
+.pl-btn--logout {
   border: 1px solid #dc3545;
   background: #dc3545;
-  color:#fff;
+  color: #fff;
 }
-.pl-btn--logout:hover{
-  background:#c82333;
-  border-color:#bd2130;
+.pl-btn--logout:hover {
+  background: #c82333;
+  border-color: #bd2130;
 }
 
 /* En mobile que baje debajo del título para que no se solape */
-@media (max-width: 640px){
-  .logout-top{
+@media (max-width: 640px) {
+  .logout-top {
     position: static;
     margin-top: 6px;
     justify-content: flex-end;
   }
 }
-
-
 
 /* Responsive */
 @media (max-width: 960px) {
@@ -342,7 +349,7 @@
 }
 /* 1) Cuando .pl-inline tiene un único hijo (tu input), que ocupe todo el ancho */
 .pl-inline > *:only-child {
-  grid-column: 1 / -1;    /* se extiende por todas las columnas */
+  grid-column: 1 / -1; /* se extiende por todas las columnas */
 }
 
 /* (opcional) achico un poco el gap general en filtros */
@@ -363,32 +370,35 @@
   background-position:
     right 16px center,
     right 10px center;
-  background-size: 6px 6px, 6px 6px;
+  background-size:
+    6px 6px,
+    6px 6px;
   background-repeat: no-repeat;
 }
 
 /* (opcional) En pantallas chicas el buscador ocupa toda la fila, queda más prolijo */
-@media (max-width: 960px){
+@media (max-width: 960px) {
   .pl-inline > *:only-child {
     grid-column: 1 / -1;
   }
 }
 
 /* Para posicionar el botón sin empujar el título */
-.pd-wrap { position: relative; }
+.pd-wrap {
+  position: relative;
+}
 
-.pd-back{
+.pd-back {
   position: absolute;
   left: 20px;
-  top: -6px;            /* ajustá si querés más/menos arriba */
+  top: -6px; /* ajustá si querés más/menos arriba */
   padding: 0 12px;
 }
 
 /* En pantallas chicas que se apile para no solapar el título */
-@media (max-width: 640px){
-  .pd-back{
+@media (max-width: 640px) {
+  .pd-back {
     position: static;
     margin-bottom: 6px;
   }
 }
-
