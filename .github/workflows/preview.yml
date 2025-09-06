@@ -44,36 +44,52 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: vercel whoami || true
 
-      - name: Pull Vercel Project Settings (preview)
+      - name: Debug token is present
         if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
-        working-directory: ${{ env.APP_PATH }}
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: vercel pull --yes --environment=preview --project ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Build (preview)
-        if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
-        working-directory: ${{ env.APP_PATH }}
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          # agrega tus envs públicas si necesitás
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_PREVIEW }}
-          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL_PREVIEW }}
-        run: vercel build --project ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Deploy (preview)
-        id: deploy
-        if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
-        working-directory: ${{ env.APP_PATH }}
+        shell: bash
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          URL=$(vercel deploy --prebuilt --project ${{ secrets.VERCEL_PROJECT_ID }})
-          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "VERCEL_TOKEN vacío"; exit 1
+          fi
+          echo "VERCEL_TOKEN length: ${#VERCEL_TOKEN}"
+          vercel --version
+          - name: Pull Vercel Project Settings (preview)
+            if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
+            working-directory: ${{ env.APP_PATH }}
+            env:
+              VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+            run: vercel pull --yes --environment=preview \
+              --project ${{ secrets.VERCEL_PROJECT_ID }} \
+              --token "$VERCEL_TOKEN"
 
-      - name: Comment PR with Preview URL
-        if: ${{ steps.deploy.outputs.url != '' }}
-        uses: mshick/add-pr-comment@v2
-        with:
-          message: |
+          - name: Build (preview)
+            if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
+            working-directory: ${{ env.APP_PATH }}
+            env:
+              VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+              VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_PREVIEW }}
+              NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL_PREVIEW }}
+            run: vercel build \
+              --project ${{ secrets.VERCEL_PROJECT_ID }} \
+              --token "$VERCEL_TOKEN"
+
+          - name: Deploy (preview)
+            id: deploy
+            if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
+            working-directory: ${{ env.APP_PATH }}
+            env:
+              VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+            run: |
+              URL=$(vercel deploy --prebuilt \
+                --project ${{ secrets.VERCEL_PROJECT_ID }} \
+                --token "$VERCEL_TOKEN")
+              echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+          - name: Comment PR with Preview URL
+            if: ${{ steps.deploy.outputs.url != '' }}
+            uses: mshick/add-pr-comment@v2
+            with:
+              message: |
             ✅ **Preview listo**: ${{ steps.deploy.outputs.url }}
