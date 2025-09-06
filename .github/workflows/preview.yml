@@ -4,7 +4,6 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-# Evita builds duplicados en el mismo PR/branch
 concurrency:
   group: preview-${{ github.event.pull_request.head.ref }}
   cancel-in-progress: true
@@ -23,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Si no hay package.json, salimos "ok" (repo aún sin front)
+      # Si no hay package.json, salimos "ok"
       - name: Skip (no Node project)
         if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) == '' }}
         run: echo "No package.json found in $APP_PATH. Skipping preview."
@@ -39,41 +38,32 @@ jobs:
         if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
         run: npm i -g vercel@latest
 
-      # Construimos flags opcionales para scope/proyecto si existen los secrets
-      - name: Build Vercel flags
-        id: flags
-        shell: bash
-        run: |
-          FLAGS=""
-          if [ -n "${{ secrets.VERCEL_ORG_ID }}" ]; then FLAGS="$FLAGS --scope ${{ secrets.VERCEL_ORG_ID }}"; fi
-          if [ -n "${{ secrets.VERCEL_PROJECT_ID }}" ]; then FLAGS="$FLAGS --project ${{ secrets.VERCEL_PROJECT_ID }}"; fi
-          echo "flags=$FLAGS" >> "$GITHUB_OUTPUT"
-
       - name: Pull Vercel Project Settings (preview)
         if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
         working-directory: ${{ env.APP_PATH }}
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: vercel pull --yes --environment=preview --token "$VERCEL_TOKEN" ${{ steps.flags.outputs.flags }}
+        run: vercel pull --yes --environment=preview \
+              --token "${{ secrets.VERCEL_TOKEN }}" \
+              --project ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Build (preview)
         if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
         working-directory: ${{ env.APP_PATH }}
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           # agrega aquí tus envs públicas si necesitas:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_PREVIEW }}
           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL_PREVIEW }}
-        run: vercel build --token "$VERCEL_TOKEN" ${{ steps.flags.outputs.flags }}
+        run: vercel build \
+              --token "${{ secrets.VERCEL_TOKEN }}" \
+              --project ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy (preview)
         id: deploy
         if: ${{ hashFiles(format('{0}/package.json', env.APP_PATH)) != '' }}
         working-directory: ${{ env.APP_PATH }}
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          URL=$(vercel deploy --prebuilt --token "$VERCEL_TOKEN" ${{ steps.flags.outputs.flags }})
+          URL=$(vercel deploy --prebuilt \
+                --token "${{ secrets.VERCEL_TOKEN }}" \
+                --project ${{ secrets.VERCEL_PROJECT_ID }})
           echo "url=$URL" >> "$GITHUB_OUTPUT"
 
       - name: Comment PR with Preview URL
