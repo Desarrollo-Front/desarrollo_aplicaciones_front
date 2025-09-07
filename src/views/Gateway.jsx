@@ -33,7 +33,7 @@ export default function Gateway() {
         const authHeader =
           localStorage.getItem("authHeader") ||
           `${localStorage.getItem("tokenType") || "Bearer"} ${localStorage.getItem("token") || ""}`;
-        const res = await fetch(`http://localhost:8080/api/payments/${id}`, {
+        const res = await fetch(`http://3.134.102.20:9090/api/payments/${id}`, {
           headers: { "Content-Type": "application/json", Authorization: authHeader }
         });
         if (!res.ok) throw new Error("No se pudo obtener el pago.");
@@ -80,7 +80,7 @@ export default function Gateway() {
         localStorage.getItem("authHeader") ||
         `${localStorage.getItem("tokenType") || "Bearer"} ${localStorage.getItem("token") || ""}`;
       const paymentMethodType = method === "card" ? "credit_card" : "bank_transfer";
-      const res = await fetch(`http://localhost:8080/api/payments/${payment.id}/confirm`, {
+      const res = await fetch(`http://3.134.102.20:9090/api/payments/${payment.id}/confirm`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: authHeader },
         body: JSON.stringify({
