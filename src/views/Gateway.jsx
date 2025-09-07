@@ -94,7 +94,7 @@ export default function Gateway() {
       const updated = await res.json();
       setPayment(updated);
       setOkMsg("Pago confirmado correctamente.");
-      navigate(`/detalle/${payment.id}`);
+      navigate(`/pagos`);
     } catch (e) {
       setError(e.message || "Error al confirmar el pago.");
     } finally {

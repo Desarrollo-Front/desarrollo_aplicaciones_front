@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Pagos-Lista.css";
 
 const METODOS = ["Todos los métodos", "Tarjeta crédito", "Tarjeta débito", "Billetera"];
-const ESTADOS_CHIPS = ["Pendiente","Aprobado","Rechazado","Disputa","Reembolsado","Expirado","Crédito","Débito","Billetera"];
+const ESTADOS_CHIPS = ["Pendiente","Aprobado","Rechazado","Crédito","Débito","Billetera"];
 
 const money = (n, curr = "ARS", locale = "es-AR") =>
   new Intl.NumberFormat(locale, { style: "currency", currency: curr }).format(n);
@@ -52,13 +52,13 @@ export default function PagosLista() {
   const [loading, setLoading] = useState(true);
   const [fetchErr, setFetchErr] = useState("");
 
-  
   const authRole =
     (JSON.parse(localStorage.getItem("auth") || "{}").role ||
       localStorage.getItem("role") ||
       "USER").toUpperCase();
 
-  
+  const isMerchant = authRole === "MERCHANT";
+
   const searchBy = authRole === "MERCHANT" ? "Cliente" : authRole === "USER" ? "Prestador" : "Cliente";
 
   const [query, setQuery] = useState("");
@@ -126,7 +126,6 @@ export default function PagosLista() {
     fetchPayments();
   }, []);
 
-  
   const pagos = useMemo(() => {
     let arr = [...serverData];
 
@@ -169,7 +168,7 @@ export default function PagosLista() {
       .map((r) => r.map((v) => {
         const s = String(v ?? "");
         return s.includes(",") || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
-      }).join(",")).
+      }).join(",")). 
       join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -186,13 +185,10 @@ export default function PagosLista() {
         <button className="pl-btn pl-btn--logout" onClick={handleLogout}>Cerrar sesión</button>
       </div>
 
-     
       <section className="pl-filters">
         <div className="pl-field">
-          
           <label>Buscar por {searchBy.toLowerCase()}</label>
           <div className="pl-inline">
-            
             <input
               className="pl-input"
               placeholder={`Buscar por ${searchBy.toLowerCase()}...`}
@@ -235,14 +231,12 @@ export default function PagosLista() {
         </div>
       </section>
 
-      
       <div className="pl-chips">
         {ESTADOS_CHIPS.map((e) => (
           <Chip key={e} active={chips.has(e)} onClick={() => toggleChip(e)}>{e}</Chip>
         ))}
       </div>
 
-      
       <section className="table-card">
         <table>
           <thead>
@@ -273,7 +267,9 @@ export default function PagosLista() {
                     </div>
                   </td>
                   <td>
-                    {p.estado === "Pendiente" ? (
+                    {isMerchant ? (
+                      <button className="pl-btn pl-btn--ghost" onClick={() => navigate(`/detalle/${p.id}`)}>Ver</button>
+                    ) : p.estado === "Pendiente" ? (
                       <button className="pl-btn pl-btn--pagar" onClick={() => navigate(`/pago/${p.id}`)}>Pagar</button>
                     ) : (
                       <button className="pl-btn pl-btn--ghost" onClick={() => navigate(`/detalle/${p.id}`)}>Ver</button>
