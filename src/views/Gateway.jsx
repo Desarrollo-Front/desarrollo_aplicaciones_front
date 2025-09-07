@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import "./Gateway.css";
+import visaLogo from "../assets/logos/Visa.png";
+import mcLogo from "../assets/logos/mastercard.png";
+import amexLogo from "../assets/logos/amex.png";
+import mpLogo from "../assets/logos/mercadopago.png";
 
 export default function Gateway() {
   const { id } = useParams();
@@ -77,7 +81,7 @@ export default function Gateway() {
         `${localStorage.getItem("tokenType") || "Bearer"} ${localStorage.getItem("token") || ""}`;
       const paymentMethodType = method === "card" ? "credit_card" : "bank_transfer";
       const res = await fetch(`http://localhost:8080/api/payments/${payment.id}/confirm`, {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: authHeader },
         body: JSON.stringify({
           paymentMethodType,
@@ -113,10 +117,9 @@ export default function Gateway() {
               <input type="radio" name="method" checked={method === "card"} onChange={() => onSelectMethod("card")} />
               <div className="gw-option-main">
                 <div className="gw-option-logos">
-                  <span className="gw-logo gw-visa" />
-                  <span className="gw-logo gw-master" />
-                  <span className="gw-logo gw-amex" />
-                  <span className="gw-logo gw-logo-card" />
+                  <img src={visaLogo} alt="Visa" className="gw-logo-img" />
+                  <img src={mcLogo} alt="Mastercard" className="gw-logo-img" />
+                  <img src={amexLogo} alt="American Express" className="gw-logo-img" />
                 </div>
                 <div className="gw-option-texts">
                   <div className="gw-ttl">Tarjetas de crédito y débito</div>
@@ -131,7 +134,7 @@ export default function Gateway() {
               <input type="radio" name="method" checked={method === "mp"} onChange={() => onSelectMethod("mp")} />
               <div className="gw-option-main">
                 <div className="gw-option-logos">
-                  <span className="gw-logo gw-mp" />
+                  <img src={mpLogo} alt="MercadoPago" className="gw-logo-gw-logo-img gw-logo-mp" />
                 </div>
                 <div className="gw-option-texts">
                   <div className="gw-ttl">MercadoPago</div>

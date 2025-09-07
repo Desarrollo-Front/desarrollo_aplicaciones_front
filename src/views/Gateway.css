@@ -139,3 +139,13 @@
 
 .gw-logo-card{background:#f3f4f6}
 .gw-sub-strong{color:#111;font-weight:600}
+.gw-logo-img {
+  display: inline-block;
+  height: 24px;  /* ajustá según el tamaño real */
+  width: auto;
+  object-fit: contain;
+}
+
+.gw-logo-mp {
+  height: 32px; /* más alto que las tarjetas */
+}
