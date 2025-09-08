@@ -14,29 +14,52 @@ export default function Gateway() {
   const [method, setMethod] = useState(null);
   const [showCardModal, setShowCardModal] = useState(false);
   const [cardMask, setCardMask] = useState("");
-  const [payment, setPayment] = useState(state ? {
-    id: state.id,
-    currency: state.currency,
-    amount_subtotal: state.subtotal,
-    taxes: state.taxesAndFees ?? 0,
-    fees: 0,
-    amount_total: state.total
-  } : null);
+  const [payment, setPayment] = useState(
+    state
+      ? {
+          id: state.id,
+          currency: state.currency,
+          amount_subtotal: state.subtotal,
+          taxes: state.taxesAndFees ?? 0,
+          fees: 0,
+          amount_total: state.total
+        }
+      : null
+  );
   const [loading, setLoading] = useState(!state);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
   const [okMsg, setOkMsg] = useState("");
+  const [cardData, setCardData] = useState(null);
+
+  const api = (path, opts = {}) => {
+    const authHeader =
+      localStorage.getItem("authHeader") ||
+      `${localStorage.getItem("tokenType") || "Bearer"} ${localStorage.getItem("token") || ""}`;
+    const base = "http://localhost:8080";
+    return fetch(`${base}${path}`, {
+      headers: { "Content-Type": "application/json", Authorization: authHeader, ...(opts.headers || {}) },
+      ...opts
+    });
+  };
+
+  const fetchJsonOrText = async (res) => {
+    const ct = res.headers.get("content-type") || "";
+    if (ct.includes("application/json")) {
+      try {
+        return await res.json();
+      } catch {
+        return await res.text();
+      }
+    }
+    return await res.text();
+  };
 
   useEffect(() => {
     const fetchPayment = async () => {
       try {
-        const authHeader =
-          localStorage.getItem("authHeader") ||
-          `${localStorage.getItem("tokenType") || "Bearer"} ${localStorage.getItem("token") || ""}`;
-        const res = await fetch(`http://3.134.102.20:9090/api/payments/${id}`, {
-          headers: { "Content-Type": "application/json", Authorization: authHeader }
-        });
-        if (!res.ok) throw new Error("No se pudo obtener el pago.");
+        const res = await api(`/api/payments/${id}`);
+        if (!res.ok) throw new Error((await fetchJsonOrText(res)) || "No se pudo obtener el pago.");
         const p = await res.json();
         setPayment(p);
       } catch (e) {
@@ -66,37 +89,66 @@ export default function Gateway() {
     if (m === "card") setShowCardModal(true);
   };
 
+  const setPaymentMethod = async (paymentId, type) => {
+    const body =
+      type === "CREDIT_CARD" || type === "DEBIT_CARD"
+        ? {
+            paymentMethodType: type,
+            cardNumber: cardData?.cardNumber,
+            cardHolderName: cardData?.cardHolderName,
+            expirationMonth: cardData?.expirationMonth,
+            expirationYear: cardData?.expirationYear,
+            cvv: cardData?.cvv
+          }
+        : { paymentMethodType: "MERCADO_PAGO" };
+
+    const res = await api(`/api/payments/${paymentId}/payment-method`, {
+      method: "PUT",
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const msg = res.headers.get("Error-Message") || (await fetchJsonOrText(res));
+      throw new Error(msg || "No se pudo asignar el método de pago.");
+    }
+    return res.json();
+  };
+
   const comprar = async () => {
     if (!method) {
       alert("Elegí un método de pago.");
       return;
     }
     if (!payment) return;
+
     setProcessing(true);
     setError("");
     setOkMsg("");
+
     try {
-      const authHeader =
-        localStorage.getItem("authHeader") ||
-        `${localStorage.getItem("tokenType") || "Bearer"} ${localStorage.getItem("token") || ""}`;
-      const paymentMethodType = method === "card" ? "credit_card" : "bank_transfer";
-      const res = await fetch(`http://3.134.102.20:9090/api/payments/${payment.id}/confirm`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: authHeader },
-        body: JSON.stringify({
-          paymentMethodType,
-          paymentMethodId: method === "card" ? "pm_demo" : "mp_transfer",
-          captureImmediately: true,
-          metadata: "{}"
-        })
-      });
-      if (!res.ok) throw new Error("No se pudo confirmar el pago.");
-      const updated = await res.json();
+      const type =
+        method === "card"
+          ? cardData?.kind === "debit"
+            ? "DEBIT_CARD"
+            : "CREDIT_CARD"
+          : "MERCADO_PAGO";
+
+      if ((type === "CREDIT_CARD" || type === "DEBIT_CARD") && !cardData) throw new Error("Falta completar la tarjeta.");
+
+      await setPaymentMethod(payment.id, type);
+
+      const res2 = await api(`/api/payments/${payment.id}/confirm`, { method: "PUT" });
+      if (!res2.ok) {
+        const serverMsg = res2.headers.get("Error-Message");
+        const fallback = await fetchJsonOrText(res2);
+        throw new Error(serverMsg || fallback || "No se pudo confirmar el pago.");
+      }
+
+      const updated = await res2.json();
       setPayment(updated);
       setOkMsg("Pago confirmado correctamente.");
       navigate(`/pagos`);
     } catch (e) {
-      setError(e.message || "Error al confirmar el pago.");
+      setError(e.message || "Error al procesar el pago.");
     } finally {
       setProcessing(false);
     }
@@ -123,9 +175,7 @@ export default function Gateway() {
                 </div>
                 <div className="gw-option-texts">
                   <div className="gw-ttl">Tarjetas de crédito y débito</div>
-                  <div className={`gw-sub ${cardMask ? "gw-sub-strong" : ""}`}>
-                    {cardMask || "Visa, Mastercard, American Express y más…"}
-                  </div>
+                  <div className={`gw-sub ${cardMask ? "gw-sub-strong" : ""}`}>{cardMask || "Visa, Mastercard, American Express y más…"}</div>
                 </div>
               </div>
             </label>
@@ -134,11 +184,11 @@ export default function Gateway() {
               <input type="radio" name="method" checked={method === "mp"} onChange={() => onSelectMethod("mp")} />
               <div className="gw-option-main">
                 <div className="gw-option-logos">
-                  <img src={mpLogo} alt="MercadoPago" className="gw-logo-gw-logo-img gw-logo-mp" />
+                  <img src={mpLogo} alt="MercadoPago" className="gw-logo-img gw-logo-mp" />
                 </div>
                 <div className="gw-option-texts">
                   <div className="gw-ttl">MercadoPago</div>
-                  <div className="gw-sub">Pagá con tarjeta, transferencia o saldo en cuenta.</div>
+                  <div className="gw-sub">Pagá con billetera, saldo o QR.</div>
                 </div>
               </div>
             </label>
@@ -169,6 +219,15 @@ export default function Gateway() {
             const last4 = digits.slice(-4).padStart(4, "•");
             const mask = `•••• •••• •••• ${last4}`;
             setCardMask(mask);
+            const [mm, yy] = (form.exp || "").split("/");
+            setCardData({
+              kind: form.kind,
+              cardNumber: digits,
+              cardHolderName: form.name.trim(),
+              expirationMonth: Number(mm),
+              expirationYear: 2000 + Number(yy),
+              cvv: form.cvv.trim()
+            });
             setShowCardModal(false);
           }}
         />
@@ -178,7 +237,15 @@ export default function Gateway() {
 }
 
 function CardModal({ onClose, onContinue, currency }) {
-  const [form, setForm] = useState({ number: "", name: "", exp: "", cvv: "", docType: "DNI", doc: "" });
+  const [form, setForm] = useState({
+    kind: "credit",
+    number: "",
+    name: "",
+    exp: "",
+    cvv: "",
+    docType: "DNI",
+    doc: ""
+  });
   const [valid, setValid] = useState(false);
 
   useEffect(() => {
@@ -202,12 +269,20 @@ function CardModal({ onClose, onContinue, currency }) {
         <header className="gw-modal-h">
           <div className="gw-modal-ttl">
             <span className="gw-logo gw-logo-card" />
-            <b>Nueva tarjeta de crédito</b>
+            <b>Nueva tarjeta</b>
           </div>
           <button className="pl-btn pl-btn--ghost" onClick={onClose}>Cerrar</button>
         </header>
 
         <div className="gw-fields">
+          <label className="gw-field">
+            <span>Tipo de tarjeta</span>
+            <select className="pl-input" name="kind" value={form.kind} onChange={onChange}>
+              <option value="credit">Crédito</option>
+              <option value="debit">Débito</option>
+            </select>
+          </label>
+
           <label className="gw-field">
             <span>Número de tarjeta</span>
             <input className="pl-input" name="number" placeholder="1234 1234 1234 1234" value={form.number} onChange={onChange} inputMode="numeric" autoFocus />
