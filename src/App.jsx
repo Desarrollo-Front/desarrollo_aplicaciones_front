@@ -7,7 +7,6 @@ import Gateway from "./views/Gateway";
 const Placeholder = ({ title }) => <div style={{ padding: 24 }}>{title}</div>;
 import "./App.css";
 
-
 export default function App() {
   return (
     <BrowserRouter>

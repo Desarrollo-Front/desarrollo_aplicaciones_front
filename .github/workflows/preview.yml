@@ -5,7 +5,7 @@ on:
     types: [opened, synchronize, reopened]
 
 env:
-  APP_PATH: "."   # Cambia a "frontend" si tu app vive ahí
+  APP_PATH: "." # Cambia a "frontend" si tu app vive ahí
 
 jobs:
   preview:
@@ -68,4 +68,3 @@ jobs:
         with:
           message: |
             ✅ **Preview listo**: ${{ steps.deploy.outputs.url }}
-

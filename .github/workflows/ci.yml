@@ -36,4 +36,3 @@ jobs:
       - name: Build project
         if: ${{ hashFiles('package.json') != '' }}
         run: npm run build --if-present
-

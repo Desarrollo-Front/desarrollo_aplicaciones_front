@@ -22,9 +22,9 @@ export default function Gateway() {
           amount_subtotal: state.subtotal,
           taxes: state.taxesAndFees ?? 0,
           fees: 0,
-          amount_total: state.total
+          amount_total: state.total,
         }
-      : null
+      : null,
   );
   const [loading, setLoading] = useState(!state);
   const [processing, setProcessing] = useState(false);
@@ -38,8 +38,12 @@ export default function Gateway() {
       `${localStorage.getItem("tokenType") || "Bearer"} ${localStorage.getItem("token") || ""}`;
     const base = "http://localhost:8080";
     return fetch(`${base}${path}`, {
-      headers: { "Content-Type": "application/json", Authorization: authHeader, ...(opts.headers || {}) },
-      ...opts
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authHeader,
+        ...(opts.headers || {}),
+      },
+      ...opts,
     });
   };
 
@@ -59,7 +63,10 @@ export default function Gateway() {
     const fetchPayment = async () => {
       try {
         const res = await api(`/api/payments/${id}`);
-        if (!res.ok) throw new Error((await fetchJsonOrText(res)) || "No se pudo obtener el pago.");
+        if (!res.ok)
+          throw new Error(
+            (await fetchJsonOrText(res)) || "No se pudo obtener el pago.",
+          );
         const p = await res.json();
         setPayment(p);
       } catch (e) {
@@ -72,7 +79,9 @@ export default function Gateway() {
   }, [id]);
 
   const money = (n, curr = "ARS", locale = "es-AR") =>
-    new Intl.NumberFormat(locale, { style: "currency", currency: curr }).format(Number(n || 0));
+    new Intl.NumberFormat(locale, { style: "currency", currency: curr }).format(
+      Number(n || 0),
+    );
 
   const resumen = useMemo(() => {
     if (!payment) return null;
@@ -81,7 +90,12 @@ export default function Gateway() {
     const taxes = Number(payment.taxes || 0);
     const fees = Number(payment.fees || 0);
     const total = Number(payment.amount_total || subtotal + taxes + fees);
-    return { subtotalFmt: money(subtotal, currency), taxesFmt: money(taxes + fees, currency), totalFmt: money(total, currency), currency };
+    return {
+      subtotalFmt: money(subtotal, currency),
+      taxesFmt: money(taxes + fees, currency),
+      totalFmt: money(total, currency),
+      currency,
+    };
   }, [payment]);
 
   const onSelectMethod = (m) => {
@@ -98,16 +112,17 @@ export default function Gateway() {
             cardHolderName: cardData?.cardHolderName,
             expirationMonth: cardData?.expirationMonth,
             expirationYear: cardData?.expirationYear,
-            cvv: cardData?.cvv
+            cvv: cardData?.cvv,
           }
         : { paymentMethodType: "MERCADO_PAGO" };
 
     const res = await api(`/api/payments/${paymentId}/payment-method`, {
       method: "PUT",
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
     if (!res.ok) {
-      const msg = res.headers.get("Error-Message") || (await fetchJsonOrText(res));
+      const msg =
+        res.headers.get("Error-Message") || (await fetchJsonOrText(res));
       throw new Error(msg || "No se pudo asignar el método de pago.");
     }
     return res.json();
@@ -132,15 +147,20 @@ export default function Gateway() {
             : "CREDIT_CARD"
           : "MERCADO_PAGO";
 
-      if ((type === "CREDIT_CARD" || type === "DEBIT_CARD") && !cardData) throw new Error("Falta completar la tarjeta.");
+      if ((type === "CREDIT_CARD" || type === "DEBIT_CARD") && !cardData)
+        throw new Error("Falta completar la tarjeta.");
 
       await setPaymentMethod(payment.id, type);
 
-      const res2 = await api(`/api/payments/${payment.id}/confirm`, { method: "PUT" });
+      const res2 = await api(`/api/payments/${payment.id}/confirm`, {
+        method: "PUT",
+      });
       if (!res2.ok) {
         const serverMsg = res2.headers.get("Error-Message");
         const fallback = await fetchJsonOrText(res2);
-        throw new Error(serverMsg || fallback || "No se pudo confirmar el pago.");
+        throw new Error(
+          serverMsg || fallback || "No se pudo confirmar el pago.",
+        );
       }
 
       const updated = await res2.json();
@@ -156,7 +176,12 @@ export default function Gateway() {
 
   return (
     <div className="pl-wrap gw-wrap">
-      <button className="pl-btn pl-btn--ghost gw-back" onClick={() => navigate("/pagos")}>← Volver</button>
+      <button
+        className="pl-btn pl-btn--ghost gw-back"
+        onClick={() => navigate("/pagos")}
+      >
+        ← Volver
+      </button>
       <h1 className="pl-title gw-title">Medio de pago</h1>
 
       {okMsg && <div className="gw-banner ok">{okMsg}</div>}
@@ -166,25 +191,45 @@ export default function Gateway() {
         <aside className="gw-card">
           <div className="gw-list">
             <label className={`gw-option ${method === "card" ? "is-on" : ""}`}>
-              <input type="radio" name="method" checked={method === "card"} onChange={() => onSelectMethod("card")} />
+              <input
+                type="radio"
+                name="method"
+                checked={method === "card"}
+                onChange={() => onSelectMethod("card")}
+              />
               <div className="gw-option-main">
                 <div className="gw-option-logos">
                   <img src={visaLogo} alt="Visa" className="gw-logo-img" />
                   <img src={mcLogo} alt="Mastercard" className="gw-logo-img" />
-                  <img src={amexLogo} alt="American Express" className="gw-logo-img" />
+                  <img
+                    src={amexLogo}
+                    alt="American Express"
+                    className="gw-logo-img"
+                  />
                 </div>
                 <div className="gw-option-texts">
                   <div className="gw-ttl">Tarjetas de crédito y débito</div>
-                  <div className={`gw-sub ${cardMask ? "gw-sub-strong" : ""}`}>{cardMask || "Visa, Mastercard, American Express y más…"}</div>
+                  <div className={`gw-sub ${cardMask ? "gw-sub-strong" : ""}`}>
+                    {cardMask || "Visa, Mastercard, American Express y más…"}
+                  </div>
                 </div>
               </div>
             </label>
 
             <label className={`gw-option ${method === "mp" ? "is-on" : ""}`}>
-              <input type="radio" name="method" checked={method === "mp"} onChange={() => onSelectMethod("mp")} />
+              <input
+                type="radio"
+                name="method"
+                checked={method === "mp"}
+                onChange={() => onSelectMethod("mp")}
+              />
               <div className="gw-option-main">
                 <div className="gw-option-logos">
-                  <img src={mpLogo} alt="MercadoPago" className="gw-logo-img gw-logo-mp" />
+                  <img
+                    src={mpLogo}
+                    alt="MercadoPago"
+                    className="gw-logo-img gw-logo-mp"
+                  />
                 </div>
                 <div className="gw-option-texts">
                   <div className="gw-ttl">MercadoPago</div>
@@ -201,10 +246,25 @@ export default function Gateway() {
           {!loading && error && <div className="gw-empty">{error}</div>}
           {!loading && !error && resumen && (
             <>
-              <div className="gw-sum-row"><span>Subtotal</span><b>{resumen.subtotalFmt}</b></div>
-              <div className="gw-sum-row"><span>Impuestos y cargos</span><b>{resumen.taxesFmt}</b></div>
-              <div className="gw-sum-row gw-sum-total"><span>Total</span><b>{resumen.totalFmt}</b></div>
-              <button className="pl-btn pl-btn--ver gw-buy" onClick={comprar} disabled={processing}>{processing ? "Procesando…" : "Comprar"}</button>
+              <div className="gw-sum-row">
+                <span>Subtotal</span>
+                <b>{resumen.subtotalFmt}</b>
+              </div>
+              <div className="gw-sum-row">
+                <span>Impuestos y cargos</span>
+                <b>{resumen.taxesFmt}</b>
+              </div>
+              <div className="gw-sum-row gw-sum-total">
+                <span>Total</span>
+                <b>{resumen.totalFmt}</b>
+              </div>
+              <button
+                className="pl-btn pl-btn--ver gw-buy"
+                onClick={comprar}
+                disabled={processing}
+              >
+                {processing ? "Procesando…" : "Comprar"}
+              </button>
             </>
           )}
         </aside>
@@ -226,7 +286,7 @@ export default function Gateway() {
               cardHolderName: form.name.trim(),
               expirationMonth: Number(mm),
               expirationYear: 2000 + Number(yy),
-              cvv: form.cvv.trim()
+              cvv: form.cvv.trim(),
             });
             setShowCardModal(false);
           }}
@@ -244,7 +304,7 @@ function CardModal({ onClose, onContinue, currency }) {
     exp: "",
     cvv: "",
     docType: "DNI",
-    doc: ""
+    doc: "",
   });
   const [valid, setValid] = useState(false);
 
@@ -271,13 +331,20 @@ function CardModal({ onClose, onContinue, currency }) {
             <span className="gw-logo gw-logo-card" />
             <b>Nueva tarjeta</b>
           </div>
-          <button className="pl-btn pl-btn--ghost" onClick={onClose}>Cerrar</button>
+          <button className="pl-btn pl-btn--ghost" onClick={onClose}>
+            Cerrar
+          </button>
         </header>
 
         <div className="gw-fields">
           <label className="gw-field">
             <span>Tipo de tarjeta</span>
-            <select className="pl-input" name="kind" value={form.kind} onChange={onChange}>
+            <select
+              className="pl-input"
+              name="kind"
+              value={form.kind}
+              onChange={onChange}
+            >
               <option value="credit">Crédito</option>
               <option value="debit">Débito</option>
             </select>
@@ -285,30 +352,64 @@ function CardModal({ onClose, onContinue, currency }) {
 
           <label className="gw-field">
             <span>Número de tarjeta</span>
-            <input className="pl-input" name="number" placeholder="1234 1234 1234 1234" value={form.number} onChange={onChange} inputMode="numeric" autoFocus />
+            <input
+              className="pl-input"
+              name="number"
+              placeholder="1234 1234 1234 1234"
+              value={form.number}
+              onChange={onChange}
+              inputMode="numeric"
+              autoFocus
+            />
           </label>
 
           <label className="gw-field">
             <span>Nombre del titular</span>
-            <input className="pl-input" name="name" placeholder="Ej.: María López" value={form.name} onChange={onChange} />
+            <input
+              className="pl-input"
+              name="name"
+              placeholder="Ej.: María López"
+              value={form.name}
+              onChange={onChange}
+            />
           </label>
 
           <div className="gw-row">
             <label className="gw-field">
               <span>Vencimiento</span>
-              <input className="pl-input" name="exp" placeholder="MM/AA" value={form.exp} onChange={onChange} maxLength={5} />
+              <input
+                className="pl-input"
+                name="exp"
+                placeholder="MM/AA"
+                value={form.exp}
+                onChange={onChange}
+                maxLength={5}
+              />
             </label>
 
             <label className="gw-field">
               <span>Código de seguridad</span>
-              <input className="pl-input" name="cvv" placeholder="Ej.: 123" value={form.cvv} onChange={onChange} maxLength={4} inputMode="numeric" />
+              <input
+                className="pl-input"
+                name="cvv"
+                placeholder="Ej.: 123"
+                value={form.cvv}
+                onChange={onChange}
+                maxLength={4}
+                inputMode="numeric"
+              />
             </label>
           </div>
 
           <div className="gw-row">
             <label className="gw-field">
               <span>Documento del titular</span>
-              <select className="pl-input" name="docType" value={form.docType} onChange={onChange}>
+              <select
+                className="pl-input"
+                name="docType"
+                value={form.docType}
+                onChange={onChange}
+              >
                 <option>DNI</option>
                 <option>CUIL</option>
                 <option>CUIT</option>
@@ -317,15 +418,29 @@ function CardModal({ onClose, onContinue, currency }) {
             </label>
             <label className="gw-field">
               <span>&nbsp;</span>
-              <input className="pl-input" name="doc" placeholder="99.999.999" value={form.doc} onChange={onChange} />
+              <input
+                className="pl-input"
+                name="doc"
+                placeholder="99.999.999"
+                value={form.doc}
+                onChange={onChange}
+              />
             </label>
           </div>
         </div>
 
         <div className="gw-modal-actions">
-          <button className="pl-btn pl-btn--ver" onClick={() => onContinue(form)} disabled={!valid}>Continuar</button>
+          <button
+            className="pl-btn pl-btn--ver"
+            onClick={() => onContinue(form)}
+            disabled={!valid}
+          >
+            Continuar
+          </button>
         </div>
-        <small className="gw-help">Se realizará una verificación de tarjeta. Moneda: {currency}</small>
+        <small className="gw-help">
+          Se realizará una verificación de tarjeta. Moneda: {currency}
+        </small>
       </div>
     </div>
   );
