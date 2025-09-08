@@ -5,6 +5,7 @@ import Login from './views/Login';
 const Placeholder = ({ title }) => <div style={{ padding: 24 }}>{title}</div>;
 import './App.css';
 
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -14,6 +15,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/pagos" element={<PagosLista />} />
           <Route path="/detalle/:id" element={<PagosDetalle />} />
+          <Route path="/pago/:id" element={<Gateway />} />
         </Routes>
       </main>
     </BrowserRouter>

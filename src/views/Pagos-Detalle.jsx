@@ -119,9 +119,7 @@ export default function PagosDetalle() {
         Resumen, datos fiscales &amp; referencia, timeline, comprobantes y reembolsos.
       </p>
 
-      {/* Tarjetas superiores */}
       <section className="pd-grid">
-        {/* Resumen */}
         <article className="pd-card">
           <header className="pd-card-h">Resumen</header>
           <div className="pd-kv">
@@ -188,7 +186,6 @@ export default function PagosDetalle() {
           </div>
         </article>
 
-        {/* Datos fiscales & referencia */}
         <article className="pd-card">
           <header className="pd-card-h">Datos fiscales &amp; referencia</header>
           <div className="pd-kv">
@@ -227,7 +224,6 @@ export default function PagosDetalle() {
           </div>
         </article>
 
-        {/* Comprobantes */}
         <article className="pd-card">
           <header className="pd-card-h">Comprobantes</header>
 
@@ -238,7 +234,9 @@ export default function PagosDetalle() {
               </div>
               <Badge kind={pago.factura.estado}>{pago.factura.estado}</Badge>
             </div>
-            <small className="pd-muted">Emitida: {fechaHora(pago.factura.emitidaISO)}</small>
+            <small className="pd-muted">
+              Emitida: {fechaHora(pago.factura.emitidaISO)}
+            </small>
             <div className="pd-doc-actions">
               <button className="pd-btn pd-btn--ghost">Ver PDF</button>
               <button className="pd-btn">Descargar</button>
@@ -261,7 +259,6 @@ export default function PagosDetalle() {
         </article>
       </section>
 
-      {/* Reembolsos */}
       <section className="pd-card pd-refunds">
         <header className="pd-card-h">Reembolsos</header>
         <table className="pd-tbl">
@@ -299,7 +296,6 @@ export default function PagosDetalle() {
         </table>
       </section>
 
-      {/* Timeline */}
       <section className="pd-timeline">
         <header className="pd-card-h">Timeline</header>
         <ul className="pd-time">
@@ -315,7 +311,6 @@ export default function PagosDetalle() {
         </ul>
       </section>
 
-      {/* Modal Reembolso */}
       {showRefund && (
         <div className="pd-modal-overlay" role="dialog" aria-modal="true">
           <form className="pd-modal" onSubmit={confirmarReembolso}>

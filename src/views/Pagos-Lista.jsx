@@ -141,7 +141,6 @@ export default function PagosLista() {
     fetchPayments();
   }, []);
 
-  // filtros sobre serverData usando 'searchBy'
   const pagos = useMemo(() => {
     let arr = [...serverData];
 
@@ -163,8 +162,8 @@ export default function PagosLista() {
 
     if (desde) arr = arr.filter((p) => new Date(p.fechaISO) >= new Date(desde + 'T00:00:00'));
     if (hasta) arr = arr.filter((p) => new Date(p.fechaISO) <= new Date(hasta + 'T23:59:59'));
-
-    if (chips.size) arr = arr.filter((p) => chips.has(p.estado) || chips.has(p.metodo));
+    if (chips.size)
+      arr = arr.filter((p) => chips.has(p.estado) || chips.has(p.metodo));
 
     arr.sort((a, b) => {
       if (orden.startsWith('Fecha')) {
@@ -240,13 +239,10 @@ export default function PagosLista() {
         </button>
       </div>
 
-      {/* Filtros */}
       <section className="pl-filters">
         <div className="pl-field">
-          {/* 🔎 label y placeholder cambian según el role */}
           <label>Buscar por {searchBy.toLowerCase()}</label>
           <div className="pl-inline">
-            {/* Eliminamos el select; mantenemos la estructura/pl-inline para no tocar CSS */}
             <input
               className="pl-input"
               placeholder={`Buscar por ${searchBy.toLowerCase()}...`}
@@ -287,7 +283,11 @@ export default function PagosLista() {
 
         <div className="pl-field">
           <label>Orden</label>
-          <select className="pl-sel" value={orden} onChange={(e) => setOrden(e.target.value)}>
+          <select
+            className="pl-sel"
+            value={orden}
+            onChange={(e) => setOrden(e.target.value)}
+          >
             <option>Fecha ⬇</option>
             <option>Fecha ⬆</option>
             <option>Monto ⬇</option>
@@ -303,7 +303,6 @@ export default function PagosLista() {
         </div>
       </section>
 
-      {/* Chips */}
       <div className="pl-chips">
         {ESTADOS_CHIPS.map((e) => (
           <Chip key={e} active={chips.has(e)} onClick={() => toggleChip(e)}>
@@ -312,7 +311,6 @@ export default function PagosLista() {
         ))}
       </div>
 
-      {/* Tabla */}
       <section className="table-card">
         <table>
           <thead>
