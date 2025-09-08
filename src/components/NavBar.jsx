@@ -1,8 +1,9 @@
-import { NavLink } from "react-router-dom";
-import "./NavBar.css";
+import { NavLink } from 'react-router-dom';
+import './NavBar.css';
 
 export default function NavBar() {
-  const items = [{ to: "/pagos", label: "Pagos" }];
+  const items = [{ to: '/pagos', label: 'Pagos' }];
+
 
   return (
     <nav className="navbar">
@@ -12,9 +13,7 @@ export default function NavBar() {
             <li key={item.to}>
               <NavLink
                 to={item.to}
-                className={({ isActive }) =>
-                  isActive ? "nav-link active" : "nav-link"
-                }
+                className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
               >
                 <span className="label">{item.label}</span>
               </NavLink>

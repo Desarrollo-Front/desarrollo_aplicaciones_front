@@ -1,77 +1,61 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "./Pagos-Lista.css";
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './Pagos-Lista.css';
 
-const METODOS = [
-  "Todos los métodos",
-  "Tarjeta crédito",
-  "Tarjeta débito",
-  "Billetera",
-];
+const METODOS = ['Todos los métodos', 'Tarjeta crédito', 'Tarjeta débito', 'Billetera'];
 const ESTADOS_CHIPS = [
-  "Pendiente",
-  "Aprobado",
-  "Rechazado",
-  "Crédito",
-  "Débito",
-  "Billetera",
+  'Pendiente',
+  'Aprobado',
+  'Rechazado',
+  'Disputa',
+  'Reembolsado',
+  'Expirado',
+  'Crédito',
+  'Débito',
+  'Billetera',
 ];
 
-const money = (n, curr = "ARS", locale = "es-AR") =>
-  new Intl.NumberFormat(locale, { style: "currency", currency: curr }).format(
-    n,
-  );
+const money = (n, curr = 'ARS', locale = 'es-AR') =>
+  new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(n);
 
-const fechaFmt = (iso, locale = "es-AR") => {
+const fechaFmt = (iso, locale = 'es-AR') => {
   const d = new Date(iso);
-  const fecha = d.toLocaleDateString(locale, {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-  const hora = d.toLocaleTimeString(locale, {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const fecha = d.toLocaleDateString(locale, { year: 'numeric', month: '2-digit', day: '2-digit' });
+  const hora = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
   return { fecha, hora };
 };
 
 function Badge({ kind, children }) {
-  const key = (kind || "")
+  const key = (kind || '')
     .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "");
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '');
   return <span className={`pl-badge pl-badge--${key}`}>{children}</span>;
 }
 function Chip({ active, onClick, children }) {
   return (
-    <button
-      type="button"
-      className={`pl-chip ${active ? "is-on" : ""}`}
-      onClick={onClick}
-    >
+    <button type="button" className={`pl-chip ${active ? 'is-on' : ''}`} onClick={onClick}>
       {children}
     </button>
   );
 }
 
 const mapStatus = (s) => {
-  const t = String(s || "").toUpperCase();
-  if (t === "PENDING") return "Pendiente";
-  if (t === "APPROVED" || t === "CAPTURED") return "Aprobado";
-  if (t === "REJECTED" || t === "FAILED") return "Rechazado";
-  if (t === "EXPIRED") return "Expirado";
-  if (t === "REFUNDED") return "Reembolsado";
-  if (t === "DISPUTE" || t === "DISPUTED") return "Disputa";
-  return "Pendiente";
+  const t = String(s || '').toUpperCase();
+  if (t === 'PENDING') return 'Pendiente';
+  if (t === 'APPROVED' || t === 'CAPTURED') return 'Aprobado';
+  if (t === 'REJECTED' || t === 'FAILED') return 'Rechazado';
+  if (t === 'EXPIRED') return 'Expirado';
+  if (t === 'REFUNDED') return 'Reembolsado';
+  if (t === 'DISPUTE' || t === 'DISPUTED') return 'Disputa';
+  return 'Pendiente';
 };
 const normalizeMetodo = (m) => {
-  const val = String(m || "").toLowerCase();
-  if (["credito", "credit", "tarjeta credito"].includes(val)) return "Crédito";
-  if (["debito", "debit", "tarjeta debito"].includes(val)) return "Débito";
-  if (["billetera", "wallet", "mp", "mercadopago"].includes(val))
-    return "Billetera";
-  return "—";
+  const val = String(m || '').toLowerCase();
+  if (['credito', 'credit', 'tarjeta credito'].includes(val)) return 'Crédito';
+  if (['debito', 'debit', 'tarjeta debito'].includes(val)) return 'Débito';
+  if (['billetera', 'wallet', 'mp', 'mercadopago'].includes(val)) return 'Billetera';
+  return '—';
 };
 
 export default function PagosLista() {
@@ -79,38 +63,34 @@ export default function PagosLista() {
 
   const [serverData, setServerData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [fetchErr, setFetchErr] = useState("");
+  const [fetchErr, setFetchErr] = useState('');
 
+  // 🔎 ahora NO hay select de rol: lo derivamos del role del usuario
   const authRole = (
-    JSON.parse(localStorage.getItem("auth") || "{}").role ||
-    localStorage.getItem("role") ||
-    "USER"
+    JSON.parse(localStorage.getItem('auth') || '{}').role ||
+    localStorage.getItem('role') ||
+    'USER'
   ).toUpperCase();
 
-  const isMerchant = authRole === "MERCHANT";
-
+  // MERCHANT -> buscar por Cliente | USER -> buscar por Prestador
   const searchBy =
-    authRole === "MERCHANT"
-      ? "Cliente"
-      : authRole === "USER"
-        ? "Prestador"
-        : "Cliente";
+    authRole === 'MERCHANT' ? 'Cliente' : authRole === 'USER' ? 'Prestador' : 'Cliente';
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [metodo, setMetodo] = useState(METODOS[0]);
-  const [desde, setDesde] = useState("");
-  const [hasta, setHasta] = useState("");
-  const [orden, setOrden] = useState("Fecha ⬇");
+  const [desde, setDesde] = useState('');
+  const [hasta, setHasta] = useState('');
+  const [orden, setOrden] = useState('Fecha ⬇');
   const [chips, setChips] = useState(new Set());
 
   const userName =
-    JSON.parse(localStorage.getItem("auth") || "{}").name ||
-    localStorage.getItem("name") ||
-    "Usuario";
+    JSON.parse(localStorage.getItem('auth') || '{}').name ||
+    localStorage.getItem('name') ||
+    'Usuario';
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/login", { replace: true });
+    navigate('/login', { replace: true });
   };
 
   const toggleChip = (name) => {
@@ -122,44 +102,37 @@ export default function PagosLista() {
   useEffect(() => {
     const fetchPayments = async () => {
       setLoading(true);
-      setFetchErr("");
+      setFetchErr('');
       try {
         const authHeader =
-          localStorage.getItem("authHeader") ||
-          `${localStorage.getItem("tokenType") || "Bearer"} ${localStorage.getItem("token") || ""}`;
+          localStorage.getItem('authHeader') ||
+          `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
 
-        const res = await fetch(
-          "http://localhost:8080/api/payments/my-payments",
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: authHeader,
-            },
-          },
-        );
+        const res = await fetch('http://localhost:8080/api/payments/my-payments', {
+          headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+        });
 
         if (!res.ok) {
-          if (res.status === 401)
-            throw new Error("No autorizado. Iniciá sesión nuevamente.");
-          throw new Error("No se pudieron obtener los pagos.");
+          if (res.status === 401) throw new Error('No autorizado. Iniciá sesión nuevamente.');
+          throw new Error('No se pudieron obtener los pagos.');
         }
 
         const list = await res.json();
         const mapped = (Array.isArray(list) ? list : []).map((p) => ({
           id: p.id,
-          cliente: `Usuario #${p.user_id ?? "-"}`,
-          prestador: p.provider_id ? `Proveedor #${p.provider_id}` : "-",
+          cliente: `Usuario #${p.user_id ?? '-'}`,
+          prestador: p.provider_id ? `Proveedor #${p.provider_id}` : '-',
           metodo: normalizeMetodo(p?.metadata?.method),
           estado: mapStatus(p.status),
           subtotal: Number(p.amount_subtotal ?? 0),
           impuestos: Number((p.taxes ?? 0) + (p.fees ?? 0)),
           total: Number(p.amount_total ?? 0),
-          moneda: String(p.currency || "ARS").toUpperCase(),
+          moneda: String(p.currency || 'ARS').toUpperCase(),
           fechaISO: p.created_at,
         }));
         setServerData(mapped);
       } catch (e) {
-        setFetchErr(e.message || "Error inesperado obteniendo pagos.");
+        setFetchErr(e.message || 'Error inesperado obteniendo pagos.');
         setServerData([]);
       } finally {
         setLoading(false);
@@ -174,40 +147,31 @@ export default function PagosLista() {
     if (query.trim()) {
       const q = query.toLowerCase();
       arr = arr.filter((p) =>
-        (searchBy === "Cliente" ? p.cliente : p.prestador)
-          .toLowerCase()
-          .includes(q),
+        (searchBy === 'Cliente' ? p.cliente : p.prestador).toLowerCase().includes(q)
       );
     }
 
     if (metodo !== METODOS[0]) {
       const map = {
-        "Tarjeta crédito": "Crédito",
-        "Tarjeta débito": "Débito",
-        Billetera: "Billetera",
+        'Tarjeta crédito': 'Crédito',
+        'Tarjeta débito': 'Débito',
+        Billetera: 'Billetera',
       };
       arr = arr.filter((p) => p.metodo === map[metodo]);
     }
 
-    if (desde)
-      arr = arr.filter(
-        (p) => new Date(p.fechaISO) >= new Date(desde + "T00:00:00"),
-      );
-    if (hasta)
-      arr = arr.filter(
-        (p) => new Date(p.fechaISO) <= new Date(hasta + "T23:59:59"),
-      );
-
+    if (desde) arr = arr.filter((p) => new Date(p.fechaISO) >= new Date(desde + 'T00:00:00'));
+    if (hasta) arr = arr.filter((p) => new Date(p.fechaISO) <= new Date(hasta + 'T23:59:59'));
     if (chips.size)
       arr = arr.filter((p) => chips.has(p.estado) || chips.has(p.metodo));
 
     arr.sort((a, b) => {
-      if (orden.startsWith("Fecha")) {
-        return orden.endsWith("⬇")
+      if (orden.startsWith('Fecha')) {
+        return orden.endsWith('⬇')
           ? new Date(b.fechaISO) - new Date(a.fechaISO)
           : new Date(a.fechaISO) - new Date(b.fechaISO);
       }
-      return orden.endsWith("⬇") ? b.total - a.total : a.total - b.total;
+      return orden.endsWith('⬇') ? b.total - a.total : a.total - b.total;
     });
 
     return arr;
@@ -215,17 +179,17 @@ export default function PagosLista() {
 
   const exportCSV = () => {
     const headers = [
-      "ID",
-      "Cliente",
-      "Prestador",
-      "Método",
-      "Estado",
-      "Subtotal",
-      "Impuestos",
-      "Total",
-      "Moneda",
-      "Fecha",
-      "Hora",
+      'ID',
+      'Cliente',
+      'Prestador',
+      'Método',
+      'Estado',
+      'Subtotal',
+      'Impuestos',
+      'Total',
+      'Moneda',
+      'Fecha',
+      'Hora',
     ];
     const rows = pagos.map((p) => {
       const { fecha, hora } = fechaFmt(p.fechaISO);
@@ -244,23 +208,21 @@ export default function PagosLista() {
       ];
     });
     const csv =
-      headers.join(",") +
-      "\n" +
+      headers.join(',') +
+      '\n' +
       rows
         .map((r) =>
           r
             .map((v) => {
-              const s = String(v ?? "");
-              return s.includes(",") || s.includes('"')
-                ? `"${s.replace(/"/g, '""')}"`
-                : s;
+              const s = String(v ?? '');
+              return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
             })
-            .join(","),
+            .join(',')
         )
-        .join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        .join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
     a.download = `pagos_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
@@ -292,11 +254,7 @@ export default function PagosLista() {
 
         <div className="pl-field">
           <label>Método</label>
-          <select
-            className="pl-sel"
-            value={metodo}
-            onChange={(e) => setMetodo(e.target.value)}
-          >
+          <select className="pl-sel" value={metodo} onChange={(e) => setMetodo(e.target.value)}>
             {METODOS.map((m) => (
               <option key={m}>{m}</option>
             ))}
@@ -411,14 +369,7 @@ export default function PagosLista() {
                       </div>
                     </td>
                     <td>
-                      {isMerchant ? (
-                        <button
-                          className="pl-btn pl-btn--ghost"
-                          onClick={() => navigate(`/detalle/${p.id}`)}
-                        >
-                          Ver
-                        </button>
-                      ) : p.estado === "Pendiente" ? (
+                      {p.estado === 'Pendiente' ? (
                         <button
                           className="pl-btn pl-btn--pagar"
                           onClick={() => navigate(`/pago/${p.id}`)}

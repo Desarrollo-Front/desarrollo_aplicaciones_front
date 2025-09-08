@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [develop, main]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -13,26 +17,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 👇 Si NO hay package.json, no hacemos nada y el job pasa igual
-      - name: No Node project detected — skipping
+      # Si NO hay package.json, que pase igual
+      - name: Skip (no Node project)
         if: ${{ hashFiles('package.json') == '' }}
         run: echo "No package.json found. Skipping build/test."
 
-      # 👇 A partir de acá solo corre si HAY package.json
       - name: Setup Node.js
         if: ${{ hashFiles('package.json') != '' }}
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
       - name: Install dependencies
         if: ${{ hashFiles('package.json') != '' }}
-        run: npm install
+        run: npm ci
 
-      - name: Run tests
+      - name: Lint (if present)
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm run lint --if-present
+
+      - name: Prettier check (if present)
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm run prettier:check --if-present
+
+      - name: Run tests (if present)
         if: ${{ hashFiles('package.json') != '' }}
         run: npm test --if-present
 
-      - name: Build project
+      - name: Build project (if present)
         if: ${{ hashFiles('package.json') != '' }}
         run: npm run build --if-present

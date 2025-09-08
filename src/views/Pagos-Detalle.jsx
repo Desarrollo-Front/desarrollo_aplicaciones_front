@@ -1,95 +1,70 @@
-import { useMemo, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import "./Pagos-Detalle.css";
+import { useMemo, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import './Pagos-Detalle.css';
 
-const money = (n, curr = "ARS", locale = "es-AR") =>
-  new Intl.NumberFormat(locale, { style: "currency", currency: curr }).format(
-    n,
-  );
+/** Utils */
+const money = (n, curr = 'ARS', locale = 'es-AR') =>
+  new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(n);
 
-const fechaHora = (iso, locale = "es-AR") => {
+const fechaHora = (iso, locale = 'es-AR') => {
   const d = new Date(iso);
-  const f = d.toLocaleDateString(locale, {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-  const h = d.toLocaleTimeString(locale, {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const f = d.toLocaleDateString(locale, { year: 'numeric', month: '2-digit', day: '2-digit' });
+  const h = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
   return `${f} ${h}`;
 };
 
 function Badge({ kind, children }) {
-  const key = (kind || "")
+  const key = (kind || '')
     .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "");
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '');
   return <span className={`pd-badge pd-badge--${key}`}>{children}</span>;
 }
 
 /** Mock base para clonar/hidratar por id */
 const MOCK_DETALLE_BASE = {
   id: 98421,
-  cliente: "Paula Álvarez",
-  prestador: "Servicios Tigre SRL",
-  solicitud: "RCOT-5540",
-  idInterno: "pj_04ZZ",
-  metodo: "Crédito",
-  estado: "Aprobado",
+  cliente: 'Paula Álvarez',
+  prestador: 'Servicios Tigre SRL',
+  solicitud: 'RCOT-5540',
+  idInterno: 'pj_04ZZ',
+  metodo: 'Crédito',
+  estado: 'Aprobado',
   subtotal: 52000,
   impuestos: 6200,
   total: 58200,
-  moneda: "ARS",
-  creadoISO: "2025-08-18T14:31:00",
-  capturadoISO: "2025-08-18T14:52:00",
-  expiraISO: "2025-09-18T14:52:00",
+  moneda: 'ARS',
+  creadoISO: '2025-08-18T14:31:00',
+  capturadoISO: '2025-08-18T14:52:00',
+  expiraISO: '2025-09-18T14:52:00',
   fees: 580,
-  paymentRef: "pr_98421-ARG",
-  gatewayTxn: "GW-205501B-425",
-  condicionIVA: "Responsable Inscripto",
-  cuit: "20-12345679-8",
-  domicilio: "Av. Siempre Viva 742, CABA",
-  cuotas: "1/1",
-  factura: {
-    nro: "A-0001-0001234",
-    estado: "Emitida",
-    emitidaISO: "2025-08-18T15:10:00",
-  },
-  notaCredito: {
-    nro: "NCA-0001-0000456",
-    estado: "No emitida",
-    emitidaISO: null,
-  },
+  paymentRef: 'pr_98421-ARG',
+  gatewayTxn: 'GW-205501B-425',
+  condicionIVA: 'Responsable Inscripto',
+  cuit: '20-12345679-8',
+  domicilio: 'Av. Siempre Viva 742, CABA',
+  cuotas: '1/1',
+  factura: { nro: 'A-0001-0001234', estado: 'Emitida', emitidaISO: '2025-08-18T15:10:00' },
+  notaCredito: { nro: 'NCA-0001-0000456', estado: 'No emitida', emitidaISO: null },
   refunds: [
     {
-      id: "r_1001",
+      id: 'r_1001',
       monto: 5180,
-      estado: "Completado",
-      motivo: "Solicitud del cliente",
-      gatewayRef: "GW-RF-68991",
-      fechaISO: "2025-09-19T08:09:00",
+      estado: 'Completado',
+      motivo: 'Solicitud del cliente',
+      gatewayRef: 'GW-RF-68991',
+      fechaISO: '2025-09-19T08:09:00',
     },
   ],
   timeline: [
-    [
-      "Intento creado (ID pj_04ZZ — Cotización aceptada).",
-      "2025-08-18T14:30:00",
-    ],
-    ["Autorización aprobada. Código emisor 08.", "2025-08-18T14:31:00"],
-    ["Captura: paymentIntention publicada.", "2025-08-18T14:52:00"],
-    ["Factura emitida A-0001-0001234.", "2025-08-18T15:10:00"],
-    [
-      "Timeout gateway (código GW_TIMEOUT) — reintento 30s.",
-      "2025-08-19T09:05:00",
-    ],
-    ["Reconciliación Lote-12/255501-B1 conciliado.", "2025-08-19T10:35:00"],
-    [
-      "Reembolso completado. Monto $ 5.180 — Motivo: Solicitud del cliente.",
-      "2025-09-19T08:09:00",
-    ],
-    ["Nota de crédito emitida: NCA-0001-0000456.", "2025-09-19T09:10:00"],
+    ['Intento creado (ID pj_04ZZ — Cotización aceptada).', '2025-08-18T14:30:00'],
+    ['Autorización aprobada. Código emisor 08.', '2025-08-18T14:31:00'],
+    ['Captura: paymentIntention publicada.', '2025-08-18T14:52:00'],
+    ['Factura emitida A-0001-0001234.', '2025-08-18T15:10:00'],
+    ['Timeout gateway (código GW_TIMEOUT) — reintento 30s.', '2025-08-19T09:05:00'],
+    ['Reconciliación Lote-12/255501-B1 conciliado.', '2025-08-19T10:35:00'],
+    ['Reembolso completado. Monto $ 5.180 — Motivo: Solicitud del cliente.', '2025-09-19T08:09:00'],
+    ['Nota de crédito emitida: NCA-0001-0000456.', '2025-09-19T09:10:00'],
   ],
 };
 
@@ -100,62 +75,48 @@ export default function PagosDetalle() {
   const pago = useMemo(() => {
     const numId = Number(id);
     if (!id || Number.isNaN(numId)) return null;
-
     if (numId === 98421) return MOCK_DETALLE_BASE;
     return {
       ...MOCK_DETALLE_BASE,
       id: numId,
       paymentRef: `pr_${numId}-ARG`,
       solicitud: `RCOT-${String(numId).slice(-4)}`,
-      factura: {
-        ...MOCK_DETALLE_BASE.factura,
-        nro: `A-0001-${String(numId).padStart(7, "0")}`,
-      },
+      factura: { ...MOCK_DETALLE_BASE.factura, nro: `A-0001-${String(numId).padStart(7, '0')}` },
     };
   }, [id]);
 
-  if (!pago) {
-    return (
-      <div className="pd-wrap">
-        <h2>No se encontró el pago #{id}</h2>
-      </div>
-    );
-  }
-
+  // ⬇️ TODOS LOS HOOKS SIEMPRE ARRIBA
   const [showRefund, setShowRefund] = useState(false);
   const [monto, setMonto] = useState(3000);
-  const [motivo, setMotivo] = useState("Cancelación del servicio");
-  const [notas, setNotas] = useState("");
+  const [motivo, setMotivo] = useState('Cancelación del servicio');
+  const [notas, setNotas] = useState('');
 
-  const totales = useMemo(
-    () => ({
+  const totales = useMemo(() => {
+    if (!pago) return { sub: '-', imp: '-', tot: '-' };
+    return {
       sub: money(pago.subtotal, pago.moneda),
       imp: money(pago.impuestos, pago.moneda),
       tot: money(pago.total, pago.moneda),
-    }),
-    [pago],
-  );
+    };
+  }, [pago]);
 
   const confirmarReembolso = (e) => {
     e.preventDefault();
+    if (!pago) return; // defensa
     alert(
-      `Reembolso solicitado\nMonto: ${money(Number(monto) || 0, pago.moneda)}\nMotivo: ${motivo}\nNotas: ${notas || "-"}`,
+      `Reembolso solicitado\nMonto: ${money(Number(monto) || 0, pago.moneda)}\nMotivo: ${motivo}\nNotas: ${notas || '-'}`
     );
     setShowRefund(false);
   };
 
   return (
     <div className="pd-wrap">
-      <button
-        className="pd-btn pd-btn--ghost pd-back"
-        onClick={() => navigate("/pagos")}
-      >
+      <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>
         ← Volver
       </button>
       <h1 className="pd-title">Detalle de pago #{pago.id}</h1>
       <p className="pd-sub">
-        Resumen, datos fiscales &amp; referencia, timeline, comprobantes y
-        reembolsos.
+        Resumen, datos fiscales &amp; referencia, timeline, comprobantes y reembolsos.
       </p>
 
       <section className="pd-grid">
@@ -217,10 +178,7 @@ export default function PagosDetalle() {
           </div>
 
           <div className="pd-actions">
-            <button
-              className="pd-btn pd-btn--pri"
-              onClick={() => setShowRefund(true)}
-            >
+            <button className="pd-btn pd-btn--pri" onClick={() => setShowRefund(true)}>
               Reembolso
             </button>
             <button className="pd-btn">Reintentar</button>
@@ -358,10 +316,7 @@ export default function PagosDetalle() {
           <form className="pd-modal" onSubmit={confirmarReembolso}>
             <div className="pd-modal-h">
               <h3>
-                Reembolso{" "}
-                <small className="pd-muted">
-                  Ventana: 7 días desde la captura
-                </small>
+                Reembolso <small className="pd-muted">Ventana: 7 días desde la captura</small>
               </h3>
               <button
                 type="button"
