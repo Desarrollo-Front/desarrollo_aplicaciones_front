@@ -159,11 +159,7 @@
   background: #f3f4f6;
 }
 .gw-mp {
-  background: radial-gradient(
-    circle at 50% 50%,
-    #4db6ff 0 60%,
-    #e0f2ff 61% 100%
-  );
+  background: radial-gradient(circle at 50% 50%, #4db6ff 0 60%, #e0f2ff 61% 100%);
 }
 
 /* RESUMEN */

@@ -5,7 +5,6 @@ import Login from './views/Login';
 const Placeholder = ({ title }) => <div style={{ padding: 24 }}>{title}</div>;
 import './App.css';
 
-
 export default function App() {
   return (
     <BrowserRouter>

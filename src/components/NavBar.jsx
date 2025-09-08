@@ -4,7 +4,6 @@ import './NavBar.css';
 export default function NavBar() {
   const items = [{ to: '/pagos', label: 'Pagos' }];
 
-
   return (
     <nav className="navbar">
       <div className="nav-container">

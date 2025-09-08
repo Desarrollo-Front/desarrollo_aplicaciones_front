@@ -9,10 +9,10 @@ export default defineConfig([
   globalIgnores(['dist', 'build', 'node_modules', '.vercel', 'coverage']),
 
   {
-    files: ["**/*.{js,jsx}"],
+    files: ['**/*.{js,jsx}'],
     extends: [
       js.configs.recommended,
-      reactHooks.configs["recommended-latest"],
+      reactHooks.configs['recommended-latest'],
       reactRefresh.configs.vite,
       prettier,
     ],

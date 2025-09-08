@@ -234,9 +234,7 @@ export default function PagosDetalle() {
               </div>
               <Badge kind={pago.factura.estado}>{pago.factura.estado}</Badge>
             </div>
-            <small className="pd-muted">
-              Emitida: {fechaHora(pago.factura.emitidaISO)}
-            </small>
+            <small className="pd-muted">Emitida: {fechaHora(pago.factura.emitidaISO)}</small>
             <div className="pd-doc-actions">
               <button className="pd-btn pd-btn--ghost">Ver PDF</button>
               <button className="pd-btn">Descargar</button>

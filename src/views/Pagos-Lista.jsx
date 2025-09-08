@@ -162,8 +162,7 @@ export default function PagosLista() {
 
     if (desde) arr = arr.filter((p) => new Date(p.fechaISO) >= new Date(desde + 'T00:00:00'));
     if (hasta) arr = arr.filter((p) => new Date(p.fechaISO) <= new Date(hasta + 'T23:59:59'));
-    if (chips.size)
-      arr = arr.filter((p) => chips.has(p.estado) || chips.has(p.metodo));
+    if (chips.size) arr = arr.filter((p) => chips.has(p.estado) || chips.has(p.metodo));
 
     arr.sort((a, b) => {
       if (orden.startsWith('Fecha')) {
@@ -283,11 +282,7 @@ export default function PagosLista() {
 
         <div className="pl-field">
           <label>Orden</label>
-          <select
-            className="pl-sel"
-            value={orden}
-            onChange={(e) => setOrden(e.target.value)}
-          >
+          <select className="pl-sel" value={orden} onChange={(e) => setOrden(e.target.value)}>
             <option>Fecha ⬇</option>
             <option>Fecha ⬆</option>
             <option>Monto ⬇</option>
