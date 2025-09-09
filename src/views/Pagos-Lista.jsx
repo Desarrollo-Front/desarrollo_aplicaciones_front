@@ -2,17 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Pagos-Lista.css';
 
-const METODOS = ['Todos los métodos', 'Tarjeta crédito', 'Tarjeta débito', 'Billetera'];
+const METODOS = ['Todos los métodos', 'Tarjeta crédito', 'Tarjeta débito', 'Mercado Pago'];
 const ESTADOS_CHIPS = [
   'Pendiente',
   'Aprobado',
-  'Rechazado',
-  'Disputa',
-  'Reembolsado',
-  'Expirado',
-  'Crédito',
-  'Débito',
-  'Billetera',
+  'Rechazado'
 ];
 
 const money = (n, curr = 'ARS', locale = 'es-AR') =>
@@ -26,10 +20,11 @@ const fechaFmt = (iso, locale = 'es-AR') => {
 };
 
 function Badge({ kind, children }) {
-  const key = (kind || '')
+  let key = (kind || '')
     .toLowerCase()
     .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '');
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/\s+/g, '-');
   return <span className={`pl-badge pl-badge--${key}`}>{children}</span>;
 }
 function Chip({ active, onClick, children }) {
@@ -43,6 +38,8 @@ function Chip({ active, onClick, children }) {
 const mapStatus = (s) => {
   const t = String(s || '').toUpperCase();
   if (t === 'PENDING') return 'Pendiente';
+  if (t === 'PENDING_PAYMENT') return 'Pendiente de Pago';
+  if (t === 'PENDING_APPROVAL') return 'Pendiente de Aprobación';
   if (t === 'APPROVED' || t === 'CAPTURED') return 'Aprobado';
   if (t === 'REJECTED' || t === 'FAILED') return 'Rechazado';
   if (t === 'EXPIRED') return 'Expirado';
@@ -50,11 +47,12 @@ const mapStatus = (s) => {
   if (t === 'DISPUTE' || t === 'DISPUTED') return 'Disputa';
   return 'Pendiente';
 };
-const normalizeMetodo = (m) => {
-  const val = String(m || '').toLowerCase();
-  if (['credito', 'credit', 'tarjeta credito'].includes(val)) return 'Crédito';
-  if (['debito', 'debit', 'tarjeta debito'].includes(val)) return 'Débito';
-  if (['billetera', 'wallet', 'mp', 'mercadopago'].includes(val)) return 'Billetera';
+
+const getMetodoTag = (method) => {
+  const type = String(method?.type || '').toUpperCase();
+  if (type === 'CREDIT_CARD') return 'Crédito';
+  if (type === 'DEBIT_CARD') return 'Débito';
+  if (type === 'MERCADO_PAGO') return 'Mercado Pago';
   return '—';
 };
 
@@ -65,14 +63,12 @@ export default function PagosLista() {
   const [loading, setLoading] = useState(true);
   const [fetchErr, setFetchErr] = useState('');
 
-  // 🔎 ahora NO hay select de rol: lo derivamos del role del usuario
   const authRole = (
     JSON.parse(localStorage.getItem('auth') || '{}').role ||
     localStorage.getItem('role') ||
     'USER'
   ).toUpperCase();
 
-  // MERCHANT -> buscar por Cliente | USER -> buscar por Prestador
   const searchBy =
     authRole === 'MERCHANT' ? 'Cliente' : authRole === 'USER' ? 'Prestador' : 'Cliente';
 
@@ -121,8 +117,8 @@ export default function PagosLista() {
         const mapped = (Array.isArray(list) ? list : []).map((p) => ({
           id: p.id,
           cliente: `Usuario #${p.user_id ?? '-'}`,
-          prestador: p.provider_id ? `Proveedor #${p.provider_id}` : '-',
-          metodo: normalizeMetodo(p?.metadata?.method),
+          prestador: p.provider_id ? `ID: ${p.provider_id}` : '-',
+          metodo: getMetodoTag(p.method),
           estado: mapStatus(p.status),
           subtotal: Number(p.amount_subtotal ?? 0),
           impuestos: Number((p.taxes ?? 0) + (p.fees ?? 0)),
@@ -155,14 +151,22 @@ export default function PagosLista() {
       const map = {
         'Tarjeta crédito': 'Crédito',
         'Tarjeta débito': 'Débito',
-        Billetera: 'Billetera',
+        'Mercado Pago': 'Mercado Pago',
       };
       arr = arr.filter((p) => p.metodo === map[metodo]);
     }
 
     if (desde) arr = arr.filter((p) => new Date(p.fechaISO) >= new Date(desde + 'T00:00:00'));
     if (hasta) arr = arr.filter((p) => new Date(p.fechaISO) <= new Date(hasta + 'T23:59:59'));
-    if (chips.size) arr = arr.filter((p) => chips.has(p.estado) || chips.has(p.metodo));
+
+    if (chips.size) {
+      arr = arr.filter((p) => {
+        if (chips.has('Pendiente')) {
+          if (p.estado === 'Pendiente' || p.estado === 'Pendiente de Pago' || p.estado === 'Pendiente de Aprobación') return true;
+        }
+        return chips.has(p.estado) || chips.has(p.metodo);
+      });
+    }
 
     arr.sort((a, b) => {
       if (orden.startsWith('Fecha')) {
@@ -311,8 +315,8 @@ export default function PagosLista() {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Cliente</th>
-              <th>Prestador</th>
+              {authRole !== 'USER' && <th>Cliente</th>}
+              {authRole !== 'MERCHANT' && <th>Prestador</th>}
               <th>Método</th>
               <th>Estado</th>
               <th>Subtotal</th>
@@ -345,8 +349,8 @@ export default function PagosLista() {
                 return (
                   <tr key={p.id}>
                     <td>#{p.id}</td>
-                    <td>{p.cliente}</td>
-                    <td>{p.prestador}</td>
+                    {authRole !== 'USER' && <td>{p.cliente}</td>}
+                    {authRole !== 'MERCHANT' && <td>{p.prestador}</td>}
                     <td>
                       <Badge kind={p.metodo}>{p.metodo}</Badge>
                     </td>
@@ -364,7 +368,7 @@ export default function PagosLista() {
                       </div>
                     </td>
                     <td>
-                      {p.estado === 'Pendiente' ? (
+                      {p.estado === 'Pendiente de Pago' ? (
                         <button
                           className="pl-btn pl-btn--pagar"
                           onClick={() => navigate(`/pago/${p.id}`)}
