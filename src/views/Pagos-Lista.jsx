@@ -104,7 +104,7 @@ export default function PagosLista() {
           localStorage.getItem('authHeader') ||
           `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
 
-        const res = await fetch('http://localhost:8080/api/payments/my-payments', {
+        const res = await fetch('http://18.191.118.13:8080/api/payments/my-payments', {
           headers: { 'Content-Type': 'application/json', Authorization: authHeader },
         });
 

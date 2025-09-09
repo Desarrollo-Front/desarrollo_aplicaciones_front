@@ -23,7 +23,7 @@ export default function Login() {
     }
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8080/api/auth/login', {
+      const res = await fetch('http://18.191.118.13:8080/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: form.email.trim(), password: form.password }),
