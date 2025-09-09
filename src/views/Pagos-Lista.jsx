@@ -116,7 +116,7 @@ export default function PagosLista() {
         const list = await res.json();
         const mapped = (Array.isArray(list) ? list : []).map((p) => ({
           id: p.id,
-          cliente: `Usuario #${p.user_id ?? '-'}`,
+          cliente: `ID: ${p.user_id ?? '-'}`,
           prestador: p.provider_id ? `ID: ${p.provider_id}` : '-',
           metodo: getMetodoTag(p.method),
           estado: mapStatus(p.status),
@@ -368,7 +368,7 @@ export default function PagosLista() {
                       </div>
                     </td>
                     <td>
-                      {p.estado === 'Pendiente de Pago' ? (
+                      {p.estado === 'Pendiente de Pago' && authRole !== 'MERCHANT' ? (
                         <button
                           className="pl-btn pl-btn--pagar"
                           onClick={() => navigate(`/pago/${p.id}`)}
