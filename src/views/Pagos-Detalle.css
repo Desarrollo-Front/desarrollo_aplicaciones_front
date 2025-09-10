@@ -230,41 +230,78 @@
   border-radius: 16px;
   padding: 14px;
 }
+
+/* UL timeline con línea vertical */
 .pd-time {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 0 0 18px;
+  position: relative;
 }
+.pd-time::before {
+  content: '';
+  position: absolute;
+  left: 5px;          /* centro del dot (10px) */
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--line);
+}
+
+/* Cada item es un grid de 3 columnas: dot | contenido | fecha */
 .pd-time li {
   display: grid;
-  grid-template-columns: 18px 1fr;
-  gap: 8px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--line);
+  grid-template-columns: 14px 1fr max-content; /* <- ancla la 2da columna */
+  column-gap: 8px;                              /* separaciones horizontales */
+  row-gap: 0;
+  align-items: start;
+  padding: 20px 0;
+  position: relative;
 }
-.pd-time li:last-child {
-  border-bottom: none;
+
+/* Hacemos que los hijos de .pd-time-row entren al grid del <li> */
+.pd-time-row {
+  display: contents; /* elimina el flex que movía el contenido */
 }
+
+/* 1) Columna del DOT + patita corta hasta la línea */
 .pd-time-dot {
+  grid-column: 1;
   width: 10px;
   height: 10px;
   border-radius: 50%;
   background: #000;
-  margin-top: 6px;
+  position: relative;
+  z-index: 2;
+  margin-top: 6px;  /* alinear con el título */
 }
-.pd-time-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: flex-start;
+.pd-time-dot::before {
+  content: '';
+  position: absolute;
+  left: -9px;                /* conecta exacto con la línea (left:5) */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 9px;                /* largo de la patita */
+  height: 2px;
+  background: var(--line);
 }
+
+/* 2) Columna del CONTENIDO (título + actor + payload) */
 .pd-time-txt {
+  grid-column: 2;
   color: #000;
+  margin: 0;       /* importante: sin desplazamientos extra */
+  padding: 0;
 }
+
+/* 3) Columna de la FECHA a la derecha, ancho auto */
 .pd-time-date {
+  grid-column: 3;
   color: var(--muted);
   white-space: nowrap;
+  margin: 0;
 }
+
 
 /* Modal */
 .pd-modal-overlay {
@@ -334,3 +371,38 @@
     gap: 4px;
   }
 }
+
+.pd-payload {
+  margin-top: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px;
+}
+
+/* Forzar separación clara en payload */
+.pd-kv--mini > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 14px;
+  gap: 20px;
+}
+
+.pd-kv--mini > div b {
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.pd-kv--mini > div span {
+  font-size: 12px;
+  color: var(--text);
+  text-align: right;
+}
+
+
+

@@ -39,30 +39,70 @@ const getMetodoTag = (method) => {
   return '—';
 };
 
+const mapEventType = (t) => {
+  const x = String(t || '').toUpperCase();
+  if (x === 'PAYMENT_PENDING') return 'Pago pendiente';
+  if (x === 'PAYMENT_METHOD_UPDATED') return 'Método de pago actualizado';
+  if (x === 'PAYMENT_APPROVED') return 'Pago aprobado';
+  if (x === 'PAYMENT_CAPTURED') return 'Pago capturado';
+  if (x === 'PAYMENT_REJECTED') return 'Pago rechazado';
+  if (x === 'REFUND_CREATED') return 'Reembolso creado';
+  if (x === 'REFUND_APPROVED') return 'Reembolso aprobado';
+  if (x === 'REFUND_REJECTED') return 'Reembolso rechazado';
+  return x.replaceAll('_', ' ').toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+};
+
+const labelize = (k) =>
+  String(k || '')
+    .replaceAll('_', ' ')
+    .replaceAll('.', ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .replace(/^\w/, (c) => c.toUpperCase());
+
+const toDisplay = (v) => {
+  if (v === null || v === undefined) return '—';
+  if (typeof v === 'number') return String(v);
+  if (typeof v === 'boolean') return v ? 'Sí' : 'No';
+  if (Array.isArray(v)) return v.join(', ');
+  if (typeof v === 'object') return JSON.stringify(v);
+  return String(v);
+};
+
 export default function PagosDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [pago, setPago] = useState(null);
+  const [timeline, setTimeline] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
+  const [tlErr, setTlErr] = useState('');
 
   useEffect(() => {
-    const fetchOne = async () => {
+    const fetchAll = async () => {
       try {
         setLoading(true);
         setErr('');
+        setTlErr('');
         const authHeader =
           localStorage.getItem('authHeader') ||
           `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
-        const res = await fetch(`http://18.191.118.13:8080/api/payments/${id}`, {
-          headers: { 'Content-Type': 'application/json', Authorization: authHeader },
-        });
-        if (!res.ok) {
-          if (res.status === 401) throw new Error('No autorizado. Iniciá sesión nuevamente.');
+
+        const [resPago, resTl] = await Promise.all([
+          fetch(`http://18.191.118.13:8080/api/payments/${id}`, {
+            headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+          }),
+          fetch(`http://18.191.118.13:8080/api/payments/${id}/timeline`, {
+            headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+          }),
+        ]);
+
+        if (!resPago.ok) {
+          if (resPago.status === 401) throw new Error('No autorizado. Iniciá sesión nuevamente.');
           throw new Error('No se pudo obtener el pago.');
         }
-        const p = await res.json();
+        const p = await resPago.json();
         const meta = (() => {
           try {
             return p.metadata ? JSON.parse(p.metadata) : {};
@@ -81,22 +121,48 @@ export default function PagosDetalle() {
           impuestos: Number((p.taxes ?? 0) + (p.fees ?? 0)),
           total: Number(p.amount_total ?? 0),
           moneda: String(p.currency || 'ARS').toUpperCase(),
-          creadoISO: p.created_at || null,
-          capturadoISO: p.captured_at || null,
+          creadoISO: p.created_at || p.createdAt || null,
+          capturadoISO: p.captured_at || p.capturedAt || null,
           fees: Number(p.fees ?? 0),
           descripcion: meta.description || '',
           categoria: meta.category || '',
           refund_reason: meta.refund_reason || '',
-          refundId: p.refund_id ?? null
+          refundId: p.refund_id ?? null,
         });
+
+        if (!resTl.ok) {
+          setTlErr('No se pudo obtener el timeline.');
+          setTimeline([]);
+        } else {
+          const tl = await resTl.json();
+          const norm = (Array.isArray(tl) ? tl : []).map((e) => {
+            let payloadObj = null;
+            try {
+              payloadObj = e.payload ? JSON.parse(e.payload) : null;
+            } catch {
+              payloadObj = null;
+            }
+            return {
+              id: e.id,
+              type: e.type,
+              actor: e.actor || 'system',
+              source: e.eventSource || e.source || 'SYSTEM',
+              createdISO: e.createdAt || e.created_at || null,
+              payload: payloadObj,
+            };
+          });
+          norm.sort((a, b) => new Date(a.createdISO) - new Date(b.createdISO));
+          setTimeline(norm);
+        }
       } catch (e) {
         setErr(e.message || 'Error inesperado.');
         setPago(null);
+        setTimeline([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchOne();
+    fetchAll();
   }, [id]);
 
   const [showRefund, setShowRefund] = useState(false);
@@ -198,7 +264,36 @@ export default function PagosDetalle() {
 
       <section className="pd-timeline">
         <header className="pd-card-h">Timeline</header>
-        <p className="pd-muted">No hay eventos en el timeline.</p>
+        {tlErr && <p className="pd-muted">{tlErr}</p>}
+        {!tlErr && timeline.length === 0 && <p className="pd-muted">No hay eventos en el timeline.</p>}
+        {!tlErr && timeline.length > 0 && (
+          <ul className="pd-time">
+            {timeline.map((ev) => (
+              <li key={ev.id}>
+                <div className="pd-time-dot" />
+                <div className="pd-time-row">
+                  <div className="pd-time-txt">
+                    <div><b>{mapEventType(ev.type)}</b></div>
+                    <small className="pd-muted">Actor: {ev.actor} · Origen: {ev.source}</small>
+                    {ev.payload && typeof ev.payload === 'object' && (
+                      <div className="pd-payload">
+                        <div className="pd-kv pd-kv--mini">
+                          {Object.entries(ev.payload).map(([k, v]) => (
+                            <div key={k}>
+                              <b>{labelize(k)}</b>
+                              <span>{toDisplay(v)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="pd-time-date">{fechaHora(ev.createdISO)}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {showRefund && (
