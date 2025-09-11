@@ -23,7 +23,7 @@ const mapStatus = (s) => {
   if (t === 'PENDING') return 'Pendiente';
   if (t === 'PENDING_PAYMENT') return 'Pendiente de Pago';
   if (t === 'PENDING_APPROVAL') return 'Pendiente de Aprobación';
-  if (t === 'APPROVED' || t === 'CAPTURED') return 'Aprobado';
+  if (t === 'APPROVED' || t === 'CAPTURED' || t === 'COMPLETED') return 'Aprobado';
   if (t === 'REJECTED' || t === 'FAILED') return 'Rechazado';
   if (t === 'EXPIRED') return 'Expirado';
   if (t === 'REFUNDED') return 'Reembolsado';
@@ -36,6 +36,7 @@ const getMetodoTag = (method) => {
   if (type === 'CREDIT_CARD') return 'Crédito';
   if (type === 'DEBIT_CARD') return 'Débito';
   if (type === 'MERCADO_PAGO') return 'Mercado Pago';
+  if (type === 'CASH') return 'Efectivo';
   return '—';
 };
 
@@ -128,6 +129,8 @@ export default function PagosDetalle() {
           categoria: meta.category || '',
           refund_reason: meta.refund_reason || '',
           refundId: p.refund_id ?? null,
+          rawStatus: String(p.status || '').toUpperCase(),
+          methodRaw: p.method || null,
         });
 
         if (!resTl.ok) {
@@ -179,6 +182,131 @@ export default function PagosDetalle() {
     };
   }, [pago]);
 
+  const puedeDescargarComprobante = useMemo(() => {
+    if (!pago) return false;
+    const okStatus = ['APPROVED', 'CAPTURED', 'COMPLETED'].includes(pago.rawStatus) || Boolean(pago.capturadoISO);
+    return okStatus && Number.isFinite(pago.total) && pago.total > 0;
+  }, [pago]);
+
+  const buildComprobanteHTML = () => {
+    const emisor = pago.prestador || 'Prestador';
+    const cliente = pago.cliente || 'Consumidor Final';
+    const metodo = pago.metodo || '—';
+    const desc = pago.descripcion || 'Pago';
+    const fechaEmision = fechaHora(pago.creadoISO);
+    const fechaCobro = fechaHora(pago.capturadoISO);
+    const otrosCargos = pago.impuestos || 0;
+    const lines = [
+      { cant: 1, det: desc, pu: pago.subtotal, imp: pago.subtotal },
+      ...(otrosCargos > 0 ? [{ cant: 1, det: 'Cargos e impuestos', pu: otrosCargos, imp: otrosCargos }] : []),
+    ];
+    const rows = lines
+      .map(
+        (l) =>
+          `<tr><td style="padding:6px;border:1px solid #ddd;text-align:center">${l.cant}</td><td style="padding:6px;border:1px solid #ddd">${l.det}</td><td style="padding:6px;border:1px solid #ddd;text-align:right">${money(l.pu, pago.moneda)}</td><td style="padding:6px;border:1px solid #ddd;text-align:right">${money(l.imp, pago.moneda)}</td></tr>`
+      )
+      .join('');
+    const html = `
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Factura</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="font-family:Arial,Helvetica,sans-serif;color:#111;margin:24px">
+<div style="max-width:820px;margin:0 auto">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+    <div>
+      <div style="font-size:22px;font-weight:700">Factura</div>
+      <div style="font-size:12px;color:#666">No fiscal</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:12px;color:#666">ID de pago</div>
+      <div style="font-size:16px;font-weight:700">#${pago.id}</div>
+    </div>
+  </div>
+  <hr style="border:none;border-top:1px solid #e5e5e5;margin:12px 0">
+  <div style="display:flex;gap:24px;margin:12px 0 20px">
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Prestador</div>
+      <div style="font-size:14px;font-weight:600">${emisor}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Cliente</div>
+      <div style="font-size:14px;font-weight:600">${cliente}</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:24px;margin:0 0 16px">
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Fecha de emisión</div>
+      <div style="font-size:14px">${fechaEmision}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Fecha de cobro</div>
+      <div style="font-size:14px">${fechaCobro}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Moneda</div>
+      <div style="font-size:14px">${pago.moneda}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Método</div>
+      <div style="font-size:14px">${metodo}</div>
+    </div>
+  </div>
+  <table style="width:100%;border-collapse:collapse;margin-top:8px">
+    <thead>
+      <tr>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:center;font-size:12px">Cant.</th>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:left;font-size:12px">Detalle</th>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:right;font-size:12px">P. unitario</th>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:right;font-size:12px">Importe</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+    </tbody>
+  </table>
+  <div style="display:flex;justify-content:flex-end;margin-top:12px">
+    <div style="min-width:280px">
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ddd">
+        <div style="color:#666">Subtotal</div><div>${money(pago.subtotal, pago.moneda)}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ddd">
+        <div style="color:#666">Otros cargos</div><div>${money(pago.impuestos, pago.moneda)}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:16px">
+        <div>Total</div><div>${money(pago.total, pago.moneda)}</div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:18px;font-size:12px;color:#666">
+    Operación: ${pago.solicitud || '—'}
+  </div>
+  <div style="margin-top:18px;padding:12px;background:#f7f7f7;border:1px solid #eee;font-size:12px;color:#444">
+    Este es un comprobante no fiscal emitido a partir de datos reales del pago. No reemplaza la factura fiscal correspondiente.
+  </div>
+</div>
+<script>
+window.onload = function(){window.print();}
+</script>
+</body>
+</html>
+    `;
+    return html;
+  };
+
+  const descargarComprobante = () => {
+    if (!pago) return;
+    const html = buildComprobanteHTML();
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    if (!win) alert('No se pudo abrir el comprobante. Verificá el bloqueador de pop-ups.');
+  };
+
   const confirmarReembolso = (e) => {
     e.preventDefault();
     if (!pago) return;
@@ -212,7 +340,7 @@ export default function PagosDetalle() {
     <div className="pd-wrap">
       <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>← Volver</button>
       <h1 className="pd-title">Detalle de pago #{pago.id}</h1>
-      <p className="pd-sub">Resumen, datos fiscales &amp; referencia, timeline, comprobantes y reembolsos.</p>
+      <p className="pd-sub">Resumen, datos fiscales y referencia, timeline, comprobantes y reembolsos.</p>
 
       <section className="pd-grid">
         <article className="pd-card">
@@ -231,7 +359,7 @@ export default function PagosDetalle() {
         </article>
 
         <article className="pd-card">
-          <header className="pd-card-h">Datos fiscales &amp; referencia</header>
+          <header className="pd-card-h">Datos fiscales y referencia</header>
           <div className="pd-kv">
             <div><b>Moneda</b><span>{pago.moneda}</span></div>
             <div><b>Fees</b><span>{money(pago.fees, pago.moneda)}</span></div>
@@ -242,9 +370,17 @@ export default function PagosDetalle() {
         </article>
 
         <article className="pd-card">
-          <header className="pd-card-h">Comprobantes</header>
-          <p className="pd-muted">No hay comprobantes disponibles.</p>
-        </article>
+  <header className="pd-card-h">Comprobantes</header>
+  {puedeDescargarComprobante ? (
+    <div className="pd-actions">
+      <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>Descargar Factura</button>
+      <p className="pd-muted">Se genera un comprobante de pago no fiscal con los datos reales.</p>
+    </div>
+  ) : (
+    <p className="pd-muted">No hay comprobantes disponibles.</p>
+  )}
+</article>
+
       </section>
 
       <section className="pd-card pd-refunds">
