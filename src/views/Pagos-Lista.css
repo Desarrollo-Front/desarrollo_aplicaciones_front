@@ -196,9 +196,9 @@
   border-color: #c5cae9;
 }
 .pl-badge--debito {
-  background: #e0f7fa;
-  color: #006064;
-  border-color: #b2ebf2;
+  background: #fdecea;   /* rojo pastel de fondo */
+  color: #b71c1c;        /* rojo oscuro para el texto */
+  border-color: #f5c6c6; /* borde rojo claro */
 }
 .pl-badge--billetera {
   background: #e8f5e9;
@@ -395,3 +395,21 @@
     margin-bottom: 6px;
   }
 }
+.pl-badge--mercado-pago {
+  background: #e0f7fa;   /* celeste muy suave */
+  color: #006064;        /* azul verdoso oscuro para el texto */
+  border-color: #b2ebf2; /* borde celeste pastel */
+}
+
+.pl-badge--pendiente-de-pago {
+  background: #fff3cd;  /* amarillo claro */
+  color: #856404;
+  border-color: #ffeeba;
+}
+
+.pl-badge--pendiente-de-aprobacion {
+  background: #e0f7fa;  /* celeste claro */
+  color: #0c5460;
+  border-color: #bee5eb;
+}
+

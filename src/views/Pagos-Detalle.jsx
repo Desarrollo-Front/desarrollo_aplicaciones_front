@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './Pagos-Detalle.css';
 
-/** Utils */
 const money = (n, curr = 'ARS', locale = 'es-AR') =>
-  new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(n);
+  new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(Number(n || 0));
 
 const fechaHora = (iso, locale = 'es-AR') => {
+  if (!iso) return '—';
   const d = new Date(iso);
   const f = d.toLocaleDateString(locale, { year: 'numeric', month: '2-digit', day: '2-digit' });
   const h = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
@@ -14,81 +14,160 @@ const fechaHora = (iso, locale = 'es-AR') => {
 };
 
 function Badge({ kind, children }) {
-  const key = (kind || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '');
+  const key = (kind || '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
   return <span className={`pd-badge pd-badge--${key}`}>{children}</span>;
 }
 
-/** Mock base para clonar/hidratar por id */
-const MOCK_DETALLE_BASE = {
-  id: 98421,
-  cliente: 'Paula Álvarez',
-  prestador: 'Servicios Tigre SRL',
-  solicitud: 'RCOT-5540',
-  idInterno: 'pj_04ZZ',
-  metodo: 'Crédito',
-  estado: 'Aprobado',
-  subtotal: 52000,
-  impuestos: 6200,
-  total: 58200,
-  moneda: 'ARS',
-  creadoISO: '2025-08-18T14:31:00',
-  capturadoISO: '2025-08-18T14:52:00',
-  expiraISO: '2025-09-18T14:52:00',
-  fees: 580,
-  paymentRef: 'pr_98421-ARG',
-  gatewayTxn: 'GW-205501B-425',
-  condicionIVA: 'Responsable Inscripto',
-  cuit: '20-12345679-8',
-  domicilio: 'Av. Siempre Viva 742, CABA',
-  cuotas: '1/1',
-  factura: { nro: 'A-0001-0001234', estado: 'Emitida', emitidaISO: '2025-08-18T15:10:00' },
-  notaCredito: { nro: 'NCA-0001-0000456', estado: 'No emitida', emitidaISO: null },
-  refunds: [
-    {
-      id: 'r_1001',
-      monto: 5180,
-      estado: 'Completado',
-      motivo: 'Solicitud del cliente',
-      gatewayRef: 'GW-RF-68991',
-      fechaISO: '2025-09-19T08:09:00',
-    },
-  ],
-  timeline: [
-    ['Intento creado (ID pj_04ZZ — Cotización aceptada).', '2025-08-18T14:30:00'],
-    ['Autorización aprobada. Código emisor 08.', '2025-08-18T14:31:00'],
-    ['Captura: paymentIntention publicada.', '2025-08-18T14:52:00'],
-    ['Factura emitida A-0001-0001234.', '2025-08-18T15:10:00'],
-    ['Timeout gateway (código GW_TIMEOUT) — reintento 30s.', '2025-08-19T09:05:00'],
-    ['Reconciliación Lote-12/255501-B1 conciliado.', '2025-08-19T10:35:00'],
-    ['Reembolso completado. Monto $ 5.180 — Motivo: Solicitud del cliente.', '2025-09-19T08:09:00'],
-    ['Nota de crédito emitida: NCA-0001-0000456.', '2025-09-19T09:10:00'],
-  ],
+const mapStatus = (s) => {
+  const t = String(s || '').toUpperCase();
+  if (t === 'PENDING') return 'Pendiente';
+  if (t === 'PENDING_PAYMENT') return 'Pendiente de Pago';
+  if (t === 'PENDING_APPROVAL') return 'Pendiente de Aprobación';
+  if (t === 'APPROVED' || t === 'CAPTURED') return 'Aprobado';
+  if (t === 'REJECTED' || t === 'FAILED') return 'Rechazado';
+  if (t === 'EXPIRED') return 'Expirado';
+  if (t === 'REFUNDED') return 'Reembolsado';
+  if (t === 'DISPUTE' || t === 'DISPUTED') return 'Disputa';
+  return 'Pendiente';
+};
+
+const getMetodoTag = (method) => {
+  const type = String(method?.type || '').toUpperCase();
+  if (type === 'CREDIT_CARD') return 'Crédito';
+  if (type === 'DEBIT_CARD') return 'Débito';
+  if (type === 'MERCADO_PAGO') return 'Mercado Pago';
+  return '—';
+};
+
+const mapEventType = (t) => {
+  const x = String(t || '').toUpperCase();
+  if (x === 'PAYMENT_PENDING') return 'Pago pendiente';
+  if (x === 'PAYMENT_METHOD_UPDATED') return 'Método de pago actualizado';
+  if (x === 'PAYMENT_APPROVED') return 'Pago aprobado';
+  if (x === 'PAYMENT_CAPTURED') return 'Pago capturado';
+  if (x === 'PAYMENT_REJECTED') return 'Pago rechazado';
+  if (x === 'REFUND_CREATED') return 'Reembolso creado';
+  if (x === 'REFUND_APPROVED') return 'Reembolso aprobado';
+  if (x === 'REFUND_REJECTED') return 'Reembolso rechazado';
+  return x.replaceAll('_', ' ').toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+};
+
+const labelize = (k) =>
+  String(k || '')
+    .replaceAll('_', ' ')
+    .replaceAll('.', ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .replace(/^\w/, (c) => c.toUpperCase());
+
+const toDisplay = (v) => {
+  if (v === null || v === undefined) return '—';
+  if (typeof v === 'number') return String(v);
+  if (typeof v === 'boolean') return v ? 'Sí' : 'No';
+  if (Array.isArray(v)) return v.join(', ');
+  if (typeof v === 'object') return JSON.stringify(v);
+  return String(v);
 };
 
 export default function PagosDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const pago = useMemo(() => {
-    const numId = Number(id);
-    if (!id || Number.isNaN(numId)) return null;
-    if (numId === 98421) return MOCK_DETALLE_BASE;
-    return {
-      ...MOCK_DETALLE_BASE,
-      id: numId,
-      paymentRef: `pr_${numId}-ARG`,
-      solicitud: `RCOT-${String(numId).slice(-4)}`,
-      factura: { ...MOCK_DETALLE_BASE.factura, nro: `A-0001-${String(numId).padStart(7, '0')}` },
+  const [pago, setPago] = useState(null);
+  const [timeline, setTimeline] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState('');
+  const [tlErr, setTlErr] = useState('');
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        setLoading(true);
+        setErr('');
+        setTlErr('');
+        const authHeader =
+          localStorage.getItem('authHeader') ||
+          `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
+
+        const [resPago, resTl] = await Promise.all([
+          fetch(`http://18.191.118.13:8080/api/payments/${id}`, {
+            headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+          }),
+          fetch(`http://18.191.118.13:8080/api/payments/${id}/timeline`, {
+            headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+          }),
+        ]);
+
+        if (!resPago.ok) {
+          if (resPago.status === 401) throw new Error('No autorizado. Iniciá sesión nuevamente.');
+          throw new Error('No se pudo obtener el pago.');
+        }
+        const p = await resPago.json();
+        const meta = (() => {
+          try {
+            return p.metadata ? JSON.parse(p.metadata) : {};
+          } catch {
+            return {};
+          }
+        })();
+        setPago({
+          id: p.id,
+          cliente: localStorage.getItem('name') || '—',
+          prestador: p.provider_id ? `ID: ${p.provider_id}` : '—',
+          solicitud: p.solicitud_id ? `RCOT-${p.solicitud_id}` : '—',
+          metodo: getMetodoTag(p.method),
+          estado: mapStatus(p.status),
+          subtotal: Number(p.amount_subtotal ?? 0),
+          impuestos: Number((p.taxes ?? 0) + (p.fees ?? 0)),
+          total: Number(p.amount_total ?? 0),
+          moneda: String(p.currency || 'ARS').toUpperCase(),
+          creadoISO: p.created_at || p.createdAt || null,
+          capturadoISO: p.captured_at || p.capturedAt || null,
+          fees: Number(p.fees ?? 0),
+          descripcion: meta.description || '',
+          categoria: meta.category || '',
+          refund_reason: meta.refund_reason || '',
+          refundId: p.refund_id ?? null,
+        });
+
+        if (!resTl.ok) {
+          setTlErr('No se pudo obtener el timeline.');
+          setTimeline([]);
+        } else {
+          const tl = await resTl.json();
+          const norm = (Array.isArray(tl) ? tl : []).map((e) => {
+            let payloadObj = null;
+            try {
+              payloadObj = e.payload ? JSON.parse(e.payload) : null;
+            } catch {
+              payloadObj = null;
+            }
+            return {
+              id: e.id,
+              type: e.type,
+              actor: e.actor || 'system',
+              source: e.eventSource || e.source || 'SYSTEM',
+              createdISO: e.createdAt || e.created_at || null,
+              payload: payloadObj,
+            };
+          });
+          norm.sort((a, b) => new Date(a.createdISO) - new Date(b.createdISO));
+          setTimeline(norm);
+        }
+      } catch (e) {
+        setErr(e.message || 'Error inesperado.');
+        setPago(null);
+        setTimeline([]);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchAll();
   }, [id]);
 
-  // ⬇️ TODOS LOS HOOKS SIEMPRE ARRIBA
   const [showRefund, setShowRefund] = useState(false);
-  const [monto, setMonto] = useState(3000);
-  const [motivo, setMotivo] = useState('Cancelación del servicio');
+  const [monto, setMonto] = useState(0);
+  const [motivo, setMotivo] = useState('');
   const [notas, setNotas] = useState('');
 
   const totales = useMemo(() => {
@@ -102,268 +181,142 @@ export default function PagosDetalle() {
 
   const confirmarReembolso = (e) => {
     e.preventDefault();
-    if (!pago) return; // defensa
+    if (!pago) return;
     alert(
       `Reembolso solicitado\nMonto: ${money(Number(monto) || 0, pago.moneda)}\nMotivo: ${motivo}\nNotas: ${notas || '-'}`
     );
     setShowRefund(false);
   };
 
+  if (loading) {
+    return (
+      <div className="pd-wrap">
+        <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>← Volver</button>
+        <h1 className="pd-title">Detalle de pago</h1>
+        <p className="pd-sub">Cargando…</p>
+      </div>
+    );
+  }
+
+  if (!pago) {
+    return (
+      <div className="pd-wrap">
+        <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>← Volver</button>
+        <h1 className="pd-title">Detalle de pago</h1>
+        <p className="pd-sub">{err || 'No se encontró el pago.'}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="pd-wrap">
-      <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>
-        ← Volver
-      </button>
+      <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>← Volver</button>
       <h1 className="pd-title">Detalle de pago #{pago.id}</h1>
-      <p className="pd-sub">
-        Resumen, datos fiscales &amp; referencia, timeline, comprobantes y reembolsos.
-      </p>
+      <p className="pd-sub">Resumen, datos fiscales &amp; referencia, timeline, comprobantes y reembolsos.</p>
 
       <section className="pd-grid">
         <article className="pd-card">
           <header className="pd-card-h">Resumen</header>
           <div className="pd-kv">
-            <div>
-              <b>Cliente</b>
-              <span>{pago.cliente}</span>
-            </div>
-            <div>
-              <b>Prestador</b>
-              <span>{pago.prestador}</span>
-            </div>
-            <div>
-              <b>Solicitud/Cotización</b>
-              <span>{pago.solicitud}</span>
-            </div>
-            <div>
-              <b>ID interno</b>
-              <span>{pago.idInterno}</span>
-            </div>
-            <div>
-              <b>Método</b>
-              <span>
-                <Badge kind={pago.metodo}>{pago.metodo}</Badge>
-              </span>
-            </div>
-            <div>
-              <b>Estado</b>
-              <span>
-                <Badge kind={pago.estado}>{pago.estado}</Badge>
-              </span>
-            </div>
-            <div>
-              <b>Subtotal</b>
-              <span>{totales.sub}</span>
-            </div>
-            <div>
-              <b>Impuestos</b>
-              <span>{totales.imp}</span>
-            </div>
-            <div className="pd-total">
-              <b>Total</b>
-              <span>{totales.tot}</span>
-            </div>
-            <div>
-              <b>Creado</b>
-              <span>{fechaHora(pago.creadoISO)}</span>
-            </div>
-            <div>
-              <b>Capturado</b>
-              <span>{fechaHora(pago.capturadoISO)}</span>
-            </div>
-            <div>
-              <b>Expira</b>
-              <span>{fechaHora(pago.expiraISO)}</span>
-            </div>
-          </div>
-
-          <div className="pd-actions">
-            <button className="pd-btn pd-btn--pri" onClick={() => setShowRefund(true)}>
-              Reembolso
-            </button>
-            <button className="pd-btn">Reintentar</button>
-            <button className="pd-btn pd-btn--ghost">Abrir disputa</button>
+            <div><b>Cliente</b><span>{pago.cliente}</span></div>
+            <div><b>Prestador</b><span>{pago.prestador}</span></div>
+            <div><b>Método</b><span><Badge kind={pago.metodo}>{pago.metodo}</Badge></span></div>
+            <div><b>Estado</b><span><Badge kind={pago.estado}>{pago.estado}</Badge></span></div>
+            <div><b>Subtotal</b><span>{totales.sub}</span></div>
+            <div><b>Impuestos</b><span>{totales.imp}</span></div>
+            <div className="pd-total"><b>Total</b><span>{totales.tot}</span></div>
+            <div><b>Creado</b><span>{fechaHora(pago.creadoISO)}</span></div>
+            <div><b>Capturado</b><span>{fechaHora(pago.capturadoISO)}</span></div>
           </div>
         </article>
 
         <article className="pd-card">
           <header className="pd-card-h">Datos fiscales &amp; referencia</header>
           <div className="pd-kv">
-            <div>
-              <b>Moneda</b>
-              <span>{pago.moneda}</span>
-            </div>
-            <div>
-              <b>Fees</b>
-              <span>{money(pago.fees, pago.moneda)}</span>
-            </div>
-            <div>
-              <b>Payment reference</b>
-              <span>{pago.paymentRef}</span>
-            </div>
-            <div>
-              <b>Gateway Txn</b>
-              <span>{pago.gatewayTxn}</span>
-            </div>
-            <div>
-              <b>Condición IVA</b>
-              <span>{pago.condicionIVA}</span>
-            </div>
-            <div>
-              <b>CUIT/CUIL</b>
-              <span>{pago.cuit}</span>
-            </div>
-            <div>
-              <b>Domicilio fiscal</b>
-              <span>{pago.domicilio}</span>
-            </div>
-            <div>
-              <b>Cuotas</b>
-              <span>{pago.cuotas}</span>
-            </div>
+            <div><b>Moneda</b><span>{pago.moneda}</span></div>
+            <div><b>Fees</b><span>{money(pago.fees, pago.moneda)}</span></div>
+            <div><b>Descripción</b><span>{pago.descripcion}</span></div>
+            <div><b>Categoría</b><span>{pago.categoria}</span></div>
+            <div><b>Motivo reembolso</b><span>{pago.refund_reason}</span></div>
           </div>
         </article>
 
         <article className="pd-card">
           <header className="pd-card-h">Comprobantes</header>
-
-          <div className="pd-doc">
-            <div className="pd-doc-h">
-              <div>
-                <b>Factura N°</b> <span>{pago.factura.nro}</span>
-              </div>
-              <Badge kind={pago.factura.estado}>{pago.factura.estado}</Badge>
-            </div>
-            <small className="pd-muted">Emitida: {fechaHora(pago.factura.emitidaISO)}</small>
-            <div className="pd-doc-actions">
-              <button className="pd-btn pd-btn--ghost">Ver PDF</button>
-              <button className="pd-btn">Descargar</button>
-            </div>
-          </div>
-
-          <div className="pd-doc">
-            <div className="pd-doc-h">
-              <div>
-                <b>Nota de Crédito N°</b> <span>{pago.notaCredito.nro}</span>
-              </div>
-              <Badge kind="No emitida">{pago.notaCredito.estado}</Badge>
-            </div>
-            <small className="pd-muted">—</small>
-            <div className="pd-doc-actions">
-              <button className="pd-btn pd-btn--ghost">Ver PDF</button>
-              <button className="pd-btn">Descargar</button>
-            </div>
-          </div>
+          <p className="pd-muted">No hay comprobantes disponibles.</p>
         </article>
       </section>
 
       <section className="pd-card pd-refunds">
         <header className="pd-card-h">Reembolsos</header>
-        <table className="pd-tbl">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Monto</th>
-              <th>Estado</th>
-              <th>Motivo</th>
-              <th>Gateway refund</th>
-              <th>Fecha</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pago.refunds.map((r) => (
-              <tr key={r.id}>
-                <td>{r.id}</td>
-                <td>{money(r.monto, pago.moneda)}</td>
-                <td>
-                  <Badge kind={r.estado}>{r.estado}</Badge>
-                </td>
-                <td>{r.motivo}</td>
-                <td>{r.gatewayRef}</td>
-                <td>{fechaHora(r.fechaISO)}</td>
-              </tr>
-            ))}
-            {pago.refunds.length === 0 && (
-              <tr>
-                <td className="pd-empty" colSpan={6}>
-                  Sin reembolsos.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        {pago.refundId ? (
+          <div className="pd-kv">
+            <div><b>Estado</b><span>Hay reembolso</span></div>
+            <div><b>ID de reembolso</b><span>{pago.refundId}</span></div>
+          </div>
+        ) : (
+          <div className="pd-empty">
+            <p className="pd-muted">Sin reembolsos registrados.</p>
+            <button className="pd-btn pd-btn--pri" onClick={() => setShowRefund(true)}>Solicitar reembolso</button>
+          </div>
+        )}
       </section>
 
       <section className="pd-timeline">
         <header className="pd-card-h">Timeline</header>
-        <ul className="pd-time">
-          {pago.timeline.map(([txt, iso], i) => (
-            <li key={i}>
-              <div className="pd-time-dot" />
-              <div className="pd-time-row">
-                <div className="pd-time-txt">{txt}</div>
-                <div className="pd-time-date">{fechaHora(iso)}</div>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {tlErr && <p className="pd-muted">{tlErr}</p>}
+        {!tlErr && timeline.length === 0 && <p className="pd-muted">No hay eventos en el timeline.</p>}
+        {!tlErr && timeline.length > 0 && (
+          <ul className="pd-time">
+            {timeline.map((ev) => (
+              <li key={ev.id}>
+                <div className="pd-time-dot" />
+                <div className="pd-time-row">
+                  <div className="pd-time-txt">
+                    <div><b>{mapEventType(ev.type)}</b></div>
+                    <small className="pd-muted">Actor: {ev.actor} · Origen: {ev.source}</small>
+                    {ev.payload && typeof ev.payload === 'object' && (
+                      <div className="pd-payload">
+                        <div className="pd-kv pd-kv--mini">
+                          {Object.entries(ev.payload).map(([k, v]) => (
+                            <div key={k}>
+                              <b>{labelize(k)}</b>
+                              <span>{toDisplay(v)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="pd-time-date">{fechaHora(ev.createdISO)}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {showRefund && (
         <div className="pd-modal-overlay" role="dialog" aria-modal="true">
           <form className="pd-modal" onSubmit={confirmarReembolso}>
             <div className="pd-modal-h">
-              <h3>
-                Reembolso <small className="pd-muted">Ventana: 7 días desde la captura</small>
-              </h3>
-              <button
-                type="button"
-                className="pd-btn pd-btn--chip"
-                onClick={() => setShowRefund(false)}
-              >
-                Cerrar
-              </button>
+              <h3>Reembolso</h3>
+              <button type="button" className="pd-btn pd-btn--chip" onClick={() => setShowRefund(false)}>Cerrar</button>
             </div>
-
             <label className="pd-field">
               <span>Monto</span>
-              <input
-                type="number"
-                className="pd-input"
-                value={monto}
-                min="0"
-                onChange={(e) => setMonto(e.target.value)}
-              />
+              <input type="number" className="pd-input" value={monto} min="0" onChange={(e) => setMonto(e.target.value)} />
             </label>
-
             <label className="pd-field">
               <span>Motivo</span>
-              <select
-                className="pd-input"
-                value={motivo}
-                onChange={(e) => setMotivo(e.target.value)}
-              >
-                <option>Cancelación del servicio</option>
-                <option>Solicitud del cliente</option>
-                <option>Error de facturación</option>
-                <option>Fraude confirmado</option>
-              </select>
+              <input type="text" className="pd-input" value={motivo} onChange={(e) => setMotivo(e.target.value)} />
             </label>
-
             <label className="pd-field">
               <span>Notas</span>
-              <textarea
-                className="pd-input pd-textarea"
-                placeholder="Detalle opcional"
-                value={notas}
-                onChange={(e) => setNotas(e.target.value)}
-              />
+              <textarea className="pd-input pd-textarea" value={notas} onChange={(e) => setNotas(e.target.value)} />
             </label>
-
             <div className="pd-modal-actions">
-              <button type="submit" className="pd-btn pd-btn--pri">
-                Confirmar
-              </button>
+              <button type="submit" className="pd-btn pd-btn--pri">Confirmar</button>
             </div>
           </form>
         </div>

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import PagosLista from './views/Pagos-Lista';
 import PagosDetalle from './views/Pagos-Detalle';
 import Login from './views/Login';
+import Gateway from './views/Gateway';
 const Placeholder = ({ title }) => <div style={{ padding: 24 }}>{title}</div>;
 import './App.css';
 

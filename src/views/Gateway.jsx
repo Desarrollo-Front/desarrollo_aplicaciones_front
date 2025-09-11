@@ -36,7 +36,7 @@ export default function Gateway() {
     const authHeader =
       localStorage.getItem('authHeader') ||
       `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
-    const base = 'http://localhost:8080';
+    const base = 'http://18.191.118.13:8080';
     return fetch(`${base}${path}`, {
       headers: {
         'Content-Type': 'application/json',
