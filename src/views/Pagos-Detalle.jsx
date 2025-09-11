@@ -319,7 +319,6 @@ window.onload = function(){window.print();}
   if (loading) {
     return (
       <div className="pd-wrap">
-        <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>← Volver</button>
         <h1 className="pd-title">Detalle de pago</h1>
         <p className="pd-sub">Cargando…</p>
       </div>
