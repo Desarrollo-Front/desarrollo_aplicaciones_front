@@ -403,6 +403,33 @@
   color: var(--text);
   text-align: right;
 }
+.pd-actions {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.pd-actions .pd-btn {
+  white-space: nowrap;
+}
+
+.pd-actions .pd-muted {
+  margin: 0;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .pd-actions {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .pd-actions .pd-muted {
+    text-align: left;
+  }
+}
+
 
 
 
