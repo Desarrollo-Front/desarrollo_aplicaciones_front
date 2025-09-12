@@ -4,12 +4,11 @@ import PagosDetalle from './views/Pagos-Detalle';
 import Login from './views/Login';
 import Gateway from './views/Gateway';
 const Placeholder = ({ title }) => <div style={{ padding: 24 }}>{title}</div>;
-import './App.css';
 
 export default function App() {
   return (
     <BrowserRouter>
-      <main className="app-main">
+  <main className="flex justify-center min-h-screen bg-white text-[#e8ebf3] pt-[calc(var(--navbar-h)+12px)] px-5">
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />

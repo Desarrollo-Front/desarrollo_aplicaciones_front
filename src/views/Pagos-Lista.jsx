@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Pagos-Lista.css';
 
 const METODOS = ['Todos los métodos', 'Tarjeta crédito', 'Tarjeta débito', 'Mercado Pago'];
 const ESTADOS_CHIPS = [
@@ -20,16 +19,28 @@ const fechaFmt = (iso, locale = 'es-AR') => {
 };
 
 function Badge({ kind, children }) {
-  let key = (kind || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .replace(/\s+/g, '-');
-  return <span className={`pl-badge pl-badge--${key}`}>{children}</span>;
+  const colorMap = {
+    'Aprobado': 'bg-green-50 text-green-600 border border-green-200',
+    'Pendiente': 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+    'Rechazado': 'bg-gray-100 text-gray-700 border border-gray-300',
+    'Mercado Pago': 'bg-blue-50 text-blue-700 border border-blue-200',
+    'Crédito': 'bg-indigo-50 text-indigo-700 border border-indigo-200',
+    'Débito': 'bg-purple-50 text-purple-700 border border-purple-200',
+    'Expirado': 'bg-red-50 text-red-700 border border-red-200',
+    'Reembolsado': 'bg-teal-50 text-teal-700 border border-teal-200',
+    'Disputa': 'bg-orange-50 text-orange-700 border border-orange-200',
+    'Pendiente de Pago': 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+    'Pendiente de Aprobación': 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+  };
+  return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colorMap[kind] || 'bg-gray-50 text-gray-700 border border-gray-200'}`}>{children}</span>;
 }
 function Chip({ active, onClick, children }) {
   return (
-    <button type="button" className={`pl-chip ${active ? 'is-on' : ''}`} onClick={onClick}>
+    <button
+      type="button"
+      className={`px-4 py-1 rounded-full border text-sm font-medium mr-2 mb-2 shadow-sm transition-colors duration-200 ${active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50 hover:text-blue-700'}`}
+      onClick={onClick}
+    >
       {children}
     </button>
   );
@@ -233,170 +244,172 @@ export default function PagosLista() {
   };
 
   return (
-    <div className="pl-wrap">
-      <h1 className="pl-title">Pagos</h1>
-      <div className="logout-top">
-        <span className="pl-user">Hola, {userName}</span>
-        <button className="pl-btn pl-btn--logout" onClick={handleLogout}>
-          Cerrar sesión
-        </button>
-      </div>
+    <div className="min-h-screen bg-white py-8 px-2 flex flex-col items-center">
+      <div className="w-full max-w-6xl">
+        {/* Header */}
+        <div className="flex items-center justify-between bg-white rounded-lg shadow-md px-6 py-4 mb-6">
+          <div className="flex items-center gap-3">
+            <span className="text-blue-600 text-2xl font-bold flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7"><path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7" /><path strokeLinecap="round" strokeLinejoin="round" d="M3 7V5a2 2 0 012-2h14a2 2 0 012 2v2" /></svg>
+              Pagos
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-gray-500">Hola, {userName}</span>
+            <button className="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition" onClick={handleLogout}>
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
 
-      <section className="pl-filters">
-        <div className="pl-field">
-          <label>Buscar por {searchBy.toLowerCase()}</label>
-          <div className="pl-inline">
+        {/* Filtros y búsqueda */}
+        <div className="bg-white rounded-lg shadow px-6 py-4 mb-4 flex flex-wrap gap-4 items-end">
+          <div className="flex flex-col">
+            <label className="text-sm text-gray-600 mb-1">Buscar por {searchBy.toLowerCase()}</label>
             <input
-              className="pl-input"
+              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder={`Buscar por ${searchBy.toLowerCase()}...`}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
           </div>
+          <div className="flex flex-col">
+            <label className="text-sm text-gray-600 mb-1">Método</label>
+            <select className="border border-gray-300 rounded-md px-3 py-2" value={metodo} onChange={(e) => setMetodo(e.target.value)}>
+              {METODOS.map((m) => (
+                <option key={m}>{m}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col">
+            <label className="text-sm text-gray-600 mb-1">Desde</label>
+            <input
+              type="date"
+              className="border border-gray-300 rounded-md px-3 py-2"
+              value={desde}
+              onChange={(e) => setDesde(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-sm text-gray-600 mb-1">Hasta</label>
+            <input
+              type="date"
+              className="border border-gray-300 rounded-md px-3 py-2"
+              value={hasta}
+              onChange={(e) => setHasta(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-sm text-gray-600 mb-1">Orden</label>
+            <select className="border border-gray-300 rounded-md px-3 py-2" value={orden} onChange={(e) => setOrden(e.target.value)}>
+              <option>Fecha ⬇</option>
+              <option>Fecha ⬆</option>
+              <option>Monto ⬇</option>
+              <option>Monto ⬆</option>
+            </select>
+          </div>
+          <div className="flex flex-col">
+            <label className="text-sm text-gray-600 mb-1">&nbsp;</label>
+            <button className="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition" onClick={exportCSV}>
+              Exportar CSV
+            </button>
+          </div>
         </div>
 
-        <div className="pl-field">
-          <label>Método</label>
-          <select className="pl-sel" value={metodo} onChange={(e) => setMetodo(e.target.value)}>
-            {METODOS.map((m) => (
-              <option key={m}>{m}</option>
-            ))}
-          </select>
+        {/* Chips de estado */}
+        <div className="mb-4 flex flex-wrap gap-2">
+          {ESTADOS_CHIPS.map((e) => (
+            <Chip key={e} active={chips.has(e)} onClick={() => toggleChip(e)}>
+              {e}
+            </Chip>
+          ))}
         </div>
 
-        <div className="pl-field">
-          <label>Desde</label>
-          <input
-            type="date"
-            className="pl-input"
-            value={desde}
-            onChange={(e) => setDesde(e.target.value)}
-          />
+        {/* Tabla de pagos */}
+        <div className="bg-white rounded-lg shadow overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-3 py-2 text-left font-semibold text-gray-700">ID</th>
+                {authRole !== 'USER' && <th className="px-3 py-2 text-left font-semibold text-gray-700">Cliente</th>}
+                {authRole !== 'MERCHANT' && <th className="px-3 py-2 text-left font-semibold text-gray-700">Prestador</th>}
+                <th className="px-3 py-2 text-left font-semibold text-gray-700">Método</th>
+                <th className="px-3 py-2 text-left font-semibold text-gray-700">Estado</th>
+                <th className="px-3 py-2 text-left font-semibold text-gray-700">Subtotal</th>
+                <th className="px-3 py-2 text-left font-semibold text-gray-700">Impuestos</th>
+                <th className="px-3 py-2 text-left font-semibold text-gray-700">Total</th>
+                <th className="px-3 py-2 text-left font-semibold text-gray-700">Moneda</th>
+                <th className="px-3 py-2 text-left font-semibold text-gray-700">Fecha</th>
+                <th className="px-3 py-2"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading && (
+                <tr>
+                  <td className="px-3 py-4 text-center text-gray-400" colSpan={11}>
+                    Cargando pagos…
+                  </td>
+                </tr>
+              )}
+              {!loading && fetchErr && (
+                <tr>
+                  <td className="px-3 py-4 text-center text-red-500" colSpan={11}>
+                    {fetchErr}
+                  </td>
+                </tr>
+              )}
+              {!loading &&
+                !fetchErr &&
+                pagos.map((p, idx) => {
+                  const { fecha, hora } = fechaFmt(p.fechaISO);
+                  return (
+                    <tr key={p.id} className={idx % 2 === 1 ? 'bg-blue-50' : ''}>
+                      <td className="px-3 py-2">#{p.id}</td>
+                      {authRole !== 'USER' && <td className="px-3 py-2">{p.cliente}</td>}
+                      {authRole !== 'MERCHANT' && <td className="px-3 py-2">{p.prestador}</td>}
+                      <td className="px-3 py-2"><Badge kind={p.metodo}>{p.metodo}</Badge></td>
+                      <td className="px-3 py-2"><Badge kind={p.estado}>{p.estado}</Badge></td>
+                      <td className="px-3 py-2">{money(p.subtotal, p.moneda)}</td>
+                      <td className="px-3 py-2">{money(p.impuestos, p.moneda)}</td>
+                      <td className="px-3 py-2 font-bold">{money(p.total, p.moneda)}</td>
+                      <td className="px-3 py-2">{p.moneda}</td>
+                      <td className="px-3 py-2">
+                        <div className="flex flex-col">
+                          <span>{fecha}</span>
+                          <span className="text-xs text-gray-400">{hora}</span>
+                        </div>
+                      </td>
+                      <td className="px-3 py-2">
+                        {p.estado === 'Pendiente de Pago' && authRole !== 'MERCHANT' ? (
+                          <button
+                            className="bg-green-500 text-white px-3 py-1 rounded-lg font-semibold hover:bg-green-600 transition"
+                            onClick={() => navigate(`/pago/${p.id}`)}
+                          >
+                            Pagar
+                          </button>
+                        ) : (
+                          <button
+                            className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg font-semibold border border-gray-300 hover:bg-blue-50 hover:text-blue-700 transition"
+                            onClick={() => navigate(`/detalle/${p.id}`)}
+                          >
+                            Ver
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              {!loading && !fetchErr && pagos.length === 0 && (
+                <tr>
+                  <td className="px-3 py-4 text-center text-gray-400" colSpan={11}>
+                    No hay pagos para mostrar.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-
-        <div className="pl-field">
-          <label>Hasta</label>
-          <input
-            type="date"
-            className="pl-input"
-            value={hasta}
-            onChange={(e) => setHasta(e.target.value)}
-          />
-        </div>
-
-        <div className="pl-field">
-          <label>Orden</label>
-          <select className="pl-sel" value={orden} onChange={(e) => setOrden(e.target.value)}>
-            <option>Fecha ⬇</option>
-            <option>Fecha ⬆</option>
-            <option>Monto ⬇</option>
-            <option>Monto ⬆</option>
-          </select>
-        </div>
-
-        <div className="pl-field pl-right">
-          <label>&nbsp;</label>
-          <button className="pl-btn" onClick={exportCSV}>
-            Exportar CSV
-          </button>
-        </div>
-      </section>
-
-      <div className="pl-chips">
-        {ESTADOS_CHIPS.map((e) => (
-          <Chip key={e} active={chips.has(e)} onClick={() => toggleChip(e)}>
-            {e}
-          </Chip>
-        ))}
       </div>
-
-      <section className="table-card">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              {authRole !== 'USER' && <th>Cliente</th>}
-              {authRole !== 'MERCHANT' && <th>Prestador</th>}
-              <th>Método</th>
-              <th>Estado</th>
-              <th>Subtotal</th>
-              <th>Impuestos</th>
-              <th>Total</th>
-              <th>Moneda</th>
-              <th>Fecha</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && (
-              <tr>
-                <td className="pl-empty" colSpan={11}>
-                  Cargando pagos…
-                </td>
-              </tr>
-            )}
-            {!loading && fetchErr && (
-              <tr>
-                <td className="pl-empty" colSpan={11}>
-                  {fetchErr}
-                </td>
-              </tr>
-            )}
-            {!loading &&
-              !fetchErr &&
-              pagos.map((p) => {
-                const { fecha, hora } = fechaFmt(p.fechaISO);
-                return (
-                  <tr key={p.id}>
-                    <td>#{p.id}</td>
-                    {authRole !== 'USER' && <td>{p.cliente}</td>}
-                    {authRole !== 'MERCHANT' && <td>{p.prestador}</td>}
-                    <td>
-                      <Badge kind={p.metodo}>{p.metodo}</Badge>
-                    </td>
-                    <td>
-                      <Badge kind={p.estado}>{p.estado}</Badge>
-                    </td>
-                    <td>{money(p.subtotal, p.moneda)}</td>
-                    <td>{money(p.impuestos, p.moneda)}</td>
-                    <td className="pl-bold">{money(p.total, p.moneda)}</td>
-                    <td>{p.moneda}</td>
-                    <td>
-                      <div className="pl-fecha">
-                        <div>{fecha}</div>
-                        <small>{hora}</small>
-                      </div>
-                    </td>
-                    <td>
-                      {p.estado === 'Pendiente de Pago' && authRole !== 'MERCHANT' ? (
-                        <button
-                          className="pl-btn pl-btn--pagar"
-                          onClick={() => navigate(`/pago/${p.id}`)}
-                        >
-                          Pagar
-                        </button>
-                      ) : (
-                        <button
-                          className="pl-btn pl-btn--ghost"
-                          onClick={() => navigate(`/detalle/${p.id}`)}
-                        >
-                          Ver
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            {!loading && !fetchErr && pagos.length === 0 && (
-              <tr>
-                <td className="pl-empty" colSpan={11}>
-                  No hay pagos para mostrar.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </section>
     </div>
   );
 }

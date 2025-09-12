@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import './Gateway.css';
 import visaLogo from '../assets/logos/Visa.png';
 import mcLogo from '../assets/logos/mastercard.png';
 import amexLogo from '../assets/logos/amex.png';

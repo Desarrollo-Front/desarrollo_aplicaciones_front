@@ -1,0 +1,6 @@
+src/App.css
+src/index.css
+src/views/Gateway.css
+src/views/Login.css
+src/views/Pagos-Detalle.css
+src/views/Pagos-Lista.css

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Login.css';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -53,28 +52,23 @@ export default function Login() {
   };
 
   return (
-    <div className="pl-wrap login-wrap">
-      <div className="login-head">
-        <h1 className="pl-title login-title">Ingresar</h1>
-        <p className="pl-sub login-sub">Accedé con tu cuenta para continuar</p>
-      </div>
-
-      <div className="pl-card login-card">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+        <h1 className="text-2xl font-bold text-center mb-2">Ingresar</h1>
+        <p className="text-gray-500 text-center mb-6">Accedé con tu cuenta para continuar</p>
         {err && (
-          <div className="login-alert" role="alert">
+          <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-center" role="alert">
             {err}
           </div>
         )}
-
-        <form className="login-form" onSubmit={handleSubmit} noValidate>
-          {/* Email */}
-          <div className="pl-field">
-            <label htmlFor="email">Email</label>
+        <form className="space-y-6" onSubmit={handleSubmit} noValidate>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
             <input
               id="email"
               name="email"
               type="email"
-              className="pl-input"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="tuemail@ejemplo.com"
               value={form.email}
               onChange={onChange}
@@ -82,16 +76,14 @@ export default function Login() {
               required
             />
           </div>
-
-          {/* Password con ojo dentro del input */}
-          <div className="pl-field">
-            <label htmlFor="password">Contraseña</label>
-            <div className="pass-wrapper">
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
+            <div className="relative">
               <input
                 id="password"
                 name="password"
                 type={showPass ? 'text' : 'password'}
-                className="pl-input"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
                 placeholder="••••••••"
                 value={form.password}
                 onChange={onChange}
@@ -101,59 +93,28 @@ export default function Login() {
               />
               <button
                 type="button"
-                className="pass-toggle"
+                className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700"
                 onClick={() => setShowPass((s) => !s)}
                 aria-label={showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 title={showPass ? 'Ocultar' : 'Mostrar'}
               >
                 {showPass ? (
-                  /* ojo tachado */
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M3 3l18 18"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M1 12s4-7 11-7c2.4 0 4.5.7 6.2 1.7"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="none"
-                    />
-                    <path
-                      d="M23 13s-4 7-11 7c-2.1 0-4-.5-5.6-1.3"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="none"
-                    />
+                    <path d="M3 3l18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M1 12s4-7 11-7c2.4 0 4.5.7 6.2 1.7" stroke="currentColor" strokeWidth="2" fill="none" />
+                    <path d="M23 13s-4 7-11 7c-2.1 0-4-.5-5.6-1.3" stroke="currentColor" strokeWidth="2" fill="none" />
                   </svg>
                 ) : (
-                  /* ojo abierto */
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="none"
-                    />
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="3"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="none"
-                    />
+                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="currentColor" strokeWidth="2" fill="none" />
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" fill="none" />
                   </svg>
                 )}
               </button>
             </div>
           </div>
-
-          {/* Acciones */}
-          <div className="login-actions">
-            <button className="pl-btn pl-btn--ver login-submit" type="submit" disabled={loading}>
+          <div>
+            <button className="w-full bg-blue-600 text-white font-semibold py-2 rounded-md shadow hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50" type="submit" disabled={loading}>
               {loading ? 'Ingresando...' : 'Ingresar'}
             </button>
           </div>
