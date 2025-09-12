@@ -6,19 +6,16 @@ on:
   pull_request:
     branches: [develop, main]
 
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   ci:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Si NO hay package.json, que pase igual
-      - name: Skip (no Node project)
+      # Si NO hay package.json, pasamos OK
+      - name: No Node project detected — skipping
         if: ${{ hashFiles('package.json') == '' }}
         run: echo "No package.json found. Skipping build/test."
 
@@ -33,18 +30,26 @@ jobs:
         if: ${{ hashFiles('package.json') != '' }}
         run: npm ci
 
-      - name: Lint (if present)
+      # ✅ Coverage gate con Vitest (fallará si baja del umbral configurado)
+      - name: Unit tests + coverage
         if: ${{ hashFiles('package.json') != '' }}
-        run: npm run lint --if-present
+        run: npm run test:ci
 
-      - name: Prettier check (if present)
-        if: ${{ hashFiles('package.json') != '' }}
-        run: npm run prettier:check --if-present
-
-      - name: Run tests (if present)
-        if: ${{ hashFiles('package.json') != '' }}
-        run: npm test --if-present
-
-      - name: Build project (if present)
+      # 🔨 Build
+      - name: Build project
         if: ${{ hashFiles('package.json') != '' }}
         run: npm run build --if-present
+
+      # 🧱 Guard de tamaño
+      - name: Check bundle size
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm run size
+
+      # ✅ E2E sobre el build (sirve preview local)
+      - name: Install Playwright browsers
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npx playwright install --with-deps
+
+      - name: E2E tests (Playwright)
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npx playwright test
