@@ -9,12 +9,6 @@
       "limit": "200 KB"
     }
   ],
-  "size-limit": [
-    {
-      "path": "dist/assets/*.js",
-      "limit": "200 KB"
-    }
-  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
