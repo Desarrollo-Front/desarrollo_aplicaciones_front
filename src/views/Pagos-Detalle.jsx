@@ -515,11 +515,6 @@ window.onload = function(){window.print();}
     </ul>
   )}
 </section>
-
-
-
-
-
       {showRefund && (
         <div className="pd-modal-overlay" role="dialog" aria-modal="true">
           <form className="pd-modal" onSubmit={confirmarReembolso}>
