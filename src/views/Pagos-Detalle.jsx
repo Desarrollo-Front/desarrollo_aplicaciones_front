@@ -70,6 +70,43 @@ const toDisplay = (v) => {
   return String(v);
 };
 
+const eventCategory = (type, payload) => {
+  const t = String(type || '').toUpperCase();
+  if (t.includes('REFUND')) return 'refund';
+  if (t.includes('REJECT') || t.includes('FAILED') || String(payload?.error || payload?.error_code || '').length > 0) return 'error';
+  if (t.includes('APPROVED') || t.includes('CAPTURED') || t.includes('PENDING')) return 'state';
+  return 'info';
+};
+
+const highlightPairs = (payload, moneda) => {
+  if (!payload || typeof payload !== 'object') return [];
+  const src = payload;
+  const entries = [];
+  const tryPush = (label, value) => {
+    if (value !== undefined && value !== null && value !== '') entries.push([label, value]);
+  };
+  const amount = src.amount || src.amount_total || src.total || src.captureAmount;
+  if (amount !== undefined) tryPush('Monto', typeof amount === 'number' ? money(amount, moneda) : String(amount));
+  const currency = src.currency || src.moneda;
+  if (currency && !entries.find(e => e[0] === 'Monto') && typeof currency === 'string') tryPush('Moneda', String(currency).toUpperCase());
+  const method = src.method || src.method_type || src.payment_method || src.card?.brand || src.issuer;
+  if (method) tryPush('Método', String(method));
+  const last4 = src.card?.last4 || src.last4 || src.card_last4;
+  if (last4) tryPush('Terminación', `**** ${String(last4)}`);
+  const statusFrom = src.previous_status || src.from || src.old_status;
+  const statusTo = src.new_status || src.to || src.status;
+  if (statusFrom && statusTo) tryPush('Cambio de estado', `${mapStatus(statusFrom)} → ${mapStatus(statusTo)}`);
+  const installments = src.installments || src.cuotas;
+  if (installments) tryPush('Cuotas', String(installments));
+  const auth = src.authorization_code || src.auth_code || src.approval_code;
+  if (auth) tryPush('Autorización', String(auth));
+  const reason = src.reason || src.refund_reason || src.motivo;
+  if (reason) tryPush('Motivo', String(reason));
+  const error = src.error || src.error_code || src.error_message;
+  if (error) tryPush('Error', typeof error === 'string' ? error : JSON.stringify(error));
+  return entries.slice(0, 3);
+};
+
 export default function PagosDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -79,6 +116,8 @@ export default function PagosDetalle() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
   const [tlErr, setTlErr] = useState('');
+  const [tlFilter, setTlFilter] = useState('all');
+  const [expanded, setExpanded] = useState({});
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -145,13 +184,16 @@ export default function PagosDetalle() {
             } catch {
               payloadObj = null;
             }
+            const created = e.createdAt || e.created_at || null;
+            const cat = eventCategory(e.type, payloadObj);
             return {
               id: e.id,
               type: e.type,
               actor: e.actor || 'system',
               source: e.eventSource || e.source || 'SYSTEM',
-              createdISO: e.createdAt || e.created_at || null,
+              createdISO: created,
               payload: payloadObj,
+              category: cat,
             };
           });
           norm.sort((a, b) => new Date(a.createdISO) - new Date(b.createdISO));
@@ -316,6 +358,11 @@ window.onload = function(){window.print();}
     setShowRefund(false);
   };
 
+  const filteredTimeline = useMemo(() => {
+    if (tlFilter === 'all') return timeline;
+    return timeline.filter(e => e.category === tlFilter);
+  }, [timeline, tlFilter]);
+
   if (loading) {
     return (
       <div className="pd-wrap">
@@ -337,14 +384,14 @@ window.onload = function(){window.print();}
 
   return (
     <div className="pd-wrap">
-     <div className="pd-head">
-  <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>← Volver</button>
-  <div className="pd-head-center">
-    <h1 className="pd-title">Detalle de pago #{pago?.id ?? ''}</h1>
-    <p className="pd-sub">Resumen, datos fiscales y referencia, timeline, comprobantes y reembolsos.</p>
-  </div>
-  <div className="pd-head-spacer"></div>
-</div>
+      <div className="pd-head">
+        <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>← Volver</button>
+        <div className="pd-head-center">
+          <h1 className="pd-title">Detalle de pago #{pago?.id ?? ''}</h1>
+          <p className="pd-sub">Resumen, datos fiscales y referencia, timeline, comprobantes y reembolsos.</p>
+        </div>
+        <div className="pd-head-spacer"></div>
+      </div>
 
       <section className="pd-grid">
         <article className="pd-card">
@@ -373,19 +420,17 @@ window.onload = function(){window.print();}
           </div>
         </article>
 
-       <article className="pd-card">
-  <header className="pd-card-h">Comprobantes</header>
-  {puedeDescargarComprobante ? (
-    <div className="pd-comprobante">
-      <p className="pd-muted">Se genera un comprobante de pago no fiscal con los datos reales.</p>
-      <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>Descargar Factura</button>
-    </div>
-  ) : (
-    <p className="pd-muted">No hay comprobantes disponibles.</p>
-  )}
-</article>
-
-
+        <article className="pd-card">
+          <header className="pd-card-h">Comprobantes</header>
+          {puedeDescargarComprobante ? (
+            <div className="pd-comprobante">
+              <p className="pd-muted">Se genera un comprobante de pago no fiscal con los datos reales.</p>
+              <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>Descargar Factura</button>
+            </div>
+          ) : (
+            <p className="pd-muted">No hay comprobantes disponibles.</p>
+          )}
+        </article>
       </section>
 
       <section className="pd-card pd-refunds">
@@ -403,39 +448,77 @@ window.onload = function(){window.print();}
         )}
       </section>
 
-      <section className="pd-timeline">
-        <header className="pd-card-h">Timeline</header>
-        {tlErr && <p className="pd-muted">{tlErr}</p>}
-        {!tlErr && timeline.length === 0 && <p className="pd-muted">No hay eventos en el timeline.</p>}
-        {!tlErr && timeline.length > 0 && (
-          <ul className="pd-time">
-            {timeline.map((ev) => (
-              <li key={ev.id}>
-                <div className="pd-time-dot" />
-                <div className="pd-time-row">
-                  <div className="pd-time-txt">
-                    <div><b>{mapEventType(ev.type)}</b></div>
-                    <small className="pd-muted">Actor: {ev.actor} · Origen: {ev.source}</small>
-                    {ev.payload && typeof ev.payload === 'object' && (
-                      <div className="pd-payload">
-                        <div className="pd-kv pd-kv--mini">
-                          {Object.entries(ev.payload).map(([k, v]) => (
-                            <div key={k}>
-                              <b>{labelize(k)}</b>
-                              <span>{toDisplay(v)}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+     <section className="pd-timeline pd-timeline--alt">
+  <div className="pd-tl-head">
+    <header className="pd-card-h">Timeline</header>
+    <div className="pd-tl-filters"></div>
+  </div>
+
+  {tlErr && <p className="pd-muted">{tlErr}</p>}
+  {!tlErr && filteredTimeline.length === 0 && <p className="pd-muted">No hay eventos para el filtro seleccionado.</p>}
+
+  {!tlErr && filteredTimeline.length > 0 && (
+    <ul className="pd-time-alt">
+      {filteredTimeline.map((ev, i) => {
+        const side = i % 2 === 0 ? 'pd-left' : 'pd-right';
+        const cat = ev.category;
+        const open = !!expanded[ev.id];
+        const hl = highlightPairs(ev.payload, pago.moneda);
+        return (
+          <li key={ev.id} className={`pd-time-alt-item ${side} pd-time-${cat}`}>
+            <div className="pd-time-head">
+              <button className="pd-dot-label" data-tip={fechaHora(ev.createdISO)} type="button">
+                <span className="pd-evt-title">{mapEventType(ev.type)}{ev._count ? ` ×${ev._count}` : ''}</span>
+              </button>
+              {!open && (
+                <button className="pd-btn pd-btn--chip pd-more" onClick={() => setExpanded((x) => ({ ...x, [ev.id]: true }))}>
+                  Ver más
+                </button>
+              )}
+            </div>
+
+            {open && (
+              <div className="pd-time-card">
+                <div className="pd-time-card-h">
+                  <div className="pd-time-title">{mapEventType(ev.type)}{ev._count ? ` ×${ev._count}` : ''}</div>
                   <div className="pd-time-date">{fechaHora(ev.createdISO)}</div>
                 </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+                <div className="pd-time-meta">Actor: {ev.actor} · Origen: {ev.source}</div>
+
+                {hl.length > 0 && (
+                  <div className="pd-tl-highlights">
+                    {hl.map(([k, v]) => (
+                      <div key={k} className="pd-chip-kv">
+                        <span className="pd-chip-k">{k}</span>
+                        <span className="pd-chip-v">{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {ev.payload && typeof ev.payload === 'object' && (
+                  <div className="pd-payload">
+                    <pre className="pd-pre">{JSON.stringify(ev.payload, null, 2)}</pre>
+                  </div>
+                )}
+
+                <div className="pd-tl-actions">
+                  <button className="pd-btn pd-btn--chip" onClick={() => setExpanded((x) => ({ ...x, [ev.id]: false }))}>
+                    Ver menos
+                  </button>
+                </div>
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  )}
+</section>
+
+
+
+
 
       {showRefund && (
         <div className="pd-modal-overlay" role="dialog" aria-modal="true">
