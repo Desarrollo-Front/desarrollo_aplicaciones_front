@@ -337,9 +337,14 @@ window.onload = function(){window.print();}
 
   return (
     <div className="pd-wrap">
-      <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>← Volver</button>
-      <h1 className="pd-title">Detalle de pago #{pago.id}</h1>
-      <p className="pd-sub">Resumen, datos fiscales y referencia, timeline, comprobantes y reembolsos.</p>
+     <div className="pd-head">
+  <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>← Volver</button>
+  <div className="pd-head-center">
+    <h1 className="pd-title">Detalle de pago #{pago?.id ?? ''}</h1>
+    <p className="pd-sub">Resumen, datos fiscales y referencia, timeline, comprobantes y reembolsos.</p>
+  </div>
+  <div className="pd-head-spacer"></div>
+</div>
 
       <section className="pd-grid">
         <article className="pd-card">
