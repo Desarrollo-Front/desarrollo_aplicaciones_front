@@ -288,3 +288,11 @@ body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sa
     justify-self: center;
   }
 }
+
+.pd-comprobante {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}

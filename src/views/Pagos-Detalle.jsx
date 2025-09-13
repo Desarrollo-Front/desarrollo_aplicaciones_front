@@ -373,17 +373,18 @@ window.onload = function(){window.print();}
           </div>
         </article>
 
-        <article className="pd-card">
+       <article className="pd-card">
   <header className="pd-card-h">Comprobantes</header>
   {puedeDescargarComprobante ? (
-    <div className="pd-actions">
-      <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>Descargar Factura</button>
+    <div className="pd-comprobante">
       <p className="pd-muted">Se genera un comprobante de pago no fiscal con los datos reales.</p>
+      <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>Descargar Factura</button>
     </div>
   ) : (
     <p className="pd-muted">No hay comprobantes disponibles.</p>
   )}
 </article>
+
 
       </section>
 
