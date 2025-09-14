@@ -164,8 +164,8 @@ export default function PagosLista() {
         const list = await res.json();
         const mapped = (Array.isArray(list) ? list : []).map((p) => ({
           id: p.id,
-          cliente: `ID: ${p.user_id ?? '-'}`,
-          prestador: p.provider_id ? `ID: ${p.provider_id}` : '-',
+          cliente: p.user_name ?? '-',
+          prestador: p.provider_name ?? '-', 
           metodo: getMetodoTag(p.method),
           estado: mapStatus(p.status),
           subtotal: Number(p.amount_subtotal ?? 0),
@@ -468,6 +468,47 @@ export default function PagosLista() {
             <i className="ri-download-2-line" /> Exportar CSV
           </span>
         </div>
+      </section>
+
+      <div className="pl-chips">
+        <Chip
+          icon="ri-time-line"
+          key="Pendiente"
+          active={chips.has('Pendiente')}
+          onClick={() => toggleChip('Pendiente')}
+        >
+          Pendiente
+        </Chip>
+        <Chip
+          icon="ri-check-line"
+          key="Aprobado"
+          active={chips.has('Aprobado')}
+          onClick={() => toggleChip('Aprobado')}
+        >
+          Aprobado
+        </Chip>
+        <Chip
+          icon="ri-close-circle-line"
+          key="Rechazado"
+          active={chips.has('Rechazado')}
+          onClick={() => toggleChip('Rechazado')}
+        >
+          Rechazado
+        </Chip>
+        <Chip
+  icon="ri-refund-2-line"
+  key="Reembolsado"
+  active={chips.has('Reembolsado')}
+  onClick={() => toggleChip('Reembolsado')}
+>
+  Reembolsado
+</Chip>
+
+
+        {/* Exportar CSV a la derecha */}
+        <span className="pl-export" onClick={exportCSV}>
+          <i className="ri-download-2-line" /> Exportar CSV
+        </span>
       </div>
 
       <section className="pl-card">
