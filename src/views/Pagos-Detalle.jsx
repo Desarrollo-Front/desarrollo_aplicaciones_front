@@ -161,6 +161,8 @@ export default function PagosDetalle() {
   () => String(refundInfo?.status || '').toUpperCase() === 'PENDING',
   [refundInfo]
 );
+  const [fullRefund, setFullRefund] = useState(false);
+  
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -427,6 +429,11 @@ window.onload = function(){window.print();}
   const getAuthHeader = () =>
   localStorage.getItem('authHeader') ||
   `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
+  useEffect(() => {
+  if (showRefund && fullRefund && pago) {
+    setMonto(pago.total);
+  }
+}, [showRefund, fullRefund, pago]);
 
 const refreshTimeline = async (paymentId) => {
   const authHeader = getAuthHeader();
@@ -464,11 +471,15 @@ const refreshTimeline = async (paymentId) => {
   const confirmarReembolso = async (e) => {
   e.preventDefault();
   if (!pago) return;
-  const amountNum = Number(monto);
+  const amountNum = fullRefund ? Number(pago.total) : Number(monto);
   const reasonStr = String(motivo || '').trim() || 'customer_request';
   const notasStr = String(notas || '').trim();
   if (!Number.isFinite(amountNum) || amountNum <= 0) {
     alert('Ingresá un monto válido mayor a 0.');
+    return;
+  }
+  if (amountNum > Number(pago.total)) {
+    alert('El monto no puede exceder el total del pago.');
     return;
   }
   try {
@@ -477,7 +488,11 @@ const refreshTimeline = async (paymentId) => {
       paymentId: pago.id,
       amount: amountNum,
       reason: reasonStr,
-      metadata: JSON.stringify({ notes: notasStr || null, requestedBy: localStorage.getItem('name') || null })
+      metadata: JSON.stringify({
+        notes: notasStr || null,
+        requestedBy: localStorage.getItem('name') || null,
+        fullRefund: !!fullRefund
+      })
     };
     const res = await fetch('http://18.191.118.13:8080/api/refunds/create', {
       method: 'POST',
@@ -502,6 +517,7 @@ const refreshTimeline = async (paymentId) => {
     }
     await refreshTimeline(pago.id);
     setShowRefund(false);
+    setFullRefund(false);
     setMonto(0);
     setMotivo('');
     setNotas('');
@@ -509,7 +525,6 @@ const refreshTimeline = async (paymentId) => {
     alert(err.message || 'Error al crear el reembolso.');
   }
 };
-
 
  const doRefundAction = async (action) => {
   if (!refundInfo?.id) return;
@@ -743,30 +758,53 @@ const refreshTimeline = async (paymentId) => {
       </section>
 
       {showRefund && (
-        <div className="pd-modal-overlay" role="dialog" aria-modal="true">
-          <form className="pd-modal" onSubmit={confirmarReembolso}>
-            <div className="pd-modal-h">
-              <h3>Reembolso</h3>
-              <button type="button" className="pd-btn pd-btn--chip" onClick={() => setShowRefund(false)}>Cerrar</button>
-            </div>
-            <label className="pd-field">
-              <span>Monto</span>
-              <input type="number" className="pd-input" value={monto} min="0" onChange={(e) => setMonto(e.target.value)} />
-            </label>
-            <label className="pd-field">
-              <span>Motivo</span>
-              <input type="text" className="pd-input" value={motivo} onChange={(e) => setMotivo(e.target.value)} />
-            </label>
-            <label className="pd-field">
-              <span>Notas</span>
-              <textarea className="pd-input pd-textarea" value={notas} onChange={(e) => setNotas(e.target.value)} />
-            </label>
-            <div className="pd-modal-actions">
-              <button type="submit" className="pd-btn pd-btn--pri">Confirmar</button>
-            </div>
-          </form>
-        </div>
-      )}
+  <div className="pd-modal-overlay" role="dialog" aria-modal="true">
+    <form className="pd-modal" onSubmit={confirmarReembolso}>
+      <div className="pd-modal-h">
+        <h3>Reembolso</h3>
+        <button type="button" className="pd-btn pd-btn--chip" onClick={() => setShowRefund(false)}>Cerrar</button>
+      </div>
+
+      <label className="pd-field" style={{display:'flex', flexDirection:'row', alignItems:'center', gap:8}}>
+        <input
+          type="checkbox"
+          checked={fullRefund}
+          onChange={(e) => setFullRefund(e.target.checked)}
+        />
+        <span>Reembolso total {pago ? `(${money(pago.total, pago.moneda)})` : ''}</span>
+      </label>
+
+      <label className="pd-field">
+        <span>Monto</span>
+        <input
+          type="number"
+          className="pd-input"
+          value={fullRefund && pago ? pago.total : monto}
+          min="0"
+          step="0.01"
+          max={pago ? pago.total : undefined}
+          onChange={(e) => setMonto(e.target.value)}
+          disabled={fullRefund}
+        />
+      </label>
+
+      <label className="pd-field">
+        <span>Motivo</span>
+        <input type="text" className="pd-input" value={motivo} onChange={(e) => setMotivo(e.target.value)} />
+      </label>
+
+      <label className="pd-field">
+        <span>Notas</span>
+        <textarea className="pd-input pd-textarea" value={notas} onChange={(e) => setNotas(e.target.value)} />
+      </label>
+
+      <div className="pd-modal-actions">
+        <button type="submit" className="pd-btn pd-btn--pri">Confirmar</button>
+      </div>
+    </form>
+  </div>
+)}
+
     </div>
   );
 }
