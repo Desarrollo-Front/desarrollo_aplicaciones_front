@@ -474,6 +474,11 @@ const refreshTimeline = async (paymentId) => {
   const amountNum = fullRefund ? Number(pago.total) : Number(monto);
   const reasonStr = String(motivo || '').trim() || 'customer_request';
   const notasStr = String(notas || '').trim();
+  const motivoRegex = /^[a-zA-ZÀ-ÿ\s.,-]{3,100}$/;
+if (!motivoRegex.test(reasonStr)) {
+  alert('El motivo debe ser un texto válido (mínimo 3 caracteres, solo letras y espacios).');
+  return;
+}
   if (!Number.isFinite(amountNum) || amountNum <= 0) {
     alert('Ingresá un monto válido mayor a 0.');
     return;
@@ -790,7 +795,9 @@ const refreshTimeline = async (paymentId) => {
 
       <label className="pd-field">
         <span>Motivo</span>
-        <input type="text" className="pd-input" value={motivo} onChange={(e) => setMotivo(e.target.value)} />
+        <input type="text" className="pd-input" value={motivo} onChange={(e) => setMotivo(e.target.value)}pattern="[a-zA-ZÀ-ÿ\s.,-]{3,100}"
+    title="Solo letras, espacios y signos básicos (mínimo 3 caracteres)"
+    required />
       </label>
 
       <label className="pd-field">
