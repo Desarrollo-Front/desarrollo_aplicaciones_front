@@ -60,6 +60,10 @@ export default function Gateway() {
   };
 
   useEffect(() => {
+    if (state) {
+      setLoading(false);
+      return;
+    }
     const fetchPayment = async () => {
       try {
         const res = await api(`/api/payments/${id}`);
@@ -73,7 +77,7 @@ export default function Gateway() {
       }
     };
     fetchPayment();
-  }, [id]);
+  }, [id, state]);
 
   const money = (n, curr = 'ARS', locale = 'es-AR') =>
     new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(Number(n || 0));
@@ -167,79 +171,82 @@ export default function Gateway() {
   };
 
   return (
-    <div className="pl-wrap gw-wrap">
-      <button className="pl-btn pl-btn--ghost gw-back" onClick={() => navigate('/pagos')}>
-        ← Volver
-      </button>
-      <h1 className="pl-title gw-title">Medio de pago</h1>
+    <div className="gx-wrap">
+      <div className="gx-head">
+        <button className="gx-btn gx-btn--ghost gx-back" onClick={() => navigate('/pagos')}>
+          ← Volver
+        </button>
+        <h1 className="gx-title">Medio de pago</h1>
+        <div className="gx-spacer" />
+      </div>
 
-      {okMsg && <div className="gw-banner ok">{okMsg}</div>}
-      {error && <div className="gw-banner warn">{error}</div>}
+      {okMsg && <div className="gx-banner gx-banner--ok"><i className="ri-check-line" /> {okMsg}</div>}
+      {error && <div className="gx-banner gx-banner--warn"><i className="ri-error-warning-line" /> {error}</div>}
 
-      <section className="gw-grid">
-        <aside className="gw-card">
-          <div className="gw-list">
-            <label className={`gw-option ${method === 'card' ? 'is-on' : ''}`}>
+      <section className="gx-grid">
+        <aside className="gx-card">
+          <div className="gx-list">
+            <label className={`gx-option ${method === 'card' ? 'is-on' : ''}`}>
               <input
                 type="radio"
                 name="method"
                 checked={method === 'card'}
                 onChange={() => onSelectMethod('card')}
               />
-              <div className="gw-option-main">
-                <div className="gw-option-logos">
-                  <img src={visaLogo} alt="Visa" className="gw-logo-img" />
-                  <img src={mcLogo} alt="Mastercard" className="gw-logo-img" />
-                  <img src={amexLogo} alt="American Express" className="gw-logo-img" />
+              <div className="gx-option-main">
+                <div className="gx-logos">
+                  <img src={visaLogo} alt="Visa" className="gx-logo-img" />
+                  <img src={mcLogo} alt="Mastercard" className="gx-logo-img" />
+                  <img src={amexLogo} alt="American Express" className="gx-logo-img" />
                 </div>
-                <div className="gw-option-texts">
-                  <div className="gw-ttl">Tarjetas de crédito y débito</div>
-                  <div className={`gw-sub ${cardMask ? 'gw-sub-strong' : ''}`}>
+                <div className="gx-texts">
+                  <div className="gx-ttl">Tarjetas de crédito y débito</div>
+                  <div className={`gx-sub ${cardMask ? 'gx-sub-strong' : ''}`}>
                     {cardMask || 'Visa, Mastercard, American Express y más…'}
                   </div>
                 </div>
               </div>
             </label>
 
-            <label className={`gw-option ${method === 'mp' ? 'is-on' : ''}`}>
+            <label className={`gx-option ${method === 'mp' ? 'is-on' : ''}`}>
               <input
                 type="radio"
                 name="method"
                 checked={method === 'mp'}
                 onChange={() => onSelectMethod('mp')}
               />
-              <div className="gw-option-main">
-                <div className="gw-option-logos">
-                  <img src={mpLogo} alt="MercadoPago" className="gw-logo-img gw-logo-mp" />
+              <div className="gx-option-main">
+                <div className="gx-logos">
+                  <img src={mpLogo} alt="MercadoPago" className="gx-logo-img gx-logo-mp" />
                 </div>
-                <div className="gw-option-texts">
-                  <div className="gw-ttl">MercadoPago</div>
-                  <div className="gw-sub">Pagá con billetera, saldo o QR.</div>
+                <div className="gx-texts">
+                  <div className="gx-ttl">MercadoPago</div>
+                  <div className="gx-sub">Pagá con billetera, saldo o QR.</div>
                 </div>
               </div>
             </label>
           </div>
         </aside>
 
-        <aside className="gw-card gw-summary">
-          <header className="gw-sum-h">Resumen de la compra</header>
-          {loading && <div className="gw-empty">Cargando…</div>}
-          {!loading && error && <div className="gw-empty">{error}</div>}
+        <aside className="gx-card gx-summary">
+          <header className="gx-sum-h">Resumen de la compra</header>
+          {loading && <div className="gx-empty">Cargando…</div>}
+          {!loading && error && <div className="gx-empty">{error}</div>}
           {!loading && !error && resumen && (
             <>
-              <div className="gw-sum-row">
+              <div className="gx-sum-row">
                 <span>Subtotal</span>
                 <b>{resumen.subtotalFmt}</b>
               </div>
-              <div className="gw-sum-row">
+              <div className="gx-sum-row">
                 <span>Impuestos y cargos</span>
                 <b>{resumen.taxesFmt}</b>
               </div>
-              <div className="gw-sum-row gw-sum-total">
+              <div className="gx-sum-row gx-sum-total">
                 <span>Total</span>
                 <b>{resumen.totalFmt}</b>
               </div>
-              <button className="pl-btn pl-btn--ver gw-buy" onClick={comprar} disabled={processing}>
+              <button className="gx-btn gx-btn--pri gx-buy" onClick={comprar} disabled={processing}>
                 {processing ? 'Procesando…' : 'Comprar'}
               </button>
             </>
@@ -301,31 +308,31 @@ function CardModal({ onClose, onContinue, currency }) {
   };
 
   return (
-    <div className="gw-modal-ov" role="dialog" aria-modal="true">
-      <div className="gw-modal">
-        <header className="gw-modal-h">
-          <div className="gw-modal-ttl">
-            <span className="gw-logo gw-logo-card" />
+    <div className="gx-modal-ov" role="dialog" aria-modal="true">
+      <div className="gx-modal">
+        <header className="gx-modal-h">
+          <div className="gx-modal-ttl">
+            <span className="gx-logo-card" />
             <b>Nueva tarjeta</b>
           </div>
-          <button className="pl-btn pl-btn--ghost" onClick={onClose}>
+          <button className="gx-btn gx-btn--ghost" onClick={onClose}>
             Cerrar
           </button>
         </header>
 
-        <div className="gw-fields">
-          <label className="gw-field">
+        <div className="gx-fields">
+          <label className="gx-field">
             <span>Tipo de tarjeta</span>
-            <select className="pl-input" name="kind" value={form.kind} onChange={onChange}>
+            <select className="gx-input" name="kind" value={form.kind} onChange={onChange}>
               <option value="credit">Crédito</option>
               <option value="debit">Débito</option>
             </select>
           </label>
 
-          <label className="gw-field">
+          <label className="gx-field">
             <span>Número de tarjeta</span>
             <input
-              className="pl-input"
+              className="gx-input"
               name="number"
               placeholder="1234 1234 1234 1234"
               value={form.number}
@@ -335,10 +342,10 @@ function CardModal({ onClose, onContinue, currency }) {
             />
           </label>
 
-          <label className="gw-field">
+          <label className="gx-field">
             <span>Nombre del titular</span>
             <input
-              className="pl-input"
+              className="gx-input"
               name="name"
               placeholder="Ej.: María López"
               value={form.name}
@@ -346,11 +353,11 @@ function CardModal({ onClose, onContinue, currency }) {
             />
           </label>
 
-          <div className="gw-row">
-            <label className="gw-field">
+          <div className="gx-row">
+            <label className="gx-field">
               <span>Vencimiento</span>
               <input
-                className="pl-input"
+                className="gx-input"
                 name="exp"
                 placeholder="MM/AA"
                 value={form.exp}
@@ -359,10 +366,10 @@ function CardModal({ onClose, onContinue, currency }) {
               />
             </label>
 
-            <label className="gw-field">
+            <label className="gx-field">
               <span>Código de seguridad</span>
               <input
-                className="pl-input"
+                className="gx-input"
                 name="cvv"
                 placeholder="Ej.: 123"
                 value={form.cvv}
@@ -373,20 +380,20 @@ function CardModal({ onClose, onContinue, currency }) {
             </label>
           </div>
 
-          <div className="gw-row">
-            <label className="gw-field">
+          <div className="gx-row">
+            <label className="gx-field">
               <span>Documento del titular</span>
-              <select className="pl-input" name="docType" value={form.docType} onChange={onChange}>
+              <select className="gx-input" name="docType" value={form.docType} onChange={onChange}>
                 <option>DNI</option>
                 <option>CUIL</option>
                 <option>CUIT</option>
                 <option>Pasaporte</option>
               </select>
             </label>
-            <label className="gw-field">
+            <label className="gx-field">
               <span>&nbsp;</span>
               <input
-                className="pl-input"
+                className="gx-input"
                 name="doc"
                 placeholder="99.999.999"
                 value={form.doc}
@@ -396,12 +403,12 @@ function CardModal({ onClose, onContinue, currency }) {
           </div>
         </div>
 
-        <div className="gw-modal-actions">
-          <button className="pl-btn pl-btn--ver" onClick={() => onContinue(form)} disabled={!valid}>
+        <div className="gx-modal-actions">
+          <button className="gx-btn gx-btn--pri" onClick={() => onContinue(form)} disabled={!valid}>
             Continuar
           </button>
         </div>
-        <small className="gw-help">
+        <small className="gx-help">
           Se realizará una verificación de tarjeta. Moneda: {currency}
         </small>
       </div>
