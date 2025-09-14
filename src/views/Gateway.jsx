@@ -31,6 +31,12 @@ export default function Gateway() {
   const [error, setError] = useState('');
   const [okMsg, setOkMsg] = useState('');
   const [cardData, setCardData] = useState(null);
+  const [alerta, setAlerta] = useState({ show: false, tipo: 'info', mensaje: '' });
+
+  const mostrarAlerta = (mensaje, tipo = 'info') => {
+    setAlerta({ show: true, tipo, mensaje });
+    setTimeout(() => setAlerta({ show: false, tipo: 'info', mensaje: '' }), 4000);
+  };
 
   const api = (path, opts = {}) => {
     const authHeader =
@@ -112,6 +118,9 @@ export default function Gateway() {
             expirationMonth: cardData?.expirationMonth,
             expirationYear: cardData?.expirationYear,
             cvv: cardData?.cvv,
+            documentType: cardData?.docType,
+            documentNumber: cardData?.doc,
+            brand: cardData?.brand,
           }
         : { paymentMethodType: 'MERCADO_PAGO' };
 
@@ -128,7 +137,7 @@ export default function Gateway() {
 
   const comprar = async () => {
     if (!method) {
-      alert('Elegí un método de pago.');
+      mostrarAlerta('Elegí un método de pago.', 'error');
       return;
     }
     if (!payment) return;
@@ -145,8 +154,11 @@ export default function Gateway() {
             : 'CREDIT_CARD'
           : 'MERCADO_PAGO';
 
-      if ((type === 'CREDIT_CARD' || type === 'DEBIT_CARD') && !cardData)
-        throw new Error('Falta completar la tarjeta.');
+      if ((type === 'CREDIT_CARD' || type === 'DEBIT_CARD') && !cardData) {
+        mostrarAlerta('Falta completar la tarjeta.', 'error');
+        setProcessing(false);
+        return;
+      }
 
       await setPaymentMethod(payment.id, type);
 
@@ -258,7 +270,8 @@ export default function Gateway() {
         <CardModal
           currency={resumen?.currency || 'ARS'}
           onClose={() => setShowCardModal(false)}
-          onContinue={(form) => {
+          onInvalid={(msg) => mostrarAlerta(msg, 'error')}
+          onContinue={(form, meta) => {
             const digits = form.number.replace(/\D/g, '');
             const last4 = digits.slice(-4).padStart(4, '•');
             const mask = `•••• •••• •••• ${last4}`;
@@ -271,16 +284,26 @@ export default function Gateway() {
               expirationMonth: Number(mm),
               expirationYear: 2000 + Number(yy),
               cvv: form.cvv.trim(),
+              docType: form.docType,
+              doc: form.doc,
+              brand: meta.brand,
             });
             setShowCardModal(false);
           }}
         />
       )}
+
+      {alerta.show && (
+        <div className={`pd-alert pd-alert--${alerta.tipo}`}>
+          {alerta.mensaje}
+          <button className="pd-alert-x" onClick={() => setAlerta({show:false,tipo:'info',mensaje:''})}>×</button>
+        </div>
+      )}
     </div>
   );
 }
 
-function CardModal({ onClose, onContinue, currency }) {
+function CardModal({ onClose, onContinue, onInvalid, currency }) {
   const [form, setForm] = useState({
     kind: 'credit',
     number: '',
@@ -290,21 +313,107 @@ function CardModal({ onClose, onContinue, currency }) {
     docType: 'DNI',
     doc: '',
   });
+  const [errs, setErrs] = useState({});
+  const [touched, setTouched] = useState({});
+  const [submitted, setSubmitted] = useState(false);
   const [valid, setValid] = useState(false);
 
+  const onlyDigits = (s) => s.replace(/\D/g, '');
+
+  const validName = (s) => /^[a-zA-ZÀ-ÿ\s.'-]{3,60}$/.test((s || '').trim());
+  const parseExp = (s) => {
+    const m = (s || '').match(/^(\d{2})\/(\d{2})$/);
+    if (!m) return null;
+    const mm = parseInt(m[1], 10);
+    const yy = parseInt(m[2], 10);
+    if (mm < 1 || mm > 12) return null;
+    const year = 2000 + yy;
+    return { mm, year };
+  };
+  const expInFuture = (mm, year) => {
+    const now = new Date();
+    const cm = now.getMonth() + 1;
+    const cy = now.getFullYear();
+    return year > cy || (year === cy && mm >= cm);
+  };
+  const docValid = (type, doc) => {
+    const d = onlyDigits(doc || '');
+    if (type === 'DNI') return d.length >= 7 && d.length <= 9;
+    if (type === 'CUIL' || type === 'CUIT') return d.length === 11;
+    if (type === 'Pasaporte') return /^[A-Za-z0-9]{6,12}$/.test(doc || '');
+    return d.length >= 6;
+  };
+
   useEffect(() => {
-    const ok =
-      form.number.replace(/\s/g, '').length >= 12 &&
-      form.name.trim().length > 3 &&
-      /^\d{2}\/\d{2}$/.test(form.exp) &&
-      form.cvv.length >= 3 &&
-      form.doc.trim().length >= 6;
-    setValid(ok);
+    const e = {};
+    const digits = onlyDigits(form.number);
+    if (digits && digits.length < 16) e.number = 'Ingresá 16 dígitos';
+    if (form.name && !validName(form.name)) e.name = 'Ingresá el nombre del titular';
+    const ex = form.exp ? parseExp(form.exp) : null;
+    if (form.exp && !ex) e.exp = 'Formato MM/AA';
+    else if (ex && !expInFuture(ex.mm, ex.year)) e.exp = 'Tarjeta vencida';
+    if (!/^\d{0,3}$/.test(form.cvv)) e.cvv = 'CVV de 3 dígitos';
+    if (form.cvv && form.cvv.length !== 3) e.cvv = 'CVV de 3 dígitos';
+    if (form.doc && !docValid(form.docType, form.doc)) e.doc = 'Documento inválido';
+    setErrs(e);
+
+    const ok = {
+      number: digits.length === 16,
+      name: validName(form.name || ''),
+      exp: (() => {
+        const p = parseExp(form.exp || '');
+        return !!p && expInFuture(p.mm, p.year);
+      })(),
+      cvv: /^\d{3}$/.test(form.cvv || ''),
+      doc: docValid(form.docType, form.doc || ''),
+    };
+    setValid(Object.values(ok).every(Boolean));
   }, [form]);
+
+  const showErr = (k) => (submitted || touched[k]) && !!errs[k];
 
   const onChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'number') {
+      const digits = onlyDigits(value).slice(0, 16);
+      const pretty = digits.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
+      setForm((s) => ({ ...s, number: pretty }));
+      return;
+    }
+    if (name === 'exp') {
+      let v = value.replace(/[^\d/]/g, '');
+      if (v.length === 1 && parseInt(v, 10) > 1) v = '0' + v;
+      if (v.length === 2 && !v.includes('/')) v = v + '/';
+      if (v.length > 5) v = v.slice(0, 5);
+      setForm((s) => ({ ...s, exp: v }));
+      return;
+    }
+    if (name === 'cvv') {
+      const v = value.replace(/\D/g, '').slice(0, 3);
+      setForm((s) => ({ ...s, cvv: v }));
+      return;
+    }
+    if (name === 'doc') {
+      const v = form.docType === 'Pasaporte' ? value.slice(0, 12) : value.replace(/\D/g, '').slice(0, 11);
+      setForm((s) => ({ ...s, doc: v }));
+      return;
+    }
     setForm((s) => ({ ...s, [name]: value }));
+  };
+
+  const onBlur = (e) => {
+    const { name } = e.target;
+    setTouched((t) => ({ ...t, [name]: true }));
+  };
+
+  const handleContinue = () => {
+    setSubmitted(true);
+    if (!valid) {
+      const firstErr = Object.values(errs)[0] || 'Revisá los datos';
+      onInvalid(firstErr);
+      return;
+    }
+    onContinue(form, {});
   };
 
   return (
@@ -312,24 +421,21 @@ function CardModal({ onClose, onContinue, currency }) {
       <div className="gx-modal">
         <header className="gx-modal-h">
           <div className="gx-modal-ttl">
-            <span className="gx-logo-card" />
             <b>Nueva tarjeta</b>
           </div>
-          <button className="gx-btn gx-btn--ghost" onClick={onClose}>
-            Cerrar
-          </button>
+          <button className="gx-btn gx-btn--ghost" onClick={onClose}>Cerrar</button>
         </header>
 
         <div className="gx-fields">
           <label className="gx-field">
             <span>Tipo de tarjeta</span>
-            <select className="gx-input" name="kind" value={form.kind} onChange={onChange}>
+            <select className="gx-input" name="kind" value={form.kind} onChange={onChange} onBlur={onBlur}>
               <option value="credit">Crédito</option>
               <option value="debit">Débito</option>
             </select>
           </label>
 
-          <label className="gx-field">
+          <label className={`gx-field ${showErr('number') ? 'gx-field--err' : ''}`}>
             <span>Número de tarjeta</span>
             <input
               className="gx-input"
@@ -337,12 +443,15 @@ function CardModal({ onClose, onContinue, currency }) {
               placeholder="1234 1234 1234 1234"
               value={form.number}
               onChange={onChange}
+              onBlur={onBlur}
               inputMode="numeric"
+              maxLength={19}
               autoFocus
             />
+            {showErr('number') && <small className="gx-err">{errs.number}</small>}
           </label>
 
-          <label className="gx-field">
+          <label className={`gx-field ${showErr('name') ? 'gx-field--err' : ''}`}>
             <span>Nombre del titular</span>
             <input
               className="gx-input"
@@ -350,11 +459,13 @@ function CardModal({ onClose, onContinue, currency }) {
               placeholder="Ej.: María López"
               value={form.name}
               onChange={onChange}
+              onBlur={onBlur}
             />
+            {showErr('name') && <small className="gx-err">{errs.name}</small>}
           </label>
 
           <div className="gx-row">
-            <label className="gx-field">
+            <label className={`gx-field ${showErr('exp') ? 'gx-field--err' : ''}`}>
               <span>Vencimiento</span>
               <input
                 className="gx-input"
@@ -362,55 +473,58 @@ function CardModal({ onClose, onContinue, currency }) {
                 placeholder="MM/AA"
                 value={form.exp}
                 onChange={onChange}
+                onBlur={onBlur}
                 maxLength={5}
               />
+              {showErr('exp') && <small className="gx-err">{errs.exp}</small>}
             </label>
 
-            <label className="gx-field">
+            <label className={`gx-field ${showErr('cvv') ? 'gx-field--err' : ''}`}>
               <span>Código de seguridad</span>
               <input
                 className="gx-input"
                 name="cvv"
-                placeholder="Ej.: 123"
+                placeholder="3 dígitos"
                 value={form.cvv}
                 onChange={onChange}
-                maxLength={4}
+                onBlur={onBlur}
+                maxLength={3}
                 inputMode="numeric"
               />
+              {showErr('cvv') && <small className="gx-err">{errs.cvv}</small>}
             </label>
           </div>
 
           <div className="gx-row">
             <label className="gx-field">
               <span>Documento del titular</span>
-              <select className="gx-input" name="docType" value={form.docType} onChange={onChange}>
+              <select className="gx-input" name="docType" value={form.docType} onChange={onChange} onBlur={onBlur}>
                 <option>DNI</option>
                 <option>CUIL</option>
                 <option>CUIT</option>
                 <option>Pasaporte</option>
               </select>
             </label>
-            <label className="gx-field">
+            <label className={`gx-field ${showErr('doc') ? 'gx-field--err' : ''}`}>
               <span>&nbsp;</span>
               <input
                 className="gx-input"
                 name="doc"
-                placeholder="99.999.999"
+                placeholder="Sin puntos ni guiones"
                 value={form.doc}
                 onChange={onChange}
+                onBlur={onBlur}
               />
+              {showErr('doc') && <small className="gx-err">{errs.doc}</small>}
             </label>
           </div>
         </div>
 
         <div className="gx-modal-actions">
-          <button className="gx-btn gx-btn--pri" onClick={() => onContinue(form)} disabled={!valid}>
-            Continuar
-          </button>
+          <button className="gx-btn" onClick={onClose}>Cancelar</button>
+          <button className="gx-btn gx-btn--pri" onClick={handleContinue} disabled={!valid}>Continuar</button>
         </div>
-        <small className="gx-help">
-          Se realizará una verificación de tarjeta. Moneda: {currency}
-        </small>
+        <small className="gx-help">Se realizará una verificación de tarjeta. Moneda: {currency}</small>
       </div>
     </div>
   );
