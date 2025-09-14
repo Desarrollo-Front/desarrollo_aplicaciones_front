@@ -53,6 +53,15 @@ const mapEventType = (t) => {
   if (x === 'REFUND_REJECTED') return 'Reembolso rechazado';
   return x.replaceAll('_', ' ').toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
 };
+const mapRefundStatus = (s) => {
+  const t = String(s || '').toUpperCase();
+  if (t === 'PENDING') return 'Pendiente';
+  if (t === 'DECLINED') return 'Rechazado';
+  if (t === 'TOTAL_REFUND') return 'Reembolso total';
+  if (t === 'PARTIAL_REFUND') return 'Reembolso parcial';
+  return t; // fallback
+};
+
 
 const labelize = (k) =>
   String(k || '')
@@ -244,7 +253,6 @@ export default function PagosDetalle() {
           });
           if (resRefund.status === 204 || resRefund.status === 404) {
             setRefundInfo(null);
-            if (isUser) setShowRefund(true);
           } else if (resRefund.status === 401) {
             setRefundErr('No autorizado para consultar reembolsos.');
           } else if (resRefund.ok) {
@@ -261,7 +269,6 @@ export default function PagosDetalle() {
               });
             } else {
               setRefundInfo(null);
-              if (isUser) setShowRefund(true);
             }
           } else {
             setRefundErr('No se pudo consultar el reembolso.');
@@ -417,94 +424,114 @@ window.onload = function(){window.print();}
     if (!win) alert('No se pudo abrir el comprobante. Verificá el bloqueador de pop-ups.');
   };
 
+  const getAuthHeader = () =>
+  localStorage.getItem('authHeader') ||
+  `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
+
+const refreshTimeline = async (paymentId) => {
+  const authHeader = getAuthHeader();
+  const resTl = await fetch(`http://18.191.118.13:8080/api/payments/${paymentId}/timeline`, {
+    headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+  });
+  if (!resTl.ok) {
+    setTlErr('No se pudo obtener el timeline.');
+    setTimeline([]);
+    return;
+  }
+  const tl = await resTl.json();
+  const norm = (Array.isArray(tl) ? tl : []).map((e) => {
+    let payloadObj = null;
+    try { payloadObj = e.payload ? JSON.parse(e.payload) : null; } catch { payloadObj = null; }
+    const created = e.createdAt || e.created_at || null;
+    const cat = eventCategory(e.type, payloadObj);
+    return {
+      id: e.id,
+      type: e.type,
+      actor: e.actor || 'system',
+      source: e.eventSource || e.source || 'SYSTEM',
+      createdISO: created,
+      payload: payloadObj,
+      category: cat,
+    };
+  });
+  norm.sort((a, b) => new Date(a.createdISO) - new Date(b.createdISO));
+  setTimeline(norm);
+  setTlErr('');
+};
+
+
+
   const confirmarReembolso = async (e) => {
-    e.preventDefault();
-    if (!pago) return;
-    const amountNum = Number(monto);
-    const reasonStr = String(motivo || '').trim() || 'customer_request';
-    const notasStr = String(notas || '').trim();
-    if (!Number.isFinite(amountNum) || amountNum <= 0) {
-      alert('Ingresá un monto válido mayor a 0.');
-      return;
+  e.preventDefault();
+  if (!pago) return;
+  const amountNum = Number(monto);
+  const reasonStr = String(motivo || '').trim() || 'customer_request';
+  const notasStr = String(notas || '').trim();
+  if (!Number.isFinite(amountNum) || amountNum <= 0) {
+    alert('Ingresá un monto válido mayor a 0.');
+    return;
+  }
+  try {
+    const authHeader = getAuthHeader();
+    const body = {
+      paymentId: pago.id,
+      amount: amountNum,
+      reason: reasonStr,
+      metadata: JSON.stringify({ notes: notasStr || null, requestedBy: localStorage.getItem('name') || null })
+    };
+    const res = await fetch('http://18.191.118.13:8080/api/refunds/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      if (res.status === 401) throw new Error('No autorizado para crear reembolsos.');
+      throw new Error('No se pudo crear el reembolso.');
     }
-    try {
-      const authHeader =
-        localStorage.getItem('authHeader') ||
-        `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
-
-      const body = {
-        paymentId: pago.id,
-        amount: amountNum,
-        reason: reasonStr,
-        metadata: JSON.stringify({
-          notes: notasStr || null,
-          requestedBy: localStorage.getItem('name') || null
-        })
-      };
-
-      const res = await fetch('http://18.191.118.13:8080/api/refunds/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: authHeader },
-        body: JSON.stringify(body),
+    const created = await parseJsonSafe(res);
+    const r = normalizeRefundResponse(created);
+    if (r) {
+      setRefundInfo({
+        id: r.id ?? null,
+        amount: Number(r.amount ?? r.amount_total ?? 0),
+        status: String(r.status || '').toUpperCase(),
+        reason: r.reason ?? null,
+        createdAt: r.createdAt || r.created_at || null,
+        gatewayRefundId: r.gatewayRefundId || r.gateway_refund_id || null,
       });
-
-      if (!res.ok) {
-        if (res.status === 401) throw new Error('No autorizado para crear reembolsos.');
-        throw new Error('No se pudo crear el reembolso.');
-      }
-
-      const created = await parseJsonSafe(res);
-      const r = normalizeRefundResponse(created);
-      if (r) {
-        setRefundInfo({
-          id: r.id ?? null,
-          amount: Number(r.amount ?? r.amount_total ?? 0),
-          status: String(r.status || '').toUpperCase(),
-          reason: r.reason ?? null,
-          createdAt: r.createdAt || r.created_at || null,
-          gatewayRefundId: r.gatewayRefundId || r.gateway_refund_id || null,
-        });
-      }
-      setShowRefund(false);
-      setMonto(0);
-      setMotivo('');
-      setNotas('');
-    } catch (err) {
-      alert(err.message || 'Error al crear el reembolso.');
     }
-  };
+    await refreshTimeline(pago.id);
+    setShowRefund(false);
+    setMonto(0);
+    setMotivo('');
+    setNotas('');
+  } catch (err) {
+    alert(err.message || 'Error al crear el reembolso.');
+  }
+};
+
 
  const doRefundAction = async (action) => {
   if (!refundInfo?.id) return;
+  const isRefundPending = String(refundInfo?.status || '').toUpperCase() === 'PENDING';
   if (!isRefundPending) return;
   try {
     setActionLoading(true);
-    const authHeader =
-      localStorage.getItem('authHeader') ||
-      `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
-
+    const authHeader = getAuthHeader();
     const url = `http://18.191.118.13:8080/api/refunds/${refundInfo.id}/${action}`;
-
-    // si es decline, armar el body
     let body = null;
     if (action === 'decline') {
-      body = JSON.stringify({
-        status: 'PENDING',
-        message: 'Rechazado por el comerciante'
-      });
+      body = JSON.stringify({ status: 'PENDING', message: 'Rechazado por el comerciante' });
     }
-
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: authHeader },
       body: body,
     });
-
     if (!res.ok) {
       if (res.status === 401) throw new Error('No autorizado para operar reembolsos.');
       throw new Error('No se pudo actualizar el reembolso.');
     }
-
     const upd = await parseJsonSafe(res);
     const r = normalizeRefundResponse(upd);
     if (r) {
@@ -517,6 +544,7 @@ window.onload = function(){window.print();}
         gatewayRefundId: r.gatewayRefundId || r.gateway_refund_id || refundInfo.gatewayRefundId || null,
       });
     }
+    await refreshTimeline(pago.id);
   } catch (e) {
     alert(e.message || 'Error al actualizar el reembolso.');
   } finally {
@@ -611,7 +639,7 @@ window.onload = function(){window.print();}
         {!refundLoading && !refundErr && refundInfo && (
           <div className="pd-kv">
             <div><b>ID de reembolso</b><span>{refundInfo.id ?? '—'}</span></div>
-            <div><b>Estado</b><span>{mapStatus(refundInfo.status || 'PENDING')}</span></div>
+            <div><b>Estado</b><span>{mapRefundStatus(refundInfo.status)}</span></div>
             <div><b>Monto</b><span>{money(Number(refundInfo.amount ?? 0), pago.moneda)}</span></div>
             {isMerchant && isRefundPending &&(
               <div className="pd-tl-actions" style={{ display: 'flex', gap: 8, marginTop: 8 }}>
