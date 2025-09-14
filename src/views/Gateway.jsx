@@ -42,7 +42,7 @@ export default function Gateway() {
     const authHeader =
       localStorage.getItem('authHeader') ||
       `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
-    return fetch(`/api${path}`, {
+    return fetch(`${path}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: authHeader,
