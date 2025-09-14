@@ -162,6 +162,13 @@ export default function PagosDetalle() {
   [refundInfo]
 );
   const [fullRefund, setFullRefund] = useState(false);
+  const [alerta, setAlerta] = useState({ show: false, tipo: 'info', mensaje: '' });
+  const mostrarAlerta = (mensaje, tipo = 'info') => {
+  setAlerta({ show: true, tipo, mensaje });
+  setTimeout(() => setAlerta({ show: false, tipo: 'info', mensaje: '' }), 4000); // se oculta en 4s
+};
+
+
   
 
   useEffect(() => {
@@ -423,7 +430,7 @@ window.onload = function(){window.print();}
     const url = URL.createObjectURL(blob);
     const win = window.open(url, '_blank');
     setTimeout(() => URL.revokeObjectURL(url), 60000);
-    if (!win) alert('No se pudo abrir el comprobante. Verificá el bloqueador de pop-ups.');
+    if (!win) mostrarAlerta('No se pudo abrir el comprobante. Verificá el bloqueador de pop-ups.');
   };
 
   const getAuthHeader = () =>
@@ -476,15 +483,15 @@ const refreshTimeline = async (paymentId) => {
   const notasStr = String(notas || '').trim();
   const motivoRegex = /^[a-zA-ZÀ-ÿ\s.,-]{3,100}$/;
 if (!motivoRegex.test(reasonStr)) {
-  alert('El motivo debe ser un texto válido (mínimo 3 caracteres, solo letras y espacios).');
+  mostrarAlerta('El motivo debe ser un texto válido (mínimo 3 caracteres, solo letras y espacios).');
   return;
 }
   if (!Number.isFinite(amountNum) || amountNum <= 0) {
-    alert('Ingresá un monto válido mayor a 0.');
+    mostrarAlerta('Ingresá un monto válido mayor a 0.');
     return;
   }
   if (amountNum > Number(pago.total)) {
-    alert('El monto no puede exceder el total del pago.');
+    mostrarAlerta('El monto no puede exceder el total del pago.');
     return;
   }
   try {
@@ -527,7 +534,7 @@ if (!motivoRegex.test(reasonStr)) {
     setMotivo('');
     setNotas('');
   } catch (err) {
-    alert(err.message || 'Error al crear el reembolso.');
+    mostrarAlerta(err.message || 'Error al crear el reembolso.');
   }
 };
 
@@ -566,7 +573,7 @@ if (!motivoRegex.test(reasonStr)) {
     }
     await refreshTimeline(pago.id);
   } catch (e) {
-    alert(e.message || 'Error al actualizar el reembolso.');
+    mostrarAlerta(e.message || 'Error al actualizar el reembolso.');
   } finally {
     setActionLoading(false);
   }
@@ -689,7 +696,7 @@ if (!motivoRegex.test(reasonStr)) {
         {!refundLoading && !refundErr && !refundInfo && isUser && (
           <div className="pd-empty">
             <p className="pd-muted">Sin reembolsos registrados.</p>
-            <button className="pd-btn pd-btn--pri" onClick={() => setShowRefund(true)}>Solicitar reembolso</button>
+            <button className="pd-btn pd-btn--pri" onClick={() => { setFullRefund(false); setMonto(0); setMotivo(''); setNotas('');setShowRefund(true)}}>Solicitar reembolso</button>
           </div>
         )}
       </section>
@@ -795,7 +802,7 @@ if (!motivoRegex.test(reasonStr)) {
 
       <label className="pd-field">
         <span>Motivo</span>
-        <input type="text" className="pd-input" value={motivo} onChange={(e) => setMotivo(e.target.value)}pattern="[a-zA-ZÀ-ÿ\s.,-]{3,100}"
+        <input type="text" className="pd-input" value={motivo} onChange={(e) => setMotivo(e.target.value)} pattern="[a-zA-ZÀ-ÿ\s.,-]{3,100}"
     title="Solo letras, espacios y signos básicos (mínimo 3 caracteres)"
     required />
       </label>
@@ -811,6 +818,13 @@ if (!motivoRegex.test(reasonStr)) {
     </form>
   </div>
 )}
+   {alerta.show && (
+  <div className={`pd-alert pd-alert--${alerta.tipo}`}>
+    {alerta.mensaje}
+    <button className="pd-alert-x" onClick={() => setAlerta({show:false,tipo:'info',mensaje:''})}>×</button>
+  </div>
+)}
+
 
     </div>
   );
