@@ -28,6 +28,7 @@ const mapStatus = (s) => {
   if (t === 'EXPIRED') return 'Expirado';
   if (t === 'REFUNDED') return 'Reembolsado';
   if (t === 'DISPUTE' || t === 'DISPUTED') return 'Disputa';
+  if (t === 'PARTIAL_REFUND') return 'Reembolso parcial';
   return 'Pendiente';
 };
 
@@ -119,7 +120,6 @@ const normalizeRefundResponse = (data) => {
   return data;
 };
 
-
 export default function PagosDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -140,13 +140,18 @@ export default function PagosDetalle() {
   const [refundInfo, setRefundInfo] = useState(null);
   const [refundLoading, setRefundLoading] = useState(false);
   const [refundErr, setRefundErr] = useState('');
-  const hasRefund = useMemo(() => Boolean(refundInfo || pago?.refundId), [refundInfo, pago]);
-  const refundReason = useMemo(() => String(refundInfo?.reason || pago?.refund_reason || '').trim(), [refundInfo, pago]);
-
+  const [actionLoading, setActionLoading] = useState(false);
 
   const role = String(localStorage.getItem('role') || '').toUpperCase();
   const isUser = role === 'USER';
   const isMerchant = role === 'MERCHANT';
+
+  const hasRefund = useMemo(() => Boolean(refundInfo || pago?.refundId), [refundInfo, pago]);
+  const refundReason = useMemo(() => String(refundInfo?.reason || pago?.refund_reason || '').trim(), [refundInfo, pago]);
+  const isRefundPending = useMemo(
+  () => String(refundInfo?.status || '').toUpperCase() === 'PENDING',
+  [refundInfo]
+);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -230,46 +235,43 @@ export default function PagosDetalle() {
           setTimeline(norm);
         }
 
-      try {
-  setRefundLoading(true);
-  setRefundErr('');
-  setRefundInfo(null);
-  const resRefund = await fetch(`http://18.191.118.13:8080/api/refunds/payment/${p.id}`, {
-    headers: { 'Content-Type': 'application/json', Authorization: authHeader },
-  });
-
-  if (resRefund.status === 204 || resRefund.status === 404) {
-    setRefundInfo(null);
-    if (isUser) setShowRefund(true);
-  } else if (resRefund.status === 401) {
-    setRefundErr('No autorizado para consultar reembolsos.');
-  } else if (resRefund.ok) {
-    const raw = await parseJsonSafe(resRefund);
-    const r = normalizeRefundResponse(raw);
-    if (r && Object.keys(r).length > 0) {
-      setRefundInfo({
-        id: r.id ?? null,
-        amount: Number(r.amount ?? r.amount_total ?? 0),
-        status: String(r.status || '').toUpperCase(),
-        reason: r.reason ?? null,
-        createdAt: r.createdAt || r.created_at || null,
-        gatewayRefundId: r.gatewayRefundId || r.gateway_refund_id || null,
-      });
-    } else {
-      setRefundInfo(null);
-      if (isUser) setShowRefund(true);
-    }
-  } else {
-    setRefundErr('No se pudo consultar el reembolso.');
-  }
-} catch {
-  setRefundErr('No se pudo consultar el reembolso.');
-  setRefundInfo(null);
-} finally {
-  setRefundLoading(false);
-}
-
-
+        try {
+          setRefundLoading(true);
+          setRefundErr('');
+          setRefundInfo(null);
+          const resRefund = await fetch(`http://18.191.118.13:8080/api/refunds/payment/${p.id}`, {
+            headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+          });
+          if (resRefund.status === 204 || resRefund.status === 404) {
+            setRefundInfo(null);
+            if (isUser) setShowRefund(true);
+          } else if (resRefund.status === 401) {
+            setRefundErr('No autorizado para consultar reembolsos.');
+          } else if (resRefund.ok) {
+            const raw = await parseJsonSafe(resRefund);
+            const r = normalizeRefundResponse(raw);
+            if (r && Object.keys(r).length > 0) {
+              setRefundInfo({
+                id: r.id ?? null,
+                amount: Number(r.amount ?? r.amount_total ?? 0),
+                status: String(r.status || '').toUpperCase(),
+                reason: r.reason ?? null,
+                createdAt: r.createdAt || r.created_at || null,
+                gatewayRefundId: r.gatewayRefundId || r.gateway_refund_id || null,
+              });
+            } else {
+              setRefundInfo(null);
+              if (isUser) setShowRefund(true);
+            }
+          } else {
+            setRefundErr('No se pudo consultar el reembolso.');
+          }
+        } catch {
+          setRefundErr('No se pudo consultar el reembolso.');
+          setRefundInfo(null);
+        } finally {
+          setRefundLoading(false);
+        }
       } catch (e) {
         setErr(e.message || 'Error inesperado.');
         setPago(null);
@@ -416,62 +418,97 @@ window.onload = function(){window.print();}
   };
 
   const confirmarReembolso = async (e) => {
-  e.preventDefault();
-  if (!pago) return;
-  const amountNum = Number(monto);
-  const reasonStr = String(motivo || '').trim() || 'customer_request';
-  const notasStr = String(notas || '').trim();
-  if (!Number.isFinite(amountNum) || amountNum <= 0) {
-    alert('Ingresá un monto válido mayor a 0.');
-    return;
-  }
-  try {
-    const authHeader =
-      localStorage.getItem('authHeader') ||
-      `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
-
-    const body = {
-      paymentId: pago.id,
-      amount: amountNum,
-      reason: reasonStr,
-      metadata: JSON.stringify({
-        notes: notasStr || null,
-        requestedBy: localStorage.getItem('name') || null
-      })
-    };
-
-    const res = await fetch('http://18.191.118.13:8080/api/refunds/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: authHeader },
-      body: JSON.stringify(body),
-    });
-
-    if (!res.ok) {
-      if (res.status === 401) throw new Error('No autorizado para crear reembolsos.');
-      throw new Error('No se pudo crear el reembolso.');
+    e.preventDefault();
+    if (!pago) return;
+    const amountNum = Number(monto);
+    const reasonStr = String(motivo || '').trim() || 'customer_request';
+    const notasStr = String(notas || '').trim();
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
+      alert('Ingresá un monto válido mayor a 0.');
+      return;
     }
+    try {
+      const authHeader =
+        localStorage.getItem('authHeader') ||
+        `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
 
-    const created = await parseJsonSafe(res);
-    const r = normalizeRefundResponse(created);
-    if (r) {
-      setRefundInfo({
-        id: r.id ?? null,
-        amount: Number(r.amount ?? r.amount_total ?? 0),
-        status: String(r.status || '').toUpperCase(),
-        reason: r.reason ?? null,
-        createdAt: r.createdAt || r.created_at || null,
-        gatewayRefundId: r.gatewayRefundId || r.gateway_refund_id || null,
+      const body = {
+        paymentId: pago.id,
+        amount: amountNum,
+        reason: reasonStr,
+        metadata: JSON.stringify({
+          notes: notasStr || null,
+          requestedBy: localStorage.getItem('name') || null
+        })
+      };
+
+      const res = await fetch('http://18.191.118.13:8080/api/refunds/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+        body: JSON.stringify(body),
       });
-    }
-    setShowRefund(false);
-    setMonto(0);
-    setMotivo('');
-    setNotas('');
-  } catch (err) {
-    alert(err.message || 'Error al crear el reembolso.');
-  }
-};
 
+      if (!res.ok) {
+        if (res.status === 401) throw new Error('No autorizado para crear reembolsos.');
+        throw new Error('No se pudo crear el reembolso.');
+      }
+
+      const created = await parseJsonSafe(res);
+      const r = normalizeRefundResponse(created);
+      if (r) {
+        setRefundInfo({
+          id: r.id ?? null,
+          amount: Number(r.amount ?? r.amount_total ?? 0),
+          status: String(r.status || '').toUpperCase(),
+          reason: r.reason ?? null,
+          createdAt: r.createdAt || r.created_at || null,
+          gatewayRefundId: r.gatewayRefundId || r.gateway_refund_id || null,
+        });
+      }
+      setShowRefund(false);
+      setMonto(0);
+      setMotivo('');
+      setNotas('');
+    } catch (err) {
+      alert(err.message || 'Error al crear el reembolso.');
+    }
+  };
+
+  const doRefundAction = async (action) => {
+    if (!refundInfo?.id) return;
+    if (!isRefundPending) return;
+    try {
+      setActionLoading(true);
+      const authHeader =
+        localStorage.getItem('authHeader') ||
+        `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
+      const url = `http://18.191.118.13:8080/api/refunds/${refundInfo.id}/${action}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+      });
+      if (!res.ok) {
+        if (res.status === 401) throw new Error('No autorizado para operar reembolsos.');
+        throw new Error('No se pudo actualizar el reembolso.');
+      }
+      const upd = await parseJsonSafe(res);
+      const r = normalizeRefundResponse(upd);
+      if (r) {
+        setRefundInfo({
+          id: r.id ?? refundInfo.id,
+          amount: Number(r.amount ?? refundInfo.amount ?? 0),
+          status: String(r.status || '').toUpperCase(),
+          reason: r.reason ?? refundInfo.reason ?? null,
+          createdAt: r.createdAt || r.created_at || refundInfo.createdAt || null,
+          gatewayRefundId: r.gatewayRefundId || r.gateway_refund_id || refundInfo.gatewayRefundId || null,
+        });
+      }
+    } catch (e) {
+      alert(e.message || 'Error al actualizar el reembolso.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const filteredTimeline = useMemo(() => {
     if (tlFilter === 'all') return timeline;
@@ -496,6 +533,8 @@ window.onload = function(){window.print();}
       </div>
     );
   }
+
+  const isRefundPendingLike = String(refundInfo?.status || '').toUpperCase() === 'PENDING';
 
   return (
     <div className="pd-wrap">
@@ -532,9 +571,8 @@ window.onload = function(){window.print();}
             <div><b>Descripción</b><span>{pago.descripcion}</span></div>
             <div><b>Categoría</b><span>{pago.categoria}</span></div>
             {hasRefund && refundReason && (
-  <div><b>Motivo reembolso</b><span>{refundReason}</span></div>
-)}
-
+              <div><b>Motivo reembolso</b><span>{refundReason}</span></div>
+            )}
           </div>
         </article>
 
@@ -557,9 +595,27 @@ window.onload = function(){window.print();}
         {refundErr && <p className="pd-muted">{refundErr}</p>}
         {!refundLoading && !refundErr && refundInfo && (
           <div className="pd-kv">
-            <div><b>ID de reembolso</b><span>{refundInfo.id ?? pago.refundId ?? '—'}</span></div>
+            <div><b>ID de reembolso</b><span>{refundInfo.id ?? '—'}</span></div>
             <div><b>Estado</b><span>{mapStatus(refundInfo.status || 'PENDING')}</span></div>
             <div><b>Monto</b><span>{money(Number(refundInfo.amount ?? 0), pago.moneda)}</span></div>
+            {isMerchant && isRefundPending &&(
+              <div className="pd-tl-actions" style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                <button
+                  className="pd-btn pd-btn--pri"
+                  disabled={actionLoading || !isRefundPendingLike}
+                  onClick={() => doRefundAction('approve')}
+                >
+                  Aprobar
+                </button>
+                <button
+                  className="pd-btn"
+                  disabled={actionLoading || !isRefundPendingLike}
+                  onClick={() => doRefundAction('decline')}
+                >
+                  Rechazar
+                </button>
+              </div>
+            )}
           </div>
         )}
         {!refundLoading && !refundErr && !refundInfo && isMerchant && (
