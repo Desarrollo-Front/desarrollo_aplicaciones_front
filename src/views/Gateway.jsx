@@ -23,6 +23,7 @@ export default function Gateway() {
           taxes: state.taxesAndFees ?? 0,
           fees: 0,
           amount_total: state.total,
+          status: state.status || null,
         }
       : null
   );
@@ -64,6 +65,14 @@ export default function Gateway() {
     return await res.text();
   };
 
+  const loadPayment = async (paymentId) => {
+    const res = await api(`/api/payments/${paymentId}`);
+    if (!res.ok) throw new Error((await fetchJsonOrText(res)) || 'No se pudo obtener el pago.');
+    const p = await res.json();
+    setPayment(p);
+    return p;
+  };
+
   useEffect(() => {
     if (state) {
       setLoading(false);
@@ -71,10 +80,7 @@ export default function Gateway() {
     }
     const fetchPayment = async () => {
       try {
-        const res = await api(`/api/payments/${id}`);
-        if (!res.ok) throw new Error((await fetchJsonOrText(res)) || 'No se pudo obtener el pago.');
-        const p = await res.json();
-        setPayment(p);
+        await loadPayment(id);
       } catch (e) {
         setError(e.message || 'Error inesperado.');
       } finally {
@@ -134,6 +140,30 @@ export default function Gateway() {
     return res.json();
   };
 
+  const ensurePendingBeforePurchase = async (paymentId) => {
+  const current = payment?.status ? payment : await loadPayment(paymentId);
+  if (String(current.status || '').toUpperCase() === 'REJECTED') {
+    const res = await api(`/api/payments/${paymentId}/retry-balance`, { method: 'POST' });
+    if (!res.ok) {
+      const serverMsg = res.headers.get('Error-Message');
+      const fallback = await fetchJsonOrText(res);
+      const msg = serverMsg || fallback || 'No hay saldo suficiente para reintentar el pago.';
+      mostrarAlerta(msg, 'error');
+      throw new Error(msg);
+    }
+    const updated = await res.json();
+    setPayment(updated);
+    const s = String(updated.status || '').toUpperCase();
+    if (s !== 'PENDING_PAYMENT') {
+      mostrarAlerta('No pudimos reservar el saldo para este pago.', 'error');
+      throw new Error('Retry balance no dejó el pago en PENDING_PAYMENT');
+    }
+    return updated;
+  }
+  return current;
+};
+
+
   const comprar = async () => {
     if (!method) {
       mostrarAlerta('Elegí un método de pago.', 'error');
@@ -159,9 +189,11 @@ export default function Gateway() {
         return;
       }
 
-      await setPaymentMethod(payment.id, type);
+      const readyPayment = await ensurePendingBeforePurchase(payment.id);
 
-      const res2 = await api(`/api/payments/${payment.id}/confirm`, {
+      await setPaymentMethod(readyPayment.id, type);
+
+      const res2 = await api(`/api/payments/${readyPayment.id}/confirm`, {
         method: 'PUT',
       });
       if (!res2.ok) {
@@ -382,7 +414,7 @@ function CardModal({ onClose, onContinue, onInvalid, currency }) {
     setValid(Object.values(ok).every(Boolean));
   }, [form]);
 
-  const showErr = (k) => (submitted || touched[k]) && !!errs[k];
+  const showErr = (k) => (submitted || touched[k]) && !!errs[k]);
 
   const onChange = (e) => {
     const { name, value } = e.target;
