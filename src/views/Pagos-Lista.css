@@ -1,0 +1,417 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css');
+
+:root {
+  --bg: #f9fafb;
+  --panel: #ffffff;
+  --muted: #6b7280;
+  --text: #000000;
+  --line: #e5e7eb;
+  --chip: #eef2f7;
+
+  --brand-blue: #3ba8e7;
+  --brand-blue-dark: #2c7bbd;
+  --brand-yellow: #fbbf24;
+
+  --success-50: #e8f6ef;
+  --success-700: #15803d;
+  --warn-50: #fff7e6;
+  --warn-700: #b45309;
+  --danger-50: #fdecec;
+  --danger-700: #b71c1c;
+
+  --radius: 16px;
+  --masthead-h: 0px;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  font-family: Inter, sans-serif;
+  color: var(--text);
+}
+
+.pl-wrap {
+  max-width: 1100px;
+  margin: 32px auto;
+  padding: 0 20px 32px;
+}
+
+/* === Masthead sticky === */
+.pl-masthead {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: #fff;
+  padding-top: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid transparent; /* invisible al inicio */
+  transition: border-color 0.2s ease;
+}
+
+/* Cuando el contenido choca con el masthead */
+.pl-masthead.is-stuck {
+  border-bottom: 1px solid var(--brand-blue);
+}
+
+/* === Topbar === */
+.pl-topbar {
+  background: var(--panel);
+  border: 1px solid var(--brand-blue);
+  border-radius: 16px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow-sm);
+}
+.pl-topbar__brand {
+  font-weight: 800;
+  font-size: 22px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--brand-blue);
+}
+.pl-topbar__brand i {
+  color: var(--brand-blue);
+  padding: 6px;
+  font-size: 25px;
+}
+.pl-topbar__right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.pl-user {
+  font-size: 14px;
+  color: var(--muted);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* === Filtros === */
+.pl-filters {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 1.2fr 0.8fr 0.8fr auto;
+  gap: 14px;
+  align-items: end;
+  padding: 12px 16px;
+  background: var(--panel);
+  border: 1px solid var(--brand-blue);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+}
+.pl-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.pl-inline {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+/* Inputs */
+.pl-input {
+  width: 100%;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  padding: 0 10px;
+  font-size: 13px;
+  color: var(--text);
+  background: #fff;
+  box-sizing: border-box;
+}
+.pl-input--with-ico {
+  padding-left: 32px;
+  position: relative;
+}
+.pl-input__ico {
+  position: absolute;
+  margin-left: 8px;
+  margin-top: 8px;
+  font-size: 16px;
+  color: #7b8794;
+}
+
+/* Reset */
+.pl-btn--reset {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 34px;
+}
+.pl-btn--reset:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+/* === Chips === */
+.pl-chips {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.pl-chip {
+  border: 1px solid var(--line);
+  background: var(--chip);
+  border-radius: 999px;
+  padding: 0 12px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 13px;
+}
+.pl-chip.is-on {
+  background: var(--brand-blue);
+  border-color: var(--brand-blue-dark);
+  color: #fff;
+}
+
+/* Export CSV link */
+.pl-export {
+  margin-left: auto;
+  margin-right: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--brand-blue);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pl-export:hover {
+  text-decoration: underline;
+}
+
+/* === Tabla === */
+.pl-card {
+  background: #fff;
+  border: 1px solid var(--brand-blue);
+  border-radius: 16px; /* redondeo */
+  box-shadow: var(--shadow-lg);
+  overflow: hidden; /* recorta el contenido a los bordes */
+}
+
+.pl-tbl {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pl-tbl th,
+.pl-tbl td {
+  padding: 12px;
+  text-align: left;
+  color: var(--text);
+  border-bottom: 1px solid var(--line); /* líneas suaves en body */
+}
+
+/* Cabecera fija */
+.pl-tbl thead th {
+  position: sticky;
+  z-index: 150;
+  background: #fff;
+  font-weight: 600;
+  border-bottom: 2px solid var(--brand-blue); /* línea celeste */
+}
+
+/* Rayado + hover */
+.pl-tbl tbody tr:nth-child(even) {
+  background: #fff;
+}
+.pl-tbl tbody tr:hover {
+  background: #e6f4fb;
+}
+
+.pl-bold {
+  font-weight: 700;
+}
+.pl-empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 20px;
+}
+
+/* Redondeo cabecera */
+.pl-tbl thead th:first-child {
+  border-top-left-radius: 16px;
+}
+.pl-tbl thead th:last-child {
+  border-top-right-radius: 16px;
+}
+
+/* Redondeo última fila */
+.pl-tbl tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 16px;
+}
+.pl-tbl tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 16px;
+}
+
+/* === Botones === */
+.pl-btn {
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: #fff;
+  transition: 0.15s;
+  font-size: 13px;
+  color: var(--text);
+}
+.pl-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.pl-btn--primary {
+  background: linear-gradient(180deg, var(--brand-blue), var(--brand-blue-dark));
+  color: #fff;
+}
+.pl-btn--logout {
+  background: #dc3545;
+  color: #fff;
+  border: 1px solid #dc3545;
+}
+.pl-btn--logout:hover {
+  background: #c82333;
+}
+.pl-btn--pagar {
+  border: 1px solid var(--brand-yellow);
+  background: var(--brand-yellow);
+  color: #000;
+}
+.pl-btn--pagar:hover {
+  background: #d9a61f;
+  border-color: #b98a14;
+}
+.pl-btn--ghost {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+.pl-btn--ghost:hover {
+  background: #f9fafb;
+}
+
+/* === Badges === */
+.pl-badge {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.pl-badge--aprobado {
+  background: var(--success-50);
+  color: var(--success-700);
+}
+.pl-badge--pendiente {
+  background: #fff8db;
+  color: var(--brand-yellow);
+}
+.pl-badge--rechazado {
+  background: var(--danger-50);
+  color: var(--danger-700);
+}
+.pl-badge--expirado {
+  background: #eef0f3;
+  color: #374151;
+}
+.pl-badge--reembolsado {
+  background: #e6f4fb;
+  color: var(--brand-blue-dark);
+}
+
+/* === Responsive === */
+@media (max-width: 960px) {
+  .pl-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+  .pl-field {
+    min-width: 0;
+  }
+  .pl-tbl thead {
+    display: none;
+  }
+  .pl-tbl td {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 6px;
+  }
+}
+@media (max-width: 640px) {
+  .pl-filters {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === Selects === */
+.pl-sel__control {
+  height: 34px !important;
+  min-height: 34px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  color: var(--text) !important;
+}
+.pl-sel__value-container {
+  padding: 0 8px !important;
+  display: flex;
+  align-items: center;
+}
+.pl-sel__indicators {
+  height: 100% !important;
+}
+.pl-sel__indicator {
+  padding: 0 6px !important;
+  color: #64748b !important;
+}
+.pl-sel__indicator svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.pl-sel__menu {
+  border-radius: 8px !important;
+  box-shadow: var(--shadow-md) !important;
+  font-size: 13px !important;
+  z-index: 9999 !important;
+  border: 1px solid var(--brand-blue) !important;
+  background: #fff !important;
+}
+.pl-sel__option {
+  padding: 8px 12px !important;
+  cursor: pointer !important;
+  color: var(--text) !important;
+}
+.pl-sel__option--is-focused {
+  background-color: #e6f4fb !important;
+  color: var(--text) !important;
+}
+.pl-sel__option--is-selected {
+  background-color: var(--brand-blue) !important;
+  color: #fff !important;
+}
