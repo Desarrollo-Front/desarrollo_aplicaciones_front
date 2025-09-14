@@ -1,5 +1,10 @@
 {
   "version": 2,
   "builds": [{ "src": "package.json", "use": "@vercel/static-build" }],
-  "routes": [{ "src": "/api/(.*)", "dest": "https://api.tu-backend.com/$1" }]
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "http://18.191.118.13:8080/api/:path*"
+    }
+  ]
 }
