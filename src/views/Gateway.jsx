@@ -42,8 +42,7 @@ export default function Gateway() {
     const authHeader =
       localStorage.getItem('authHeader') ||
       `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
-    const base = 'http://18.191.118.13:8080';
-    return fetch(`${base}${path}`, {
+    return fetch(`/api${path}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: authHeader,
@@ -192,8 +191,16 @@ export default function Gateway() {
         <div className="gx-spacer" />
       </div>
 
-      {okMsg && <div className="gx-banner gx-banner--ok"><i className="ri-check-line" /> {okMsg}</div>}
-      {error && <div className="gx-banner gx-banner--warn"><i className="ri-error-warning-line" /> {error}</div>}
+      {okMsg && (
+        <div className="gx-banner gx-banner--ok">
+          <i className="ri-check-line" /> {okMsg}
+        </div>
+      )}
+      {error && (
+        <div className="gx-banner gx-banner--warn">
+          <i className="ri-error-warning-line" /> {error}
+        </div>
+      )}
 
       <section className="gx-grid">
         <aside className="gx-card">
@@ -296,7 +303,12 @@ export default function Gateway() {
       {alerta.show && (
         <div className={`pd-alert pd-alert--${alerta.tipo}`}>
           {alerta.mensaje}
-          <button className="pd-alert-x" onClick={() => setAlerta({show:false,tipo:'info',mensaje:''})}>×</button>
+          <button
+            className="pd-alert-x"
+            onClick={() => setAlerta({ show: false, tipo: 'info', mensaje: '' })}
+          >
+            ×
+          </button>
         </div>
       )}
     </div>
@@ -394,7 +406,8 @@ function CardModal({ onClose, onContinue, onInvalid, currency }) {
       return;
     }
     if (name === 'doc') {
-      const v = form.docType === 'Pasaporte' ? value.slice(0, 12) : value.replace(/\D/g, '').slice(0, 11);
+      const v =
+        form.docType === 'Pasaporte' ? value.slice(0, 12) : value.replace(/\D/g, '').slice(0, 11);
       setForm((s) => ({ ...s, doc: v }));
       return;
     }
@@ -423,13 +436,21 @@ function CardModal({ onClose, onContinue, onInvalid, currency }) {
           <div className="gx-modal-ttl">
             <b>Nueva tarjeta</b>
           </div>
-          <button className="gx-btn gx-btn--ghost" onClick={onClose}>Cerrar</button>
+          <button className="gx-btn gx-btn--ghost" onClick={onClose}>
+            Cerrar
+          </button>
         </header>
 
         <div className="gx-fields">
           <label className="gx-field">
             <span>Tipo de tarjeta</span>
-            <select className="gx-input" name="kind" value={form.kind} onChange={onChange} onBlur={onBlur}>
+            <select
+              className="gx-input"
+              name="kind"
+              value={form.kind}
+              onChange={onChange}
+              onBlur={onBlur}
+            >
               <option value="credit">Crédito</option>
               <option value="debit">Débito</option>
             </select>
@@ -498,7 +519,13 @@ function CardModal({ onClose, onContinue, onInvalid, currency }) {
           <div className="gx-row">
             <label className="gx-field">
               <span>Documento del titular</span>
-              <select className="gx-input" name="docType" value={form.docType} onChange={onChange} onBlur={onBlur}>
+              <select
+                className="gx-input"
+                name="docType"
+                value={form.docType}
+                onChange={onChange}
+                onBlur={onBlur}
+              >
                 <option>DNI</option>
                 <option>CUIL</option>
                 <option>CUIT</option>
@@ -521,10 +548,16 @@ function CardModal({ onClose, onContinue, onInvalid, currency }) {
         </div>
 
         <div className="gx-modal-actions">
-          <button className="gx-btn" onClick={onClose}>Cancelar</button>
-          <button className="gx-btn gx-btn--pri" onClick={handleContinue} disabled={!valid}>Continuar</button>
+          <button className="gx-btn" onClick={onClose}>
+            Cancelar
+          </button>
+          <button className="gx-btn gx-btn--pri" onClick={handleContinue} disabled={!valid}>
+            Continuar
+          </button>
         </div>
-        <small className="gx-help">Se realizará una verificación de tarjeta. Moneda: {currency}</small>
+        <small className="gx-help">
+          Se realizará una verificación de tarjeta. Moneda: {currency}
+        </small>
       </div>
     </div>
   );
