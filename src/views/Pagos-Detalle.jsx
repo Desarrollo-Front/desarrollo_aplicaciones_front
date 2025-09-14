@@ -14,7 +14,10 @@ const fechaHora = (iso, locale = 'es-AR') => {
 };
 
 function Badge({ kind, children }) {
-  const key = (kind || '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+  const key = (kind || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '');
   return <span className={`pd-badge pd-badge--${key}`}>{children}</span>;
 }
 
@@ -50,7 +53,10 @@ const mapEventType = (t) => {
   if (x === 'REFUND_CREATED') return 'Reembolso creado';
   if (x === 'REFUND_APPROVED') return 'Reembolso aprobado';
   if (x === 'REFUND_REJECTED') return 'Reembolso rechazado';
-  return x.replaceAll('_', ' ').toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+  return x
+    .replaceAll('_', ' ')
+    .toLowerCase()
+    .replace(/^\w/, (c) => c.toUpperCase());
 };
 
 const labelize = (k) =>
@@ -79,6 +85,7 @@ export default function PagosDetalle() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
   const [tlErr, setTlErr] = useState('');
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -91,10 +98,10 @@ export default function PagosDetalle() {
           `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
 
         const [resPago, resTl] = await Promise.all([
-          fetch(`http://18.191.118.13:8080/api/payments/${id}`, {
+          fetch(`${API_URL}/api/payments/${id}`, {
             headers: { 'Content-Type': 'application/json', Authorization: authHeader },
           }),
-          fetch(`http://18.191.118.13:8080/api/payments/${id}/timeline`, {
+          fetch(`${API_URL}/api/payments/${id}/timeline`, {
             headers: { 'Content-Type': 'application/json', Authorization: authHeader },
           }),
         ]);
@@ -184,7 +191,8 @@ export default function PagosDetalle() {
 
   const puedeDescargarComprobante = useMemo(() => {
     if (!pago) return false;
-    const okStatus = ['APPROVED', 'CAPTURED', 'COMPLETED'].includes(pago.rawStatus) || Boolean(pago.capturadoISO);
+    const okStatus =
+      ['APPROVED', 'CAPTURED', 'COMPLETED'].includes(pago.rawStatus) || Boolean(pago.capturadoISO);
     return okStatus && Number.isFinite(pago.total) && pago.total > 0;
   }, [pago]);
 
@@ -198,7 +206,9 @@ export default function PagosDetalle() {
     const otrosCargos = pago.impuestos || 0;
     const lines = [
       { cant: 1, det: desc, pu: pago.subtotal, imp: pago.subtotal },
-      ...(otrosCargos > 0 ? [{ cant: 1, det: 'Cargos e impuestos', pu: otrosCargos, imp: otrosCargos }] : []),
+      ...(otrosCargos > 0
+        ? [{ cant: 1, det: 'Cargos e impuestos', pu: otrosCargos, imp: otrosCargos }]
+        : []),
     ];
     const rows = lines
       .map(
@@ -328,7 +338,9 @@ window.onload = function(){window.print();}
   if (!pago) {
     return (
       <div className="pd-wrap">
-        <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>← Volver</button>
+        <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>
+          ← Volver
+        </button>
         <h1 className="pd-title">Detalle de pago</h1>
         <p className="pd-sub">{err || 'No se encontró el pago.'}</p>
       </div>
@@ -337,62 +349,123 @@ window.onload = function(){window.print();}
 
   return (
     <div className="pd-wrap">
-      <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>← Volver</button>
+      <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>
+        ← Volver
+      </button>
       <h1 className="pd-title">Detalle de pago #{pago.id}</h1>
-      <p className="pd-sub">Resumen, datos fiscales y referencia, timeline, comprobantes y reembolsos.</p>
+      <p className="pd-sub">
+        Resumen, datos fiscales y referencia, timeline, comprobantes y reembolsos.
+      </p>
 
       <section className="pd-grid">
         <article className="pd-card">
           <header className="pd-card-h">Resumen</header>
           <div className="pd-kv">
-            <div><b>Cliente</b><span>{pago.cliente}</span></div>
-            <div><b>Prestador</b><span>{pago.prestador}</span></div>
-            <div><b>Método</b><span><Badge kind={pago.metodo}>{pago.metodo}</Badge></span></div>
-            <div><b>Estado</b><span><Badge kind={pago.estado}>{pago.estado}</Badge></span></div>
-            <div><b>Subtotal</b><span>{totales.sub}</span></div>
-            <div><b>Impuestos</b><span>{totales.imp}</span></div>
-            <div className="pd-total"><b>Total</b><span>{totales.tot}</span></div>
-            <div><b>Creado</b><span>{fechaHora(pago.creadoISO)}</span></div>
-            <div><b>Capturado</b><span>{fechaHora(pago.capturadoISO)}</span></div>
+            <div>
+              <b>Cliente</b>
+              <span>{pago.cliente}</span>
+            </div>
+            <div>
+              <b>Prestador</b>
+              <span>{pago.prestador}</span>
+            </div>
+            <div>
+              <b>Método</b>
+              <span>
+                <Badge kind={pago.metodo}>{pago.metodo}</Badge>
+              </span>
+            </div>
+            <div>
+              <b>Estado</b>
+              <span>
+                <Badge kind={pago.estado}>{pago.estado}</Badge>
+              </span>
+            </div>
+            <div>
+              <b>Subtotal</b>
+              <span>{totales.sub}</span>
+            </div>
+            <div>
+              <b>Impuestos</b>
+              <span>{totales.imp}</span>
+            </div>
+            <div className="pd-total">
+              <b>Total</b>
+              <span>{totales.tot}</span>
+            </div>
+            <div>
+              <b>Creado</b>
+              <span>{fechaHora(pago.creadoISO)}</span>
+            </div>
+            <div>
+              <b>Capturado</b>
+              <span>{fechaHora(pago.capturadoISO)}</span>
+            </div>
           </div>
         </article>
 
         <article className="pd-card">
           <header className="pd-card-h">Datos fiscales y referencia</header>
           <div className="pd-kv">
-            <div><b>Moneda</b><span>{pago.moneda}</span></div>
-            <div><b>Fees</b><span>{money(pago.fees, pago.moneda)}</span></div>
-            <div><b>Descripción</b><span>{pago.descripcion}</span></div>
-            <div><b>Categoría</b><span>{pago.categoria}</span></div>
-            <div><b>Motivo reembolso</b><span>{pago.refund_reason}</span></div>
+            <div>
+              <b>Moneda</b>
+              <span>{pago.moneda}</span>
+            </div>
+            <div>
+              <b>Fees</b>
+              <span>{money(pago.fees, pago.moneda)}</span>
+            </div>
+            <div>
+              <b>Descripción</b>
+              <span>{pago.descripcion}</span>
+            </div>
+            <div>
+              <b>Categoría</b>
+              <span>{pago.categoria}</span>
+            </div>
+            <div>
+              <b>Motivo reembolso</b>
+              <span>{pago.refund_reason}</span>
+            </div>
           </div>
         </article>
 
         <article className="pd-card">
-  <header className="pd-card-h">Comprobantes</header>
-  {puedeDescargarComprobante ? (
-    <div className="pd-actions">
-      <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>Descargar Factura</button>
-      <p className="pd-muted">Se genera un comprobante de pago no fiscal con los datos reales.</p>
-    </div>
-  ) : (
-    <p className="pd-muted">No hay comprobantes disponibles.</p>
-  )}
-</article>
-
+          <header className="pd-card-h">Comprobantes</header>
+          {puedeDescargarComprobante ? (
+            <div className="pd-actions">
+              <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
+                Descargar Factura
+              </button>
+              <p className="pd-muted">
+                Se genera un comprobante de pago no fiscal con los datos reales.
+              </p>
+            </div>
+          ) : (
+            <p className="pd-muted">No hay comprobantes disponibles.</p>
+          )}
+        </article>
       </section>
 
       <section className="pd-card pd-refunds">
         <header className="pd-card-h">Reembolsos</header>
         {pago.refundId ? (
           <div className="pd-kv">
-            <div><b>Estado</b><span>Hay reembolso</span></div>
-            <div><b>ID de reembolso</b><span>{pago.refundId}</span></div>
+            <div>
+              <b>Estado</b>
+              <span>Hay reembolso</span>
+            </div>
+            <div>
+              <b>ID de reembolso</b>
+              <span>{pago.refundId}</span>
+            </div>
           </div>
         ) : (
           <div className="pd-empty">
             <p className="pd-muted">Sin reembolsos registrados.</p>
-            <button className="pd-btn pd-btn--pri" onClick={() => setShowRefund(true)}>Solicitar reembolso</button>
+            <button className="pd-btn pd-btn--pri" onClick={() => setShowRefund(true)}>
+              Solicitar reembolso
+            </button>
           </div>
         )}
       </section>
@@ -400,7 +473,9 @@ window.onload = function(){window.print();}
       <section className="pd-timeline">
         <header className="pd-card-h">Timeline</header>
         {tlErr && <p className="pd-muted">{tlErr}</p>}
-        {!tlErr && timeline.length === 0 && <p className="pd-muted">No hay eventos en el timeline.</p>}
+        {!tlErr && timeline.length === 0 && (
+          <p className="pd-muted">No hay eventos en el timeline.</p>
+        )}
         {!tlErr && timeline.length > 0 && (
           <ul className="pd-time">
             {timeline.map((ev) => (
@@ -408,8 +483,12 @@ window.onload = function(){window.print();}
                 <div className="pd-time-dot" />
                 <div className="pd-time-row">
                   <div className="pd-time-txt">
-                    <div><b>{mapEventType(ev.type)}</b></div>
-                    <small className="pd-muted">Actor: {ev.actor} · Origen: {ev.source}</small>
+                    <div>
+                      <b>{mapEventType(ev.type)}</b>
+                    </div>
+                    <small className="pd-muted">
+                      Actor: {ev.actor} · Origen: {ev.source}
+                    </small>
                     {ev.payload && typeof ev.payload === 'object' && (
                       <div className="pd-payload">
                         <div className="pd-kv pd-kv--mini">
@@ -436,22 +515,45 @@ window.onload = function(){window.print();}
           <form className="pd-modal" onSubmit={confirmarReembolso}>
             <div className="pd-modal-h">
               <h3>Reembolso</h3>
-              <button type="button" className="pd-btn pd-btn--chip" onClick={() => setShowRefund(false)}>Cerrar</button>
+              <button
+                type="button"
+                className="pd-btn pd-btn--chip"
+                onClick={() => setShowRefund(false)}
+              >
+                Cerrar
+              </button>
             </div>
             <label className="pd-field">
               <span>Monto</span>
-              <input type="number" className="pd-input" value={monto} min="0" onChange={(e) => setMonto(e.target.value)} />
+              <input
+                type="number"
+                className="pd-input"
+                value={monto}
+                min="0"
+                onChange={(e) => setMonto(e.target.value)}
+              />
             </label>
             <label className="pd-field">
               <span>Motivo</span>
-              <input type="text" className="pd-input" value={motivo} onChange={(e) => setMotivo(e.target.value)} />
+              <input
+                type="text"
+                className="pd-input"
+                value={motivo}
+                onChange={(e) => setMotivo(e.target.value)}
+              />
             </label>
             <label className="pd-field">
               <span>Notas</span>
-              <textarea className="pd-input pd-textarea" value={notas} onChange={(e) => setNotas(e.target.value)} />
+              <textarea
+                className="pd-input pd-textarea"
+                value={notas}
+                onChange={(e) => setNotas(e.target.value)}
+              />
             </label>
             <div className="pd-modal-actions">
-              <button type="submit" className="pd-btn pd-btn--pri">Confirmar</button>
+              <button type="submit" className="pd-btn pd-btn--pri">
+                Confirmar
+              </button>
             </div>
           </form>
         </div>

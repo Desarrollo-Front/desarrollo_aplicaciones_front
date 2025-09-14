@@ -31,13 +31,12 @@ export default function Gateway() {
   const [error, setError] = useState('');
   const [okMsg, setOkMsg] = useState('');
   const [cardData, setCardData] = useState(null);
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const api = (path, opts = {}) => {
     const authHeader =
       localStorage.getItem('authHeader') ||
       `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
-    const base = 'http://18.191.118.13:8080';
-    return fetch(`${base}${path}`, {
+    return fetch(`${API_URL}${path}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: authHeader,
