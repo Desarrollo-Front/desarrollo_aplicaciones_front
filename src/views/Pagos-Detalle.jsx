@@ -474,41 +474,56 @@ window.onload = function(){window.print();}
     }
   };
 
-  const doRefundAction = async (action) => {
-    if (!refundInfo?.id) return;
-    if (!isRefundPending) return;
-    try {
-      setActionLoading(true);
-      const authHeader =
-        localStorage.getItem('authHeader') ||
-        `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
-      const url = `http://18.191.118.13:8080/api/refunds/${refundInfo.id}/${action}`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+ const doRefundAction = async (action) => {
+  if (!refundInfo?.id) return;
+  if (!isRefundPending) return;
+  try {
+    setActionLoading(true);
+    const authHeader =
+      localStorage.getItem('authHeader') ||
+      `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
+
+    const url = `http://18.191.118.13:8080/api/refunds/${refundInfo.id}/${action}`;
+
+    // si es decline, armar el body
+    let body = null;
+    if (action === 'decline') {
+      body = JSON.stringify({
+        status: 'PENDING',
+        message: 'Rechazado por el comerciante'
       });
-      if (!res.ok) {
-        if (res.status === 401) throw new Error('No autorizado para operar reembolsos.');
-        throw new Error('No se pudo actualizar el reembolso.');
-      }
-      const upd = await parseJsonSafe(res);
-      const r = normalizeRefundResponse(upd);
-      if (r) {
-        setRefundInfo({
-          id: r.id ?? refundInfo.id,
-          amount: Number(r.amount ?? refundInfo.amount ?? 0),
-          status: String(r.status || '').toUpperCase(),
-          reason: r.reason ?? refundInfo.reason ?? null,
-          createdAt: r.createdAt || r.created_at || refundInfo.createdAt || null,
-          gatewayRefundId: r.gatewayRefundId || r.gateway_refund_id || refundInfo.gatewayRefundId || null,
-        });
-      }
-    } catch (e) {
-      alert(e.message || 'Error al actualizar el reembolso.');
-    } finally {
-      setActionLoading(false);
     }
-  };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+      body: body,
+    });
+
+    if (!res.ok) {
+      if (res.status === 401) throw new Error('No autorizado para operar reembolsos.');
+      throw new Error('No se pudo actualizar el reembolso.');
+    }
+
+    const upd = await parseJsonSafe(res);
+    const r = normalizeRefundResponse(upd);
+    if (r) {
+      setRefundInfo({
+        id: r.id ?? refundInfo.id,
+        amount: Number(r.amount ?? refundInfo.amount ?? 0),
+        status: String(r.status || '').toUpperCase(),
+        reason: r.reason ?? refundInfo.reason ?? null,
+        createdAt: r.createdAt || r.created_at || refundInfo.createdAt || null,
+        gatewayRefundId: r.gatewayRefundId || r.gateway_refund_id || refundInfo.gatewayRefundId || null,
+      });
+    }
+  } catch (e) {
+    alert(e.message || 'Error al actualizar el reembolso.');
+  } finally {
+    setActionLoading(false);
+  }
+};
+
 
   const filteredTimeline = useMemo(() => {
     if (tlFilter === 'all') return timeline;
