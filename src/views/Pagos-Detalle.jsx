@@ -205,7 +205,7 @@ export default function PagosDetalle() {
         const pagoNorm = {
           id: p.id,
           cliente: localStorage.getItem('name') || '—',
-          prestador: p.provider_id ? `ID: ${p.provider_id}` : '—',
+          prestador: p.provider_name || (p.provider_id ? `ID: ${p.provider_id}` : '—'),
           solicitud: p.solicitud_id ? `RCOT-${p.solicitud_id}` : '—',
           metodo: getMetodoTag(p.method),
           estado: mapStatus(p.status),
