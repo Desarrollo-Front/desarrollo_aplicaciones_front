@@ -636,363 +636,205 @@ window.onload = function(){window.print();}
   const isRefundPendingLike = String(refundInfo?.status || '').toUpperCase() === 'PENDING';
 
   return (
-    <div className="pd-wrap">
-      <div className="pd-head">
-        <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>
-          ← Volver
-        </button>
-        <div className="pd-head-center">
-          <h1 className="pd-title">Detalle de pago #{pago?.id ?? ''}</h1>
-          <p className="pd-sub">
-            Resumen, datos fiscales y referencia, comprobantes, reembolsos y timeline.
-          </p>
-        </div>
-        <div className="pd-head-spacer"></div>
-      </div>
-
-      <section className="pd-grid">
-        <article className="pd-card">
-          <header className="pd-card-h">Resumen</header>
-          <div className="pd-kv">
-            <div>
-              <b>Cliente</b>
-              <span>{pago.cliente}</span>
-            </div>
-            <div>
-              <b>Prestador</b>
-              <span>{pago.prestador}</span>
-            </div>
-            <div>
-              <b>Método</b>
-              <span>
-                <Badge kind={pago.metodo}>{pago.metodo}</Badge>
-              </span>
-            </div>
-            <div>
-              <b>Estado</b>
-              <span>
-                <Badge kind={pago.estado}>{pago.estado}</Badge>
-              </span>
-            </div>
-            {isRejected && (
-              <div style={{ gridColumn: '1 / -1', marginTop: 8 }}>
-                <button className="pd-btn pd-btn--pri" onClick={goRetry}>
-                  Reintentar pago
-                </button>
-              </div>
-            )}
-            <div>
-              <b>Subtotal</b>
-              <span>{totales.sub}</span>
-            </div>
-            <div>
-              <b>Impuestos</b>
-              <span>{totales.imp}</span>
-            </div>
-            <div className="pd-total">
-              <b>Total</b>
-              <span>{totales.tot}</span>
-            </div>
-            <div>
-              <b>Creado</b>
-              <span>{fechaHora(pago.creadoISO)}</span>
-            </div>
-            <div>
-              <b>Capturado</b>
-              <span>{fechaHora(pago.capturadoISO)}</span>
-            </div>
-          </div>
-        </article>
-
-        <article className="pd-card">
-          <header className="pd-card-h">Datos fiscales y referencia</header>
-          <div className="pd-kv">
-            <div>
-              <b>Moneda</b>
-              <span>{pago.moneda}</span>
-            </div>
-            <div>
-              <b>Fees</b>
-              <span>{money(pago.fees, pago.moneda)}</span>
-            </div>
-            <div>
-              <b>Descripción</b>
-              <span>{pago.descripcion}</span>
-            </div>
-            <div>
-              <b>Categoría</b>
-              <span>{pago.categoria}</span>
-            </div>
-            {hasRefund && refundReason && (
-              <div>
-                <b>Motivo reembolso</b>
-                <span>{refundReason}</span>
-              </div>
-            )}
-          </div>
-        </article>
-
-        <article className="pd-card">
-  <header className="pd-card-h">Comprobantes</header>
-  {puedeDescargarComprobante ? (
-    <div className="pd-comprobante">
-      <p className="pd-muted">
-        Se genera un comprobante de pago no fiscal con los datos reales.
-      </p>
-      <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
-        Descargar Factura
+  <div className="pd-wrap">
+    <div className="pd-head">
+      <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>
+        ← Volver
       </button>
+      <div className="pd-head-center">
+        <h1 className="pd-title">Detalle de pago #{pago?.id ?? ''}</h1>
+        <p className="pd-sub">
+          Resumen, datos fiscales y referencia, comprobantes, reembolsos y timeline.
+        </p>
+      </div>
+      <div className="pd-head-spacer"></div>
     </div>
-  ) : (
-    <div className="pd-comprobante">
-      <p className="pd-muted">
-        No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
-      </p>
-      {pago.rawStatus === 'REJECTED' && (
-        <button
-          className="pd-btn pd-btn--pri"
-          onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
-        >
-          Reintentar pago
-        </button>
-      )}
-    </div>
-  )}
-</article>
 
-      </section>
+    <section className="pd-grid">
+      {/* Columna izquierda */}
+      <article className="pd-card">
+        <header className="pd-card-h">Resumen</header>
+        <div className="pd-kv">
+          <div>
+            <b>Cliente</b>
+            <span>{pago.cliente}</span>
+          </div>
+          <div>
+            <b>Prestador</b>
+            <span>{pago.prestador}</span>
+          </div>
+          <div>
+            <b>Método</b>
+            <span>
+              <Badge kind={pago.metodo}>{pago.metodo}</Badge>
+            </span>
+          </div>
+          <div>
+            <b>Estado</b>
+            <span>
+              <Badge kind={pago.estado}>{pago.estado}</Badge>
+            </span>
+          </div>
+          {isRejected && (
+            <div style={{ gridColumn: '1 / -1', marginTop: 8 }}>
+              <button className="pd-btn pd-btn--pri" onClick={goRetry}>
+                Reintentar pago
+              </button>
+            </div>
+          )}
+          <div>
+            <b>Subtotal</b>
+            <span>{totales.sub}</span>
+          </div>
+          <div>
+            <b>Impuestos</b>
+            <span>{totales.imp}</span>
+          </div>
+          <div className="pd-total">
+            <b>Total</b>
+            <span>{totales.tot}</span>
+          </div>
+          <div>
+            <b>Creado</b>
+            <span>{fechaHora(pago.creadoISO)}</span>
+          </div>
+          <div>
+            <b>Capturado</b>
+            <span>{fechaHora(pago.capturadoISO)}</span>
+          </div>
+        </div>
+      </article>
 
-      <section className="pd-card pd-refunds">
-        <header className="pd-card-h pd-card-h-left">Reembolsos</header>
-        {refundLoading && <p className="pd-muted">Consultando reembolso…</p>}
-        {refundErr && <p className="pd-muted">{refundErr}</p>}
-        {!refundLoading && !refundErr && refundInfo && (
-          <div className="pd-kv">
+      <article className="pd-card">
+        <header className="pd-card-h">Datos fiscales y referencia</header>
+        <div className="pd-kv">
+          <div>
+            <b>Moneda</b>
+            <span>{pago.moneda}</span>
+          </div>
+          <div>
+            <b>Fees</b>
+            <span>{money(pago.fees, pago.moneda)}</span>
+          </div>
+          <div>
+            <b>Descripción</b>
+            <span>{pago.descripcion}</span>
+          </div>
+          <div>
+            <b>Categoría</b>
+            <span>{pago.categoria}</span>
+          </div>
+          {hasRefund && refundReason && (
             <div>
-              <b>ID de reembolso</b>
-              <span>{refundInfo.id ?? '—'}</span>
+              <b>Motivo reembolso</b>
+              <span>{refundReason}</span>
             </div>
-            <div>
-              <b>Estado</b>
-              <span>{mapRefundStatus(refundInfo.status)}</span>
+          )}
+        </div>
+      </article>
+
+      {/* Columna derecha con comprobantes y reembolsos */}
+      <div className="pd-col-right">
+        <article className="pd-card pd-comprobantes">
+          <header className="pd-card-h">Comprobantes</header>
+          {puedeDescargarComprobante ? (
+            <div className="pd-comprobante">
+              <p className="pd-muted">
+                Se genera un comprobante de pago no fiscal con los datos reales.
+              </p>
+              <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
+                Descargar Factura
+              </button>
             </div>
-            <div>
-              <b>Monto</b>
-              <span>{money(Number(refundInfo.amount ?? 0), pago.moneda)}</span>
-            </div>
-            {isMerchant && isRefundPending && (
-              <div className="pd-tl-actions" style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+          ) : (
+            <div className="pd-comprobante">
+              <p className="pd-muted">
+                No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
+              </p>
+              {pago.rawStatus === 'REJECTED' && (
                 <button
                   className="pd-btn pd-btn--pri"
-                  disabled={actionLoading || !isRefundPendingLike}
-                  onClick={() => doRefundAction('approve')}
+                  onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
                 >
-                  Aprobar
+                  Reintentar pago
                 </button>
-                <button
-                  className="pd-btn"
-                  disabled={actionLoading || !isRefundPendingLike}
-                  onClick={() => doRefundAction('decline')}
-                >
-                  Rechazar
-                </button>
+              )}
+            </div>
+          )}
+        </article>
+
+        <article className="pd-card pd-refunds">
+          <header className="pd-card-h pd-card-h--left">Reembolsos</header>
+          {refundLoading && <p className="pd-muted">Consultando reembolso…</p>}
+          {refundErr && <p className="pd-muted">{refundErr}</p>}
+          {!refundLoading && !refundErr && refundInfo && (
+            <div className="pd-kv">
+              <div>
+                <b>ID de reembolso</b>
+                <span>{refundInfo.id ?? '—'}</span>
               </div>
-            )}
-          </div>
-        )}
-        {!refundLoading && !refundErr && !refundInfo && isMerchant && (
-          <div className="pd-empty">
-            <p className="pd-muted">No se inició un reembolso para este pago.</p>
-          </div>
-        )}
-        {!refundLoading && !refundErr && !refundInfo && isUser && (
-          <div className="pd-empty">
-            <p className="pd-muted">Sin reembolsos registrados.</p>
-            <button
-              className="pd-btn pd-btn--pri"
-              onClick={() => {
-                setFullRefund(false);
-                setMonto(0);
-                setMotivo('');
-                setNotas('');
-                setShowRefund(true);
-              }}
-            >
-              Solicitar reembolso
-            </button>
-          </div>
-        )}
-      </section>
-
-      <section className="pd-timeline pd-timeline--alt">
-        <div className="pd-tl-head">
-          <header className="pd-card-h">Timeline</header>
-          <div className="pd-tl-filters"></div>
-        </div>
-
-        {tlErr && <p className="pd-muted">{tlErr}</p>}
-        {!tlErr && filteredTimeline.length === 0 && (
-          <p className="pd-muted">No hay eventos para el filtro seleccionado.</p>
-        )}
-
-        {!tlErr && filteredTimeline.length > 0 && (
-          <ul className="pd-time-alt">
-            {filteredTimeline.map((ev, i) => {
-              const side = i % 2 === 0 ? 'pd-left' : 'pd-right';
-              const cat = ev.category;
-              const open = !!expanded[ev.id];
-              const hl = highlightPairs(ev.payload, pago.moneda);
-              return (
-                <li key={ev.id} className={`pd-time-alt-item ${side} pd-time-${cat}`}>
-                  <div className="pd-time-head">
-                    <button
-                      className="pd-dot-label"
-                      data-tip={fechaHora(ev.createdISO)}
-                      type="button"
-                    >
-                      <span className="pd-evt-title">
-                        {mapEventType(ev.type)}
-                        {ev._count ? ` ×${ev._count}` : ''}
-                      </span>
-                    </button>
-                    {!open && (
-                      <button
-                        className="pd-btn pd-btn--chip pd-more"
-                        onClick={() => setExpanded((x) => ({ ...x, [ev.id]: true }))}
-                      >
-                        Ver más
-                      </button>
-                    )}
-                  </div>
-
-                  {open && (
-                    <div className="pd-time-card">
-                      <div className="pd-time-card-h">
-                        <div className="pd-time-title">
-                          {mapEventType(ev.type)}
-                          {ev._count ? ` ×${ev._count}` : ''}
-                        </div>
-                        <div className="pd-time-date">{fechaHora(ev.createdISO)}</div>
-                      </div>
-                      <div className="pd-time-meta">
-                        Actor: {ev.actor} · Origen: {ev.source}
-                      </div>
-
-                      {hl.length > 0 && (
-                        <div className="pd-tl-highlights">
-                          {hl.map(([k, v]) => (
-                            <div key={k} className="pd-chip-kv">
-                              <span className="pd-chip-k">{k}</span>
-                              <span className="pd-chip-v">{v}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {ev.payload && typeof ev.payload === 'object' && (
-                        <div className="pd-payload">
-                          <pre className="pd-pre">{JSON.stringify(ev.payload, null, 2)}</pre>
-                        </div>
-                      )}
-
-                      <div className="pd-tl-actions">
-                        <button
-                          className="pd-btn pd-btn--chip"
-                          onClick={() => setExpanded((x) => ({ ...x, [ev.id]: false }))}
-                        >
-                          Ver menos
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
-
-      {showRefund && (
-        <div className="pd-modal-overlay" role="dialog" aria-modal="true">
-          <form className="pd-modal" onSubmit={confirmarReembolso}>
-            <div className="pd-modal-h">
-              <h3>Reembolso</h3>
+              <div>
+                <b>Estado</b>
+                <span>{mapRefundStatus(refundInfo.status)}</span>
+              </div>
+              <div>
+                <b>Monto</b>
+                <span>{money(Number(refundInfo.amount ?? 0), pago.moneda)}</span>
+              </div>
+              {isMerchant && isRefundPending && (
+                <div className="pd-tl-actions" style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                  <button
+                    className="pd-btn pd-btn--pri"
+                    disabled={actionLoading || !isRefundPendingLike}
+                    onClick={() => doRefundAction('approve')}
+                  >
+                    Aprobar
+                  </button>
+                  <button
+                    className="pd-btn"
+                    disabled={actionLoading || !isRefundPendingLike}
+                    onClick={() => doRefundAction('decline')}
+                  >
+                    Rechazar
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          {!refundLoading && !refundErr && !refundInfo && isMerchant && (
+            <div className="pd-empty">
+              <p className="pd-muted">No se inició un reembolso para este pago.</p>
+            </div>
+          )}
+          {!refundLoading && !refundErr && !refundInfo && isUser && (
+            <div className="pd-empty">
+              <p className="pd-muted">Sin reembolsos registrados.</p>
               <button
-                type="button"
-                className="pd-btn pd-btn--chip"
-                onClick={() => setShowRefund(false)}
+                className="pd-btn pd-btn--pri"
+                onClick={() => {
+                  setFullRefund(false);
+                  setMonto(0);
+                  setMotivo('');
+                  setNotas('');
+                  setShowRefund(true);
+                }}
               >
-                Cerrar
+                Solicitar reembolso
               </button>
             </div>
+          )}
+        </article>
+      </div>
+    </section>
 
-            <label
-              className="pd-field"
-              style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}
-            >
-              <input
-                type="checkbox"
-                checked={fullRefund}
-                onChange={(e) => setFullRefund(e.target.checked)}
-              />
-              <span>Reembolso total {pago ? `(${money(pago.total, pago.moneda)})` : ''}</span>
-            </label>
-
-            <label className="pd-field">
-              <span>Monto</span>
-              <input
-                type="number"
-                className="pd-input"
-                value={fullRefund && pago ? pago.total : monto}
-                min="0"
-                step="0.01"
-                max={pago ? pago.total : undefined}
-                onChange={(e) => setMonto(e.target.value)}
-                disabled={fullRefund}
-              />
-            </label>
-
-            <label className="pd-field">
-              <span>Motivo</span>
-              <input
-                type="text"
-                className="pd-input"
-                value={motivo}
-                onChange={(e) => setMotivo(e.target.value)}
-                pattern="[a-zA-ZÀ-ÿ\s.,-]{3,100}"
-                title="Solo letras, espacios y signos básicos (mínimo 3 caracteres)"
-                required
-              />
-            </label>
-
-            <label className="pd-field">
-              <span>Notas</span>
-              <textarea
-                className="pd-input pd-textarea"
-                value={notas}
-                onChange={(e) => setNotas(e.target.value)}
-              />
-            </label>
-
-            <div className="pd-modal-actions">
-              <button type="submit" className="pd-btn pd-btn--pri">
-                Confirmar
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-      {alerta.show && (
-        <div className={`pd-alert pd-alert--${alerta.tipo}`}>
-          {alerta.mensaje}
-          <button
-            className="pd-alert-x"
-            onClick={() => setAlerta({ show: false, tipo: 'info', mensaje: '' })}
-          >
-            ×
-          </button>
-        </div>
-      )}
-    </div>
-  );
+    {/* Timeline abajo */}
+    <section className="pd-timeline pd-timeline--alt">
+      <div className="pd-tl-head">
+        <header className="pd-card-h">Timeline</header>
+        <div className="pd-tl-filters"></div>
+      </div>
+      ...
+    </section>
+  </div>
+);
 }
