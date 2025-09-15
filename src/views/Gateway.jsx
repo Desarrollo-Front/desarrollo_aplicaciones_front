@@ -298,7 +298,7 @@ export default function Gateway() {
                 <b>{resumen.totalFmt}</b>
               </div>
               <button className="gx-btn gx-btn--pri gx-buy" onClick={comprar} disabled={processing}>
-                {processing ? 'Procesando…' : 'Comprar'}
+                {processing ? 'Procesando…' : 'Pagar'}
               </button>
             </>
           )}
