@@ -54,6 +54,9 @@ const mapEventType = (t) => {
   if (x === 'REFUND_CREATED') return 'Reembolso creado';
   if (x === 'REFUND_APPROVED') return 'Reembolso aprobado';
   if (x === 'REFUND_REJECTED') return 'Reembolso rechazado';
+  if (x === 'REFUND_INITIATED' || x === 'REFUND_STARTED') return 'Reembolso iniciado';
+  if (x === 'REFUND_COMPLETED' || x === 'REFUND_COMPLETE') return 'Reembolso completado';
+  if (x === 'REFUND_FAILED' || x === 'REFUND_FAIL') return 'Reembolso rechazado';
   return x
     .replaceAll('_', ' ')
     .toLowerCase()
@@ -65,7 +68,7 @@ const mapRefundStatus = (s) => {
   if (t === 'DECLINED') return 'Rechazado';
   if (t === 'TOTAL_REFUND') return 'Reembolso total';
   if (t === 'PARTIAL_REFUND') return 'Reembolso parcial';
-  return t; // fallback
+  return t;
 };
 
 const eventCategory = (type, payload) => {
@@ -96,7 +99,15 @@ const highlightPairs = (payload, moneda) => {
     tryPush('Moneda', String(currency).toUpperCase());
   const method =
     src.method || src.method_type || src.payment_method || src.card?.brand || src.issuer;
-  if (method) tryPush('Método', String(method));
+  if (method) {
+    const traduccionesMetodo = {
+      CREDIT_CARD: "Tarjeta de crédito",
+      DEBIT_CARD: "Tarjeta de débito",
+      MERCADO_PAGO: "Mercado Pago",
+    };
+    const metodoTraducido = traduccionesMetodo[String(method).toUpperCase()] || String(method);
+    tryPush("Método", metodoTraducido);
+  }
   const last4 = src.card?.last4 || src.last4 || src.card_last4;
   if (last4) tryPush('Terminación', `**** ${String(last4)}`);
   const statusFrom = src.previous_status || src.from || src.old_status;
@@ -128,6 +139,57 @@ const normalizeRefundResponse = (data) => {
   if (!data) return null;
   if (Array.isArray(data)) return data.length ? data[0] : null;
   return data;
+};
+
+const translatePayloadDeep = (payload) => {
+  if (!payload || typeof payload !== "object") return payload;
+
+  const keyTranslations = {
+    status: "Estado",
+    method: "Método",
+    method_type: "Tipo de método",
+    payment_method_type: "Tipo de método de pago",
+    payment_method_id: "ID de método de pago",
+    approval_time: "Fecha de aprobación",
+    amount: "Monto",
+    amount_total: "Monto total",
+    currency: "Moneda",
+    installments: "Cuotas",
+    reason: "Motivo",
+    error: "Error",
+    refund_id: "ID de reembolso",
+    created_at: "Fecha de creación",
+    updated_at: "Fecha de actualización",
+  };
+
+  const valueTranslations = {
+    PENDING_BANK_APPROVAL: "Pendiente de aprobación bancaria",
+    AUTO_APPROVED_BY_BANK: "Aprobado automáticamente por el banco",
+    CREDIT_CARD: "Tarjeta de crédito",
+    DEBIT_CARD: "Tarjeta de débito",
+    CASH: "Efectivo",
+    MERCADO_PAGO: "Mercado Pago",
+    APPROVED: "Aprobado",
+    REJECTED: "Rechazado",
+    PENDING: "Pendiente",
+    REFUND_INITIATED: "Reembolso iniciado",
+  };
+
+  const nuevo = {};
+  for (let [k, v] of Object.entries(payload)) {
+    const newKey = keyTranslations[k] || k;
+
+    let newValue = v;
+    if (typeof v === "string") {
+      const upper = v.toUpperCase();
+      newValue = valueTranslations[upper] || v;
+    } else if (typeof v === "object" && v !== null) {
+      newValue = translatePayloadDeep(v);
+    }
+
+    nuevo[newKey] = newValue;
+  }
+  return nuevo;
 };
 
 export default function PagosDetalle() {
@@ -169,7 +231,7 @@ export default function PagosDetalle() {
   const [alerta, setAlerta] = useState({ show: false, tipo: 'info', mensaje: '' });
   const mostrarAlerta = (mensaje, tipo = 'info') => {
     setAlerta({ show: true, tipo, mensaje });
-    setTimeout(() => setAlerta({ show: false, tipo: 'info', mensaje: '' }), 4000); // se oculta en 4s
+    setTimeout(() => setAlerta({ show: false, tipo: 'info', mensaje: '' }), 4000);
   };
 
   useEffect(() => {
@@ -593,6 +655,25 @@ window.onload = function(){window.print();}
     return timeline.filter((e) => e.category === tlFilter);
   }, [timeline, tlFilter]);
 
+  const isRejected = useMemo(
+    () => String(pago?.rawStatus || '').toUpperCase() === 'REJECTED',
+    [pago]
+  );
+
+  const goRetry = () => {
+    if (!pago) return;
+    navigate(`/pago/${pago.id}`, {
+      state: {
+        id: pago.id,
+        currency: pago.moneda,
+        subtotal: pago.subtotal,
+        taxesAndFees: pago.impuestos,
+        total: pago.total,
+        status: pago.rawStatus,
+      },
+    });
+  };
+
   if (loading) {
     return (
       <div className="pd-wrap">
@@ -625,7 +706,7 @@ window.onload = function(){window.print();}
         <div className="pd-head-center">
           <h1 className="pd-title">Detalle de pago #{pago?.id ?? ''}</h1>
           <p className="pd-sub">
-            Resumen, datos fiscales y referencia, timeline, comprobantes y reembolsos.
+            Resumen, datos fiscales y referencia, comprobantes, reembolsos y timeline.
           </p>
         </div>
         <div className="pd-head-spacer"></div>
@@ -655,6 +736,13 @@ window.onload = function(){window.print();}
                 <Badge kind={pago.estado}>{pago.estado}</Badge>
               </span>
             </div>
+            {isRejected && !isMerchant && (
+              <div style={{ gridColumn: '1 / -1', marginTop: 8 }}>
+                <button className="pd-btn pd-btn--pri" onClick={goRetry}>
+                  Reintentar pago
+                </button>
+              </div>
+            )}
             <div>
               <b>Subtotal</b>
               <span>{totales.sub}</span>
@@ -707,24 +795,37 @@ window.onload = function(){window.print();}
         </article>
 
         <article className="pd-card">
-          <header className="pd-card-h">Comprobantes</header>
-          {puedeDescargarComprobante ? (
-            <div className="pd-comprobante">
-              <p className="pd-muted">
-                Se genera un comprobante de pago no fiscal con los datos reales.
-              </p>
-              <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
-                Descargar Factura
-              </button>
-            </div>
-          ) : (
-            <p className="pd-muted">No hay comprobantes disponibles.</p>
-          )}
-        </article>
+  <header className="pd-card-h">Comprobantes</header>
+  {puedeDescargarComprobante ? (
+    <div className="pd-comprobante">
+      <p className="pd-muted">
+        Se genera un comprobante de pago no fiscal con los datos reales.
+      </p>
+      <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
+        Descargar Factura
+      </button>
+    </div>
+  ) : (
+    <div className="pd-comprobante">
+      <p className="pd-muted">
+        No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
+      </p>
+      {pago.rawStatus === 'REJECTED' && !isMerchant &&  (
+        <button
+          className="pd-btn pd-btn--pri"
+          onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
+        >
+          Reintentar pago
+        </button>
+      )}
+    </div>
+  )}
+</article>
+
       </section>
 
       <section className="pd-card pd-refunds">
-        <header className="pd-card-h">Reembolsos</header>
+        <header className="pd-card-h pd-card-h--left">Reembolsos</header>
         {refundLoading && <p className="pd-muted">Consultando reembolso…</p>}
         {refundErr && <p className="pd-muted">{refundErr}</p>}
         {!refundLoading && !refundErr && refundInfo && (
@@ -742,7 +843,7 @@ window.onload = function(){window.print();}
               <span>{money(Number(refundInfo.amount ?? 0), pago.moneda)}</span>
             </div>
             {isMerchant && isRefundPending && (
-              <div className="pd-tl-actions" style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              <div className="pd-refund-actions" >
                 <button
                   className="pd-btn pd-btn--pri"
                   disabled={actionLoading || !isRefundPendingLike}
@@ -852,7 +953,7 @@ window.onload = function(){window.print();}
 
                       {ev.payload && typeof ev.payload === 'object' && (
                         <div className="pd-payload">
-                          <pre className="pd-pre">{JSON.stringify(ev.payload, null, 2)}</pre>
+                          <pre className="pd-pre">{JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}</pre>
                         </div>
                       )}
 
