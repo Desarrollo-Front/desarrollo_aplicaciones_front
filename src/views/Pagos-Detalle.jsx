@@ -644,7 +644,7 @@ window.onload = function(){window.print();}
         <div className="pd-head-center">
           <h1 className="pd-title">Detalle de pago #{pago?.id ?? ''}</h1>
           <p className="pd-sub">
-            Resumen, datos fiscales y referencia, timeline, comprobantes y reembolsos.
+            Resumen, datos fiscales y referencia, comprobantes, reembolsos y timeline.
           </p>
         </div>
         <div className="pd-head-spacer"></div>
@@ -763,7 +763,7 @@ window.onload = function(){window.print();}
       </section>
 
       <section className="pd-card pd-refunds">
-        <header className="pd-card-h">Reembolsos</header>
+        <header className="pd-card-h pd-card-h-left">Reembolsos</header>
         {refundLoading && <p className="pd-muted">Consultando reembolso…</p>}
         {refundErr && <p className="pd-muted">{refundErr}</p>}
         {!refundLoading && !refundErr && refundInfo && (
