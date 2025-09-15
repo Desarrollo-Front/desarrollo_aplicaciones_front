@@ -414,7 +414,7 @@ function CardModal({ onClose, onContinue, onInvalid, currency }) {
     setValid(Object.values(ok).every(Boolean));
   }, [form]);
 
-  const showErr = (k) => (submitted || touched[k]) && !!errs[k]);
+  const showErr = (k) => (submitted || touched[k]) && !!errs[k];
 
   const onChange = (e) => {
     const { name, value } = e.target;
