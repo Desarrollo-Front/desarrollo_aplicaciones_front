@@ -65,7 +65,7 @@ const mapRefundStatus = (s) => {
   if (t === 'DECLINED') return 'Rechazado';
   if (t === 'TOTAL_REFUND') return 'Reembolso total';
   if (t === 'PARTIAL_REFUND') return 'Reembolso parcial';
-  return t; // fallback
+  return t;
 };
 
 const eventCategory = (type, payload) => {
@@ -169,7 +169,7 @@ export default function PagosDetalle() {
   const [alerta, setAlerta] = useState({ show: false, tipo: 'info', mensaje: '' });
   const mostrarAlerta = (mensaje, tipo = 'info') => {
     setAlerta({ show: true, tipo, mensaje });
-    setTimeout(() => setAlerta({ show: false, tipo: 'info', mensaje: '' }), 4000); // se oculta en 4s
+    setTimeout(() => setAlerta({ show: false, tipo: 'info', mensaje: '' }), 4000);
   };
 
   useEffect(() => {
@@ -593,6 +593,25 @@ window.onload = function(){window.print();}
     return timeline.filter((e) => e.category === tlFilter);
   }, [timeline, tlFilter]);
 
+  const isRejected = useMemo(
+    () => String(pago?.rawStatus || '').toUpperCase() === 'REJECTED',
+    [pago]
+  );
+
+  const goRetry = () => {
+    if (!pago) return;
+    navigate(`/pago/${pago.id}`, {
+      state: {
+        id: pago.id,
+        currency: pago.moneda,
+        subtotal: pago.subtotal,
+        taxesAndFees: pago.impuestos,
+        total: pago.total,
+        status: pago.rawStatus,
+      },
+    });
+  };
+
   if (loading) {
     return (
       <div className="pd-wrap">
@@ -655,6 +674,13 @@ window.onload = function(){window.print();}
                 <Badge kind={pago.estado}>{pago.estado}</Badge>
               </span>
             </div>
+            {isRejected && (
+              <div style={{ gridColumn: '1 / -1', marginTop: 8 }}>
+                <button className="pd-btn pd-btn--pri" onClick={goRetry}>
+                  Reintentar pago
+                </button>
+              </div>
+            )}
             <div>
               <b>Subtotal</b>
               <span>{totales.sub}</span>
@@ -707,20 +733,33 @@ window.onload = function(){window.print();}
         </article>
 
         <article className="pd-card">
-          <header className="pd-card-h">Comprobantes</header>
-          {puedeDescargarComprobante ? (
-            <div className="pd-comprobante">
-              <p className="pd-muted">
-                Se genera un comprobante de pago no fiscal con los datos reales.
-              </p>
-              <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
-                Descargar Factura
-              </button>
-            </div>
-          ) : (
-            <p className="pd-muted">No hay comprobantes disponibles.</p>
-          )}
-        </article>
+  <header className="pd-card-h">Comprobantes</header>
+  {puedeDescargarComprobante ? (
+    <div className="pd-comprobante">
+      <p className="pd-muted">
+        Se genera un comprobante de pago no fiscal con los datos reales.
+      </p>
+      <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
+        Descargar Factura
+      </button>
+    </div>
+  ) : (
+    <div className="pd-comprobante">
+      <p className="pd-muted">
+        No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
+      </p>
+      {pago.rawStatus === 'REJECTED' && (
+        <button
+          className="pd-btn pd-btn--pri"
+          onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
+        >
+          Reintentar pago
+        </button>
+      )}
+    </div>
+  )}
+</article>
+
       </section>
 
       <section className="pd-card pd-refunds">
