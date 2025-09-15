@@ -148,7 +148,6 @@ export default function Gateway() {
       const serverMsg = res.headers.get('Error-Message');
       const fallback = await fetchJsonOrText(res);
       const msg = serverMsg || fallback || 'No hay saldo suficiente para reintentar el pago.';
-      mostrarAlerta(msg, 'error');
       throw new Error(msg);
     }
     const updated = await res.json();
