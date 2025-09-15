@@ -840,7 +840,7 @@ window.onload = function(){window.print();}
               <span>{money(Number(refundInfo.amount ?? 0), pago.moneda)}</span>
             </div>
             {isMerchant && isRefundPending && (
-              <div className="pd-tl-actions" style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              <div className="pd-refund-actions" >
                 <button
                   className="pd-btn pd-btn--pri"
                   disabled={actionLoading || !isRefundPendingLike}

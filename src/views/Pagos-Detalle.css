@@ -201,5 +201,15 @@ body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sa
 .pd-alert-x{margin-left:12px;background:transparent;border:0;color:#fff;font-size:18px;cursor:pointer}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
+.pd-refund-actions{
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+@media (max-width:720px){
+  .pd-refund-actions{justify-content:flex-end}
+}
 
 
