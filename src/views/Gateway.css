@@ -132,7 +132,7 @@
 .gx-logo-mp { height: 32px; }
 
 .gx-summary { padding: 16px; }
-.gx-sum-h { font-weight: 800; margin: 6px 0 12px; color: var(--gx-blue-dark); }
+.gx-sum-h { font-weight: 800; margin: 6px 0 12px; color: var(--gx-blue-dark); font-size: 18px; align-items: center;}
 .gx-empty { color: var(--gx-muted); padding: 24px 8px; text-align: center; }
 .gx-sum-row {
   display: flex;
