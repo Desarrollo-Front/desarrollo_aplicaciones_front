@@ -733,20 +733,33 @@ window.onload = function(){window.print();}
         </article>
 
         <article className="pd-card">
-          <header className="pd-card-h">Comprobantes</header>
-          {puedeDescargarComprobante ? (
-            <div className="pd-comprobante">
-              <p className="pd-muted">
-                Se genera un comprobante de pago no fiscal con los datos reales.
-              </p>
-              <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
-                Descargar Factura
-              </button>
-            </div>
-          ) : (
-            <p className="pd-muted">No hay comprobantes disponibles.</p>
-          )}
-        </article>
+  <header className="pd-card-h">Comprobantes</header>
+  {puedeDescargarComprobante ? (
+    <div className="pd-comprobante">
+      <p className="pd-muted">
+        Se genera un comprobante de pago no fiscal con los datos reales.
+      </p>
+      <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
+        Descargar Factura
+      </button>
+    </div>
+  ) : (
+    <div className="pd-comprobante">
+      <p className="pd-muted">
+        No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
+      </p>
+      {pago.rawStatus === 'REJECTED' && (
+        <button
+          className="pd-btn pd-btn--pri"
+          onClick={() => navigate(`/gateway/${pago.id}`, { state: pago })}
+        >
+          Reintentar pago
+        </button>
+      )}
+    </div>
+  )}
+</article>
+
       </section>
 
       <section className="pd-card pd-refunds">
