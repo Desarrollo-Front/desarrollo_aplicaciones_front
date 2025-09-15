@@ -227,11 +227,7 @@ export default function Gateway() {
           <i className="ri-check-line" /> {okMsg}
         </div>
       )}
-      {error && (
-        <div className="gx-banner gx-banner--warn">
-          <i className="ri-error-warning-line" /> {error}
-        </div>
-      )}
+     
 
       <section className="gx-grid">
         <aside className="gx-card">
