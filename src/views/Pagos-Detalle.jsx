@@ -133,7 +133,7 @@ const normalizeRefundResponse = (data) => {
 const translatePayload = (payload) => {
   if (!payload || typeof payload !== "object") return payload;
 
-  // Traducción de claves y valores
+  // Traducciones de claves
   const keyTranslations = {
     status: "Estado",
     method: "Método",
@@ -146,8 +146,9 @@ const translatePayload = (payload) => {
     last4: "Terminación",
   };
 
+  // Traducciones de valores
   const valueTranslations = {
-    pending_bank_approval: "Pendiente de aprobación bancaria",
+    PENDING_BANK_APPROVAL: "Pendiente de aprobación bancaria",
     CREDIT_CARD: "Tarjeta de crédito",
     DEBIT_CARD: "Tarjeta de débito",
     CASH: "Efectivo",
@@ -156,8 +157,14 @@ const translatePayload = (payload) => {
 
   let nuevo = {};
   for (let [k, v] of Object.entries(payload)) {
-    const newKey = keyTranslations[k] || k; 
-    const newValue = valueTranslations[v] || v; 
+    const newKey = keyTranslations[k] || k;
+
+    let newValue = v;
+    if (typeof v === "string") {
+      const upperV = v.toUpperCase();
+      newValue = valueTranslations[upperV] || v;
+    }
+
     nuevo[newKey] = newValue;
   }
   return nuevo;
