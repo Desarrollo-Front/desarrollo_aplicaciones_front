@@ -736,13 +736,6 @@ window.onload = function(){window.print();}
                 <Badge kind={pago.estado}>{pago.estado}</Badge>
               </span>
             </div>
-            {isRejected && !isMerchant && (
-              <div style={{ gridColumn: '1 / -1', marginTop: 8 }}>
-                <button className="pd-btn pd-btn--pri" onClick={goRetry}>
-                  Reintentar pago
-                </button>
-              </div>
-            )}
             <div>
               <b>Subtotal</b>
               <span>{totales.sub}</span>
