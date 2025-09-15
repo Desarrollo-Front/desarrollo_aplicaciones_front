@@ -65,7 +65,7 @@
   display: grid;
   grid-template-columns: 1fr 360px;
   gap: 12px;
-  align-items: start;
+  align-items: stretch;
 }
 @media (max-width: 900px) {
   .gx-grid { grid-template-columns: 1fr; }
@@ -77,6 +77,9 @@
   border-radius: var(--gx-radius);
   box-shadow: var(--gx-shadow-lg);
   padding: 14px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .gx-list { display: flex; flex-direction: column; gap: 20px; }
@@ -90,7 +93,6 @@
   padding: 14px;
   cursor: pointer;
   transition: box-shadow .15s ease, border-color .15s ease;
-  width: 100%;
 }
 .gx-option:hover { box-shadow: var(--gx-shadow-md); }
 .gx-option input { margin: 6px 6px 0 2px; }
