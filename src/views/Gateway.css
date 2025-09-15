@@ -1,5 +1,5 @@
 :root {
-  --gx-bg: var(--bg, #f9fafb);
+  --gx-bg: var(--bg, #ffffff);
   --gx-panel: var(--panel, #ffffff);
   --gx-muted: var(--muted, #6b7280);
   --gx-text: var(--text, #000000);
