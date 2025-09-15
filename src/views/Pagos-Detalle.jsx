@@ -733,7 +733,7 @@ window.onload = function(){window.print();}
                 <Badge kind={pago.estado}>{pago.estado}</Badge>
               </span>
             </div>
-            {isRejected && (
+            {isRejected && !isMerchant && (
               <div style={{ gridColumn: '1 / -1', marginTop: 8 }}>
                 <button className="pd-btn pd-btn--pri" onClick={goRetry}>
                   Reintentar pago
@@ -807,7 +807,7 @@ window.onload = function(){window.print();}
       <p className="pd-muted">
         No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
       </p>
-      {pago.rawStatus === 'REJECTED' && (
+      {pago.rawStatus === 'REJECTED' && !isMerchant &&  (
         <button
           className="pd-btn pd-btn--pri"
           onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
