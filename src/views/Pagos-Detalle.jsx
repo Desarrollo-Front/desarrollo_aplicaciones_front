@@ -600,7 +600,7 @@ window.onload = function(){window.print();}
 
   const goRetry = () => {
     if (!pago) return;
-    navigate(`/gateway/${pago.id}`, {
+    navigate(`/pago/${pago.id}`, {
       state: {
         id: pago.id,
         currency: pago.moneda,
