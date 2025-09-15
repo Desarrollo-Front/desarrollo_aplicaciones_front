@@ -54,6 +54,8 @@ const mapEventType = (t) => {
   if (x === 'REFUND_CREATED') return 'Reembolso creado';
   if (x === 'REFUND_APPROVED') return 'Reembolso aprobado';
   if (x === 'REFUND_REJECTED') return 'Reembolso rechazado';
+  if (x === 'REFUND_INITIATED' || x === 'REFUND_STARTED') return 'Reembolso iniciado';
+  if (x === 'REFUND_COMPLETED' || x === 'REFUND_COMPLETE') return 'Reembolso completado';
   return x
     .replaceAll('_', ' ')
     .toLowerCase()
