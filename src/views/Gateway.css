@@ -65,7 +65,7 @@
   display: grid;
   grid-template-columns: 1fr 360px;
   gap: 12px;
-  align-items: stretch;
+  align-items: stretch; /* que ambas columnas se estiren */
 }
 @media (max-width: 900px) {
   .gx-grid { grid-template-columns: 1fr; }
@@ -82,7 +82,23 @@
   flex-direction: column;
 }
 
-.gx-list { display: flex; flex-direction: column; gap: 20px; }
+/* Card de métodos de pago */
+.gx-card.gx-paymethods {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 20px;
+}
+
+/* Lista de métodos → reparte el espacio */
+.gx-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* reparte espacio */
+  gap: 20px;
+}
+
 .gx-option {
   display: flex;
   gap: 12px;
