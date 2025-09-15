@@ -751,7 +751,7 @@ window.onload = function(){window.print();}
       {pago.rawStatus === 'REJECTED' && (
         <button
           className="pd-btn pd-btn--pri"
-          onClick={() => navigate(`/gateway/${pago.id}`, { state: pago })}
+          onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
         >
           Reintentar pago
         </button>
