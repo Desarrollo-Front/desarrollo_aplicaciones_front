@@ -130,6 +130,22 @@ const normalizeRefundResponse = (data) => {
   return data;
 };
 
+const translatePayload = (payload) => {
+  if (!payload || typeof payload !== "object") return payload;
+  const translations = {
+    pending_bank_approval: "Pendiente de aprobación bancaria",
+    CREDIT_CARD: "Tarjeta de crédito",
+    DEBIT_CARD: "Tarjeta de débito",
+    CASH: "Efectivo",
+    MERCADO_PAGO: "Mercado Pago",
+  };
+  let nuevo = {};
+  for (let [k, v] of Object.entries(payload)) {
+    nuevo[k] = translations[v] || v;
+  }
+  return nuevo;
+};
+
 export default function PagosDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -891,7 +907,7 @@ window.onload = function(){window.print();}
 
                       {ev.payload && typeof ev.payload === 'object' && (
                         <div className="pd-payload">
-                          <pre className="pd-pre">{JSON.stringify(ev.payload, null, 2)}</pre>
+                          <pre className="pd-pre">{JSON.stringify(translatePayload(ev.payload), null, 2)}</pre>
                         </div>
                       )}
 
