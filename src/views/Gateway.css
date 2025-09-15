@@ -1,5 +1,5 @@
 :root {
-  --gx-bg: var(--bg, #f9fafb);
+  --gx-bg: var(--bg, #ffffff);
   --gx-panel: var(--panel, #ffffff);
   --gx-muted: var(--muted, #6b7280);
   --gx-text: var(--text, #000000);
@@ -33,6 +33,7 @@
   font-size: 28px;
   font-weight: 800;
   letter-spacing: .2px;
+  margin-bottom: 35px;
 }
 .gx-back { justify-self: start; }
 .gx-spacer { height: 1px; }
@@ -64,7 +65,7 @@
   display: grid;
   grid-template-columns: 1fr 360px;
   gap: 12px;
-  align-items: start;
+  align-items: stretch; /* que ambas columnas se estiren */
 }
 @media (max-width: 900px) {
   .gx-grid { grid-template-columns: 1fr; }
@@ -76,9 +77,28 @@
   border-radius: var(--gx-radius);
   box-shadow: var(--gx-shadow-lg);
   padding: 14px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.gx-list { display: flex; flex-direction: column; gap: 12px; }
+/* Card de métodos de pago */
+.gx-card.gx-paymethods {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 20px;
+}
+
+/* Lista de métodos → reparte el espacio */
+.gx-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: 10px;
+}
+
 .gx-option {
   display: flex;
   gap: 12px;
@@ -112,7 +132,7 @@
 .gx-logo-mp { height: 32px; }
 
 .gx-summary { padding: 16px; }
-.gx-sum-h { font-weight: 800; margin: 6px 0 12px; color: var(--gx-blue-dark); }
+.gx-sum-h { font-weight: 800; margin: 6px 0 12px; color: var(--gx-blue-dark); font-size: 18px; align-items: center;}
 .gx-empty { color: var(--gx-muted); padding: 24px 8px; text-align: center; }
 .gx-sum-row {
   display: flex;
@@ -140,7 +160,7 @@
   color: var(--gx-text);
 }
 .gx-btn:hover { transform: translateY(-1px); box-shadow: var(--gx-shadow-sm); }
-.gx-btn--pri { border: 1px solid var(--gx-yellow); background: var(--gx-yellow); color: #000; }
+.gx-btn--pri { border: 1px solid var(--gx-yellow); background: var(--gx-yellow); color: #000; justify-content: center; text-align: center; width: 100%;}
 .gx-btn--pri:hover { filter: brightness(.95); }
 .gx-btn--ghost { background: transparent; border: 1px solid var(--gx-line); color: var(--gx-text); }
 
