@@ -267,7 +267,7 @@ export default function Gateway() {
                 </div>
                 <div className="gx-texts">
                   <div className="gx-ttl">MercadoPago</div>
-                  <div className="gx-sub">Pagá con billetera, saldo o QR.</div>
+                  <div className="gx-sub">Pagá con tu dinero disponible en cuenta.</div>
                 </div>
               </div>
             </label>
