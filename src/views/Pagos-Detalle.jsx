@@ -62,14 +62,6 @@ const mapEventType = (t) => {
     .toLowerCase()
     .replace(/^\w/, (c) => c.toUpperCase());
 };
-const mapRefundStatus = (s) => {
-  const t = String(s || '').toUpperCase();
-  if (t === 'PENDING') return 'Pendiente';
-  if (t === 'DECLINED') return 'Rechazado';
-  if (t === 'TOTAL_REFUND') return 'Reembolso total';
-  if (t === 'PARTIAL_REFUND') return 'Reembolso parcial';
-  return t;
-};
 
 const eventCategory = (type, payload) => {
   const t = String(type || '').toUpperCase();
@@ -135,12 +127,6 @@ const parseJsonSafe = async (res) => {
   }
 };
 
-const normalizeRefundResponse = (data) => {
-  if (!data) return null;
-  if (Array.isArray(data)) return data.length ? data[0] : null;
-  return data;
-};
-
 const translatePayloadDeep = (payload) => {
   if (!payload || typeof payload !== "object") return payload;
 
@@ -204,35 +190,9 @@ export default function PagosDetalle() {
   const [tlFilter] = useState('all');
   const [expanded, setExpanded] = useState({});
 
-  const [showRefund, setShowRefund] = useState(false);
-  const [monto, setMonto] = useState(0);
-  const [motivo, setMotivo] = useState('');
-  const [notas, setNotas] = useState('');
-
-  const [refundInfo, setRefundInfo] = useState(null);
-  const [refundLoading, setRefundLoading] = useState(false);
-  const [refundErr, setRefundErr] = useState('');
-  const [actionLoading, setActionLoading] = useState(false);
-
   const role = String(localStorage.getItem('role') || '').toUpperCase();
   const isUser = role === 'USER';
   const isMerchant = role === 'MERCHANT';
-
-  const hasRefund = useMemo(() => Boolean(refundInfo || pago?.refundId), [refundInfo, pago]);
-  const refundReason = useMemo(
-    () => String(refundInfo?.reason || pago?.refund_reason || '').trim(),
-    [refundInfo, pago]
-  );
-  const isRefundPending = useMemo(
-    () => String(refundInfo?.status || '').toUpperCase() === 'PENDING',
-    [refundInfo]
-  );
-  const [fullRefund, setFullRefund] = useState(false);
-  const [alerta, setAlerta] = useState({ show: false, tipo: 'info', mensaje: '' });
-  const mostrarAlerta = (mensaje, tipo = 'info') => {
-    setAlerta({ show: true, tipo, mensaje });
-    setTimeout(() => setAlerta({ show: false, tipo: 'info', mensaje: '' }), 4000);
-  };
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -314,42 +274,6 @@ export default function PagosDetalle() {
           });
           norm.sort((a, b) => new Date(a.createdISO) - new Date(b.createdISO));
           setTimeline(norm);
-        }
-
-        try {
-          setRefundLoading(true);
-          setRefundErr('');
-          setRefundInfo(null);
-          const resRefund = await fetch(`/api/refunds/payment/${p.id}`, {
-            headers: { 'Content-Type': 'application/json', Authorization: authHeader },
-          });
-          if (resRefund.status === 204 || resRefund.status === 404) {
-            setRefundInfo(null);
-          } else if (resRefund.status === 401) {
-            setRefundErr('No autorizado para consultar reembolsos.');
-          } else if (resRefund.ok) {
-            const raw = await parseJsonSafe(resRefund);
-            const r = normalizeRefundResponse(raw);
-            if (r && Object.keys(r).length > 0) {
-              setRefundInfo({
-                id: r.id ?? null,
-                amount: Number(r.amount ?? r.amount_total ?? 0),
-                status: String(r.status || '').toUpperCase(),
-                reason: r.reason ?? null,
-                createdAt: r.createdAt || r.created_at || null,
-                gatewayRefundId: r.gatewayRefundId || r.gateway_refund_id || null,
-              });
-            } else {
-              setRefundInfo(null);
-            }
-          } else {
-            setRefundErr('No se pudo consultar el reembolso.');
-          }
-        } catch {
-          setRefundErr('No se pudo consultar el reembolso.');
-          setRefundInfo(null);
-        } finally {
-          setRefundLoading(false);
         }
       } catch (e) {
         setErr(e.message || 'Error inesperado.');
@@ -496,158 +420,7 @@ window.onload = function(){window.print();}
     const url = URL.createObjectURL(blob);
     const win = window.open(url, '_blank');
     setTimeout(() => URL.revokeObjectURL(url), 60000);
-    if (!win) mostrarAlerta('No se pudo abrir el comprobante. Verificá el bloqueador de pop-ups.');
-  };
-
-  const getAuthHeader = () =>
-    localStorage.getItem('authHeader') ||
-    `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
-  useEffect(() => {
-    if (showRefund && fullRefund && pago) {
-      setMonto(pago.total);
-    }
-  }, [showRefund, fullRefund, pago]);
-
-  const refreshTimeline = async (paymentId) => {
-    const authHeader = getAuthHeader();
-    const resTl = await fetch(`/api/payments/${paymentId}/timeline`, {
-      headers: { 'Content-Type': 'application/json', Authorization: authHeader },
-    });
-    if (!resTl.ok) {
-      setTlErr('No se pudo obtener el timeline.');
-      setTimeline([]);
-      return;
-    }
-    const tl = await resTl.json();
-    const norm = (Array.isArray(tl) ? tl : []).map((e) => {
-      let payloadObj = null;
-      try {
-        payloadObj = e.payload ? JSON.parse(e.payload) : null;
-      } catch {
-        payloadObj = null;
-      }
-      const created = e.createdAt || e.created_at || null;
-      const cat = eventCategory(e.type, payloadObj);
-      return {
-        id: e.id,
-        type: e.type,
-        actor: e.actor || 'system',
-        source: e.eventSource || e.source || 'SYSTEM',
-        createdISO: created,
-        payload: payloadObj,
-        category: cat,
-      };
-    });
-    norm.sort((a, b) => new Date(a.createdISO) - new Date(b.createdISO));
-    setTimeline(norm);
-    setTlErr('');
-  };
-
-  const confirmarReembolso = async (e) => {
-    e.preventDefault();
-    if (!pago) return;
-    const amountNum = fullRefund ? Number(pago.total) : Number(monto);
-    const reasonStr = String(motivo || '').trim() || 'customer_request';
-    const notasStr = String(notas || '').trim();
-    const motivoRegex = /^[a-zA-ZÀ-ÿ\s.,-]{3,100}$/;
-    if (!motivoRegex.test(reasonStr)) {
-      mostrarAlerta(
-        'El motivo debe ser un texto válido (mínimo 3 caracteres, solo letras y espacios).'
-      );
-      return;
-    }
-    if (!Number.isFinite(amountNum) || amountNum <= 0) {
-      mostrarAlerta('Ingresá un monto válido mayor a 0.');
-      return;
-    }
-    if (amountNum > Number(pago.total)) {
-      mostrarAlerta('El monto no puede exceder el total del pago.');
-      return;
-    }
-    try {
-      const authHeader = getAuthHeader();
-      const body = {
-        paymentId: pago.id,
-        amount: amountNum,
-        reason: reasonStr,
-        metadata: JSON.stringify({
-          notes: notasStr || null,
-          requestedBy: localStorage.getItem('name') || null,
-          fullRefund: !!fullRefund,
-        }),
-      };
-      const res = await fetch('/api/refunds/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: authHeader },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) {
-        if (res.status === 401) throw new Error('No autorizado para crear reembolsos.');
-        throw new Error('No se pudo crear el reembolso.');
-      }
-      const created = await parseJsonSafe(res);
-      const r = normalizeRefundResponse(created);
-      if (r) {
-        setRefundInfo({
-          id: r.id ?? null,
-          amount: Number(r.amount ?? r.amount_total ?? 0),
-          status: String(r.status || '').toUpperCase(),
-          reason: r.reason ?? null,
-          createdAt: r.createdAt || r.created_at || null,
-          gatewayRefundId: r.gatewayRefundId || r.gateway_refund_id || null,
-        });
-      }
-      await refreshTimeline(pago.id);
-      setShowRefund(false);
-      setFullRefund(false);
-      setMonto(0);
-      setMotivo('');
-      setNotas('');
-    } catch (err) {
-      mostrarAlerta(err.message || 'Error al crear el reembolso.');
-    }
-  };
-
-  const doRefundAction = async (action) => {
-    if (!refundInfo?.id) return;
-    const isRefundPending = String(refundInfo?.status || '').toUpperCase() === 'PENDING';
-    if (!isRefundPending) return;
-    try {
-      setActionLoading(true);
-      const authHeader = getAuthHeader();
-      const url = `/api/refunds/${refundInfo.id}/${action}`;
-      let body = null;
-      if (action === 'decline') {
-        body = JSON.stringify({ status: 'PENDING', message: 'Rechazado por el comerciante' });
-      }
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: authHeader },
-        body: body,
-      });
-      if (!res.ok) {
-        if (res.status === 401) throw new Error('No autorizado para operar reembolsos.');
-        throw new Error('No se pudo actualizar el reembolso.');
-      }
-      const upd = await parseJsonSafe(res);
-      const r = normalizeRefundResponse(upd);
-      if (r) {
-        setRefundInfo({
-          id: r.id ?? refundInfo.id,
-          amount: Number(r.amount ?? refundInfo.amount ?? 0),
-          status: String(r.status || '').toUpperCase(),
-          reason: r.reason ?? refundInfo.reason ?? null,
-          createdAt: r.createdAt || r.created_at || refundInfo.createdAt || null,
-          gatewayRefundId:
-            r.gatewayRefundId || r.gateway_refund_id || refundInfo.gatewayRefundId || null,
-        });
-      }
-      await refreshTimeline(pago.id);
-    } catch (e) {
-      mostrarAlerta(e.message || 'Error al actualizar el reembolso.');
-    } finally {
-      setActionLoading(false);
-    }
+    if (!win) alert('No se pudo abrir el comprobante. Verificá el bloqueador de pop-ups.');
   };
 
   const filteredTimeline = useMemo(() => {
@@ -695,8 +468,6 @@ window.onload = function(){window.print();}
     );
   }
 
-  const isRefundPendingLike = String(refundInfo?.status || '').toUpperCase() === 'PENDING';
-
   return (
     <div className="pd-wrap">
       <div className="pd-head">
@@ -706,7 +477,7 @@ window.onload = function(){window.print();}
         <div className="pd-head-center">
           <h1 className="pd-title">Detalle de pago #{pago?.id ?? ''}</h1>
           <p className="pd-sub">
-            Resumen, datos fiscales y referencia, comprobantes, reembolsos y timeline.
+            Resumen, datos fiscales y referencia, comprobantes y timeline.
           </p>
         </div>
         <div className="pd-head-spacer"></div>
@@ -778,105 +549,36 @@ window.onload = function(){window.print();}
               <b>Categoría</b>
               <span>{pago.categoria}</span>
             </div>
-            {hasRefund && refundReason && (
-              <div>
-                <b>Motivo reembolso</b>
-                <span>{refundReason}</span>
-              </div>
-            )}
           </div>
         </article>
 
         <article className="pd-card">
-  <header className="pd-card-h">Comprobantes</header>
-  {puedeDescargarComprobante ? (
-    <div className="pd-comprobante">
-      <p className="pd-muted">
-        Se genera un comprobante de pago no fiscal con los datos reales.
-      </p>
-      <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
-        Descargar Factura
-      </button>
-    </div>
-  ) : (
-    <div className="pd-comprobante">
-      <p className="pd-muted">
-        No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
-      </p>
-      {pago.rawStatus === 'REJECTED' && !isMerchant &&  (
-        <button
-          className="pd-btn pd-btn--pri"
-          onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
-        >
-          Reintentar pago
-        </button>
-      )}
-    </div>
-  )}
-</article>
-
-      </section>
-
-      <section className="pd-card pd-refunds">
-        <header className="pd-card-h pd-card-h--left">Reembolsos</header>
-        {refundLoading && <p className="pd-muted">Consultando reembolso…</p>}
-        {refundErr && <p className="pd-muted">{refundErr}</p>}
-        {!refundLoading && !refundErr && refundInfo && (
-          <div className="pd-kv">
-            <div>
-              <b>ID de reembolso</b>
-              <span>{refundInfo.id ?? '—'}</span>
+          <header className="pd-card-h">Comprobantes</header>
+          {puedeDescargarComprobante ? (
+            <div className="pd-comprobante">
+              <p className="pd-muted">
+                Se genera un comprobante de pago no fiscal con los datos reales.
+              </p>
+              <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
+                Descargar Factura
+              </button>
             </div>
-            <div>
-              <b>Estado</b>
-              <span>{mapRefundStatus(refundInfo.status)}</span>
-            </div>
-            <div>
-              <b>Monto</b>
-              <span>{money(Number(refundInfo.amount ?? 0), pago.moneda)}</span>
-            </div>
-            {isMerchant && isRefundPending && (
-              <div className="pd-refund-actions" >
+          ) : (
+            <div className="pd-comprobante">
+              <p className="pd-muted">
+                No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
+              </p>
+              {pago.rawStatus === 'REJECTED' && !isMerchant &&  (
                 <button
                   className="pd-btn pd-btn--pri"
-                  disabled={actionLoading || !isRefundPendingLike}
-                  onClick={() => doRefundAction('approve')}
+                  onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
                 >
-                  Aprobar
+                  Reintentar pago
                 </button>
-                <button
-                  className="pd-btn"
-                  disabled={actionLoading || !isRefundPendingLike}
-                  onClick={() => doRefundAction('decline')}
-                >
-                  Rechazar
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-        {!refundLoading && !refundErr && !refundInfo && isMerchant && (
-          <div className="pd-empty">
-            <p className="pd-muted">No se inició un reembolso para este pago.</p>
-          </div>
-        )}
-        {!refundLoading && !refundErr && !refundInfo && isUser && (
-          <div className="pd-empty">
-            <p className="pd-muted">Sin reembolsos registrados.</p>
-            <button
-              className="pd-btn pd-btn--pri"
-              onClick={() => {
-                setFullRefund(false);
-                setMonto(0);
-                setMotivo('');
-                setNotas('');
-                setShowRefund(true);
-              }}
-            >
-              Solicitar reembolso
-            </button>
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </article>
       </section>
 
       <section className="pd-timeline pd-timeline--alt">
@@ -966,88 +668,6 @@ window.onload = function(){window.print();}
           </ul>
         )}
       </section>
-
-      {showRefund && (
-        <div className="pd-modal-overlay" role="dialog" aria-modal="true">
-          <form className="pd-modal" onSubmit={confirmarReembolso}>
-            <div className="pd-modal-h">
-              <h3>Reembolso</h3>
-              <button
-                type="button"
-                className="pd-btn pd-btn--chip"
-                onClick={() => setShowRefund(false)}
-              >
-                Cerrar
-              </button>
-            </div>
-
-            <label
-              className="pd-field"
-              style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}
-            >
-              <input
-                type="checkbox"
-                checked={fullRefund}
-                onChange={(e) => setFullRefund(e.target.checked)}
-              />
-              <span>Reembolso total {pago ? `(${money(pago.total, pago.moneda)})` : ''}</span>
-            </label>
-
-            <label className="pd-field">
-              <span>Monto</span>
-              <input
-                type="number"
-                className="pd-input"
-                value={fullRefund && pago ? pago.total : monto}
-                min="0"
-                step="0.01"
-                max={pago ? pago.total : undefined}
-                onChange={(e) => setMonto(e.target.value)}
-                disabled={fullRefund}
-              />
-            </label>
-
-            <label className="pd-field">
-              <span>Motivo</span>
-              <input
-                type="text"
-                className="pd-input"
-                value={motivo}
-                onChange={(e) => setMotivo(e.target.value)}
-                pattern="[a-zA-ZÀ-ÿ\s.,-]{3,100}"
-                title="Solo letras, espacios y signos básicos (mínimo 3 caracteres)"
-                required
-              />
-            </label>
-
-            <label className="pd-field">
-              <span>Notas</span>
-              <textarea
-                className="pd-input pd-textarea"
-                value={notas}
-                onChange={(e) => setNotas(e.target.value)}
-              />
-            </label>
-
-            <div className="pd-modal-actions">
-              <button type="submit" className="pd-btn pd-btn--pri">
-                Confirmar
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-      {alerta.show && (
-        <div className={`pd-alert pd-alert--${alerta.tipo}`}>
-          {alerta.mensaje}
-          <button
-            className="pd-alert-x"
-            onClick={() => setAlerta({ show: false, tipo: 'info', mensaje: '' })}
-          >
-            ×
-          </button>
-        </div>
-      )}
     </div>
   );
 }
