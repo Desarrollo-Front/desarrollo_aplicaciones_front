@@ -179,7 +179,7 @@ body {
   width: 100%;
 }
 
-/* ===== CARD DE RESUMEN (ANCHO COMPLETO) ===== */
+/* ===== CARD DE RESUMEN (ANCHO COMPLETO) CON DESCRIPCIÓN Y CATEGORÍA INTEGRADAS ===== */
 .pd-card-resumen {
   background: var(--panel);
   border: 1px solid var(--brand-blue);
@@ -193,7 +193,7 @@ body {
 .pd-card-resumen-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20px;
   border-bottom: 1px solid var(--line);
   padding-bottom: 15px;
@@ -206,14 +206,35 @@ body {
   font-size: 20px;
 }
 
-/* ===== LAYOUT DE DATOS EN LÍNEA MEJORADO ===== */
-.pd-data-grid {
+/* ===== LAYOUT DE DATOS EN 2 COLUMNAS ===== */
+.pd-data-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.pd-data-column {
+  display: flex;
+  flex-direction: column;
   gap: 15px;
 }
 
-.pd-data-item {
+/* Primera columna: Cliente, Prestador, Método, Estado, Subtotal, Impuestos, Total, Creado, Capturado */
+.pd-data-column-primary .pd-data-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--line);
+}
+
+/* Segunda columna: Descripción y Categoría (movidas aquí desde datos fiscales) */
+.pd-data-column-secondary {
+  border-left: 1px solid var(--line);
+  padding-left: 30px;
+}
+
+.pd-data-column-secondary .pd-data-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -235,7 +256,7 @@ body {
   font-size: 14px;
 }
 
-/* ===== CARD DE COMPROBANTE SIMPLIFICADA ===== */
+/* ===== CARD DE COMPROBANTE CON BOTÓN A LA ALTURA DEL TÍTULO ===== */
 .pd-card-comprobante {
   background: var(--panel);
   border: 1px solid var(--brand-blue);
@@ -245,15 +266,27 @@ body {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  height: auto;
+  align-items: flex-start;
   min-height: 80px;
   box-sizing: border-box;
 }
 
+.pd-comprobante-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.pd-comprobante-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .pd-comprobante-title {
   font-weight: 700;
-  margin: 0;
+  margin: 0 0 8px 0;
   color: var(--brand-blue-dark);
   font-size: 18px;
 }
@@ -261,12 +294,13 @@ body {
 .pd-comprobante-desc {
   color: var(--muted);
   font-size: 14px;
-  margin-top: 5px;
+  margin: 0;
 }
 
-.pd-comprobante-content {
+.pd-comprobante-action {
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 20px;
 }
 
 /* ===== ESTILOS GENERALES DE CARDS ===== */
@@ -729,8 +763,16 @@ body {
     grid-template-columns: 140px 1fr;
   }
 
-  .pd-data-grid {
+  .pd-data-container {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .pd-data-column-secondary {
+    border-left: none;
+    border-top: 1px solid var(--line);
+    padding-left: 0;
+    padding-top: 20px;
   }
   
   .pd-data-item {
@@ -789,25 +831,19 @@ body {
   .pd-card-comprobante {
     flex-direction: column;
     gap: 15px;
-    text-align: center;
-    align-items: flex-start;
   }
   
-  .pd-comprobante-content {
+  .pd-comprobante-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .pd-comprobante-action {
+    margin-left: 0;
     width: 100%;
+    justify-content: flex-start;
   }
 }
 
-/* ===== ESTILOS ESPECÍFICOS PARA LA ESTRUCTURA QUE DESEAS ===== */
-.pd-main-container {
-  width: 100%;
-  padding: 0 20px;
-  box-sizing: border-box;
-}
-
-.pd-section-divider {
-  height: 1px;
-  background: var(--line);
-  margin: 20px 0;
-  width: 100%;
-}
+/* ===== ELIMINAR CARD DE DATOS FISCALES ===== */
+/* Se removió completamente la card de datos fiscales */
