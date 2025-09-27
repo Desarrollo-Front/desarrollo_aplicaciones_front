@@ -485,102 +485,49 @@ window.onload = function(){window.print();}
 
   {/* Cards en fila */}
   <section className="pd-row">
-        <article className="pd-card">
-          <header className="pd-card-h">Resumen</header>
-          <div className="pd-kv">
-            <div>
-              <b>Cliente</b>
-              <span>{pago.cliente}</span>
-            </div>
-            <div>
-              <b>Prestador</b>
-              <span>{pago.prestador}</span>
-            </div>
-            <div>
-              <b>Método</b>
-              <span>
-                <Badge kind={pago.metodo}>{pago.metodo}</Badge>
-              </span>
-            </div>
-            <div>
-              <b>Estado</b>
-              <span>
-                <Badge kind={pago.estado}>{pago.estado}</Badge>
-              </span>
-            </div>
-            <div>
-              <b>Subtotal</b>
-              <span>{totales.sub}</span>
-            </div>
-            <div>
-              <b>Impuestos</b>
-              <span>{totales.imp}</span>
-            </div>
-            <div className="pd-total">
-              <b>Total</b>
-              <span>{totales.tot}</span>
-            </div>
-            <div>
-              <b>Creado</b>
-              <span>{fechaHora(pago.creadoISO)}</span>
-            </div>
-            <div>
-              <b>Capturado</b>
-              <span>{fechaHora(pago.capturadoISO)}</span>
-            </div>
-          </div>
-        </article>
+    {/* Card de resumen con descripción y categoría */}
+    <article className="pd-card pd-card-resumen">
+      <header className="pd-card-resumen-header">
+        <h2 className="pd-card-resumen-title">Resumen</h2>
+      </header>
+      <div className="pd-data-container">
+        <div className="pd-data-column pd-data-column-primary">
+          <div className="pd-data-item"><span className="pd-data-label">Cliente</span><span className="pd-data-value">{pago.cliente}</span></div>
+          <div className="pd-data-item"><span className="pd-data-label">Prestador</span><span className="pd-data-value">{pago.prestador}</span></div>
+          <div className="pd-data-item"><span className="pd-data-label">Método</span><span className="pd-data-value"><Badge kind={pago.metodo}>{pago.metodo}</Badge></span></div>
+          <div className="pd-data-item"><span className="pd-data-label">Estado</span><span className="pd-data-value"><Badge kind={pago.estado}>{pago.estado}</Badge></span></div>
+          <div className="pd-data-item"><span className="pd-data-label">Subtotal</span><span className="pd-data-value">{totales.sub}</span></div>
+          <div className="pd-data-item"><span className="pd-data-label">Impuestos</span><span className="pd-data-value">{totales.imp}</span></div>
+          <div className="pd-data-item"><span className="pd-data-label">Total</span><span className="pd-data-value">{totales.tot}</span></div>
+          <div className="pd-data-item"><span className="pd-data-label">Creado</span><span className="pd-data-value">{fechaHora(pago.creadoISO)}</span></div>
+          <div className="pd-data-item"><span className="pd-data-label">Capturado</span><span className="pd-data-value">{fechaHora(pago.capturadoISO)}</span></div>
+        </div>
+        <div className="pd-data-column pd-data-column-secondary">
+          <div className="pd-data-item"><span className="pd-data-label">Descripción</span><span className="pd-data-value">{pago.descripcion}</span></div>
+          <div className="pd-data-item"><span className="pd-data-label">Categoría</span><span className="pd-data-value">{pago.categoria}</span></div>
+        </div>
+      </div>
+    </article>
 
-        <article className="pd-card">
-          <header className="pd-card-h">Datos fiscales y referencia</header>
-          <div className="pd-kv">
-            <div>
-              <b>Moneda</b>
-              <span>{pago.moneda}</span>
-            </div>
-            <div>
-              <b>Fees</b>
-              <span>{money(pago.fees, pago.moneda)}</span>
-            </div>
-            <div>
-              <b>Descripción</b>
-              <span>{pago.descripcion}</span>
-            </div>
-            <div>
-              <b>Categoría</b>
-              <span>{pago.categoria}</span>
-            </div>
-          </div>
-        </article>
-
-        <article className="pd-card">
-          <header className="pd-card-h">Comprobantes</header>
+    {/* Card de comprobante con layout horizontal */}
+    <article className="pd-card pd-card-comprobante">
+      <div className="pd-comprobante-header">
+        <div className="pd-comprobante-content">
+          <div className="pd-comprobante-title">Descargar comprobante</div>
+          <p className="pd-comprobante-desc">Se genera un comprobante de pago no fiscal con los datos reales.</p>
+        </div>
+        <div className="pd-comprobante-action">
           {puedeDescargarComprobante ? (
-            <div className="pd-comprobante">
-              <p className="pd-muted">
-                Se genera un comprobante de pago no fiscal con los datos reales.
-              </p>
-              <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
-                Descargar Factura
-              </button>
-            </div>
+            <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
+              Descargar Factura
+            </button>
           ) : (
-            <div className="pd-comprobante">
-              <p className="pd-muted">
-                No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
-              </p>
-              {pago.rawStatus === 'REJECTED' && !isMerchant &&  (
-                <button
-                  className="pd-btn pd-btn--pri"
-                  onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
-                >
-                  Reintentar pago
-                </button>
-              )}
-            </div>
+            <span className="pd-muted">No disponible</span>
           )}
-        </article>
-      </section>
+        </div>
+      </div>
+    </article>
+  </section>
 
       {/* Timeline horizontal (desktop) */}
       <section className="pd-timeline pd-timeline--horizontal">
