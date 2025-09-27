@@ -98,20 +98,6 @@
   color: var(--brand-blue-dark);
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 960px) {
-  .pd-cards-row {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  .pd-timeline--horizontal {
-    display: none;
-  }
-  .pd-timeline--alt {
-    display: block;
-  }
-}
-
 @media (min-width: 961px) {
   .pd-timeline--alt {
     display: none;
