@@ -469,7 +469,7 @@ window.onload = function(){window.print();}
   }
 
   return (
-    <div className="pd-wrap">
+    <div className="pd-wrap pd-layout">
       <div className="pd-head">
         <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>
           ← Volver
@@ -483,7 +483,8 @@ window.onload = function(){window.print();}
         <div className="pd-head-spacer"></div>
       </div>
 
-      <section className="pd-grid">
+      {/* Cards en fila */}
+      <section className="pd-cards-row">
         <article className="pd-card">
           <header className="pd-card-h">Resumen</header>
           <div className="pd-kv">
@@ -581,6 +582,32 @@ window.onload = function(){window.print();}
         </article>
       </section>
 
+      {/* Timeline horizontal (desktop) */}
+      <section className="pd-timeline pd-timeline--horizontal">
+        <div className="pd-tl-head">
+          <header className="pd-card-h">Timeline</header>
+        </div>
+        {tlErr && <p className="pd-muted">{tlErr}</p>}
+        {!tlErr && filteredTimeline.length === 0 && (
+          <p className="pd-muted">No hay eventos para el filtro seleccionado.</p>
+        )}
+        {!tlErr && filteredTimeline.length > 0 && (
+          <ul className="pd-time-horizontal">
+            {filteredTimeline.map((ev, i) => {
+              const cat = ev.category;
+              const label = mapStatus(ev.type?.split('_').pop());
+              return (
+                <li key={ev.id} className={`pd-time-horizontal-item pd-time-${cat}`}>
+                  <div className="pd-time-horizontal-dot" />
+                  <div className={`pd-time-horizontal-label pd-badge--${label?.toLowerCase()}`}>{label}</div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+
+      {/* Timeline alternado (mobile) */}
       <section className="pd-timeline pd-timeline--alt">
         <div className="pd-tl-head">
           <header className="pd-card-h">Timeline</header>
