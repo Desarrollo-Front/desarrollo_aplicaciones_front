@@ -93,12 +93,12 @@ const highlightPairs = (payload, moneda) => {
     src.method || src.method_type || src.payment_method || src.card?.brand || src.issuer;
   if (method) {
     const traduccionesMetodo = {
-      CREDIT_CARD: "Tarjeta de crédito",
-      DEBIT_CARD: "Tarjeta de débito",
-      MERCADO_PAGO: "Mercado Pago",
+      CREDIT_CARD: 'Tarjeta de crédito',
+      DEBIT_CARD: 'Tarjeta de débito',
+      MERCADO_PAGO: 'Mercado Pago',
     };
     const metodoTraducido = traduccionesMetodo[String(method).toUpperCase()] || String(method);
-    tryPush("Método", metodoTraducido);
+    tryPush('Método', metodoTraducido);
   }
   const last4 = src.card?.last4 || src.last4 || src.card_last4;
   if (last4) tryPush('Terminación', `**** ${String(last4)}`);
@@ -117,48 +117,48 @@ const highlightPairs = (payload, moneda) => {
   return entries.slice(0, 3);
 };
 
-const parseJsonSafe = async (res) => {
-  const text = await res.text();
-  if (!text) return null;
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-};
+//const parseJsonSafe = async (res) => {
+//  const text = await res.text();
+//  if (!text) return null;
+//  try {
+//    return JSON.parse(text);
+//  } catch {
+//   return null;
+//  }
+//};
 
 const translatePayloadDeep = (payload) => {
-  if (!payload || typeof payload !== "object") return payload;
+  if (!payload || typeof payload !== 'object') return payload;
 
   const keyTranslations = {
-    status: "Estado",
-    method: "Método",
-    method_type: "Tipo de método",
-    payment_method_type: "Tipo de método de pago",
-    payment_method_id: "ID de método de pago",
-    approval_time: "Fecha de aprobación",
-    amount: "Monto",
-    amount_total: "Monto total",
-    currency: "Moneda",
-    installments: "Cuotas",
-    reason: "Motivo",
-    error: "Error",
-    refund_id: "ID de reembolso",
-    created_at: "Fecha de creación",
-    updated_at: "Fecha de actualización",
+    status: 'Estado',
+    method: 'Método',
+    method_type: 'Tipo de método',
+    payment_method_type: 'Tipo de método de pago',
+    payment_method_id: 'ID de método de pago',
+    approval_time: 'Fecha de aprobación',
+    amount: 'Monto',
+    amount_total: 'Monto total',
+    currency: 'Moneda',
+    installments: 'Cuotas',
+    reason: 'Motivo',
+    error: 'Error',
+    refund_id: 'ID de reembolso',
+    created_at: 'Fecha de creación',
+    updated_at: 'Fecha de actualización',
   };
 
   const valueTranslations = {
-    PENDING_BANK_APPROVAL: "Pendiente de aprobación bancaria",
-    AUTO_APPROVED_BY_BANK: "Aprobado automáticamente por el banco",
-    CREDIT_CARD: "Tarjeta de crédito",
-    DEBIT_CARD: "Tarjeta de débito",
-    CASH: "Efectivo",
-    MERCADO_PAGO: "Mercado Pago",
-    APPROVED: "Aprobado",
-    REJECTED: "Rechazado",
-    PENDING: "Pendiente",
-    REFUND_INITIATED: "Reembolso iniciado",
+    PENDING_BANK_APPROVAL: 'Pendiente de aprobación bancaria',
+    AUTO_APPROVED_BY_BANK: 'Aprobado automáticamente por el banco',
+    CREDIT_CARD: 'Tarjeta de crédito',
+    DEBIT_CARD: 'Tarjeta de débito',
+    CASH: 'Efectivo',
+    MERCADO_PAGO: 'Mercado Pago',
+    APPROVED: 'Aprobado',
+    REJECTED: 'Rechazado',
+    PENDING: 'Pendiente',
+    REFUND_INITIATED: 'Reembolso iniciado',
   };
 
   const nuevo = {};
@@ -166,10 +166,10 @@ const translatePayloadDeep = (payload) => {
     const newKey = keyTranslations[k] || k;
 
     let newValue = v;
-    if (typeof v === "string") {
+    if (typeof v === 'string') {
       const upper = v.toUpperCase();
       newValue = valueTranslations[upper] || v;
-    } else if (typeof v === "object" && v !== null) {
+    } else if (typeof v === 'object' && v !== null) {
       newValue = translatePayloadDeep(v);
     }
 
@@ -428,24 +428,24 @@ window.onload = function(){window.print();}
     return timeline.filter((e) => e.category === tlFilter);
   }, [timeline, tlFilter]);
 
-  const isRejected = useMemo(
-    () => String(pago?.rawStatus || '').toUpperCase() === 'REJECTED',
-    [pago]
-  );
+  //const isRejected = useMemo(
+  //  () => String(pago?.rawStatus || '').toUpperCase() === 'REJECTED',
+  //  [pago]
+  //);
 
-  const goRetry = () => {
-    if (!pago) return;
-    navigate(`/pago/${pago.id}`, {
-      state: {
-        id: pago.id,
-        currency: pago.moneda,
-        subtotal: pago.subtotal,
-        taxesAndFees: pago.impuestos,
-        total: pago.total,
-        status: pago.rawStatus,
-      },
-    });
-  };
+  //const goRetry = () => {
+  //  if (!pago) return;
+  //  navigate(`/pago/${pago.id}`, {
+  //    state: {
+  //      id: pago.id,
+  //      currency: pago.moneda,
+  //      subtotal: pago.subtotal,
+  //     taxesAndFees: pago.impuestos,
+  //      total: pago.total,
+  //      status: pago.rawStatus,
+  //    },
+  //  });
+  //};
 
   if (loading) {
     return (
@@ -648,7 +648,9 @@ window.onload = function(){window.print();}
 
                       {ev.payload && typeof ev.payload === 'object' && (
                         <div className="pd-payload">
-                          <pre className="pd-pre">{JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}</pre>
+                          <pre className="pd-pre">
+                            {JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}
+                          </pre>
                         </div>
                       )}
 
