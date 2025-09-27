@@ -592,24 +592,20 @@ window.onload = function(){window.print();}
           <p className="pd-muted">No hay eventos para el filtro seleccionado.</p>
         )}
         {!tlErr && filteredTimeline.length > 0 && (
-          <div style={{ display: 'flex', width: '100%', position: 'relative' }}>
-            {filteredTimeline.map((ev, i) => {
-              const cat = ev.category;
-              const label = mapStatus(ev.type?.split('_').pop());
-              // Determinar clase de estado para el círculo
-              let estado = '';
-              if (label?.toLowerCase().includes('pendiente')) estado = 'pendiente';
-              else if (label?.toLowerCase().includes('rechazado')) estado = 'rechazado';
-              else if (label?.toLowerCase().includes('aprobado')) estado = 'aprobado';
-              else if (label?.toLowerCase().includes('actualizado')) estado = 'actualizado';
-              else estado = 'pendiente';
-              return (
-                <div key={ev.id} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-                  <div className={`pd-tl-step ${estado}`} data-label={label}></div>
-                </div>
-              );
-            })}
-          </div>
+          filteredTimeline.map((ev, i) => {
+            const label = mapStatus(ev.type?.split('_').pop());
+            let estado = '';
+            if (label?.toLowerCase().includes('pendiente')) estado = 'pendiente';
+            else if (label?.toLowerCase().includes('rechazado')) estado = 'rechazado';
+            else if (label?.toLowerCase().includes('aprobado')) estado = 'aprobado';
+            else if (label?.toLowerCase().includes('actualizado')) estado = 'actualizado';
+            else estado = 'pendiente';
+            return (
+              <div key={ev.id} className="pd-tl-step-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+                <div className={`pd-tl-step ${estado}`} data-label={label}></div>
+              </div>
+            );
+          })
         )}
       </section>
 
