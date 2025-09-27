@@ -476,7 +476,9 @@ window.onload = function(){window.print();}
         </button>
         <div className="pd-head-center">
           <h1 className="pd-title">Detalle de pago #{pago?.id ?? ''}</h1>
-          <p className="pd-sub">Resumen, datos fiscales y referencia, comprobantes y timeline.</p>
+          <p className="pd-sub">
+            Resumen, datos fiscales y referencia, comprobantes y timeline.
+          </p>
         </div>
         <div className="pd-head-spacer"></div>
       </div>
@@ -564,10 +566,9 @@ window.onload = function(){window.print();}
           ) : (
             <div className="pd-comprobante">
               <p className="pd-muted">
-                No hay comprobantes disponibles.{' '}
-                {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
+                No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
               </p>
-              {pago.rawStatus === 'REJECTED' && !isMerchant && (
+              {pago.rawStatus === 'REJECTED' && !isMerchant &&  (
                 <button
                   className="pd-btn pd-btn--pri"
                   onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
