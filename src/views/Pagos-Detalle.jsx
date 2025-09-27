@@ -469,7 +469,7 @@ window.onload = function(){window.print();}
   }
 
   return (
-    <div className="pd-wrap pd-layout">
+    <div className="pd-wrap">
       <div className="pd-head">
         <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>
           ← Volver
@@ -483,8 +483,7 @@ window.onload = function(){window.print();}
         <div className="pd-head-spacer"></div>
       </div>
 
-  {/* Cards en fila */}
-  <section className="pd-row">
+      <section className="pd-grid">
         <article className="pd-card">
           <header className="pd-card-h">Resumen</header>
           <div className="pd-kv">
@@ -582,34 +581,6 @@ window.onload = function(){window.print();}
         </article>
       </section>
 
-      {/* Timeline horizontal (desktop) */}
-      <section className="pd-timeline pd-timeline--horizontal">
-        <div className="pd-tl-head">
-          <header className="pd-card-h">Timeline</header>
-        </div>
-        {tlErr && <p className="pd-muted">{tlErr}</p>}
-        {!tlErr && filteredTimeline.length === 0 && (
-          <p className="pd-muted">No hay eventos para el filtro seleccionado.</p>
-        )}
-        {!tlErr && filteredTimeline.length > 0 && (
-          filteredTimeline.map((ev, i) => {
-            const label = mapStatus(ev.type?.split('_').pop());
-            let estado = '';
-            if (label?.toLowerCase().includes('pendiente')) estado = 'pendiente';
-            else if (label?.toLowerCase().includes('rechazado')) estado = 'rechazado';
-            else if (label?.toLowerCase().includes('aprobado')) estado = 'aprobado';
-            else if (label?.toLowerCase().includes('actualizado')) estado = 'actualizado';
-            else estado = 'pendiente';
-            return (
-              <div key={ev.id} className="pd-tl-step-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-                <div className={`pd-tl-step ${estado}`} data-label={label}></div>
-              </div>
-            );
-          })
-        )}
-      </section>
-
-      {/* Timeline alternado (mobile) */}
       <section className="pd-timeline pd-timeline--alt">
         <div className="pd-tl-head">
           <header className="pd-card-h">Timeline</header>
