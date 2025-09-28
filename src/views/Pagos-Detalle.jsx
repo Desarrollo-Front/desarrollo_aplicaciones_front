@@ -462,56 +462,56 @@ window.onload = function(){window.print();}
       {/* Grid de tarjetas */}
       <div className="grid grid-cols-1 gap-6 mb-10">
         {/* Resumen */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Resumen</h2>
+        <div className="bg-white rounded-2xl border-2 border-sky-400 p-6">
+          <h2 className="text-xl font-bold text-sky-600 mb-4">Resumen</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-4">
               <div>
-                <span className="font-medium text-gray-700">Cliente</span>
-                <p className="text-gray-900">{pago.cliente}</p>
+                <span className="font-medium text-black">Cliente</span>
+                <p className="text-black">{pago.cliente}</p>
               </div>
               <div>
-                <span className="font-medium text-gray-700">Método</span>
+                <span className="font-medium text-black">Método</span>
                 <p className="mt-1"><Badge kind={pago.metodo}>{pago.metodo}</Badge></p>
               </div>
               <div>
-                <span className="font-medium text-gray-700">Subtotal</span>
-                <p className="text-gray-900">{totales.sub}</p>
+                <span className="font-medium text-black">Subtotal</span>
+                <p className="text-black">{totales.sub}</p>
               </div>
               <div>
-                <span className="font-medium text-gray-700">Total</span>
-                <p className="text-gray-900 font-bold">{totales.tot}</p>
+                <span className="font-medium text-black">Total</span>
+                <p className="text-black font-bold">{totales.tot}</p>
               </div>
               <div>
-                <span className="font-medium text-gray-700">Creado</span>
-                <p className="text-gray-900">{fechaHora(pago.creadoISO)}</p>
+                <span className="font-medium text-black">Creado</span>
+                <p className="text-black">{fechaHora(pago.creadoISO)}</p>
               </div>
             </div>
             <div className="space-y-4">
               <div>
-                <span className="font-medium text-gray-700">Prestador</span>
-                <p className="text-gray-900">{pago.prestador}</p>
+                <span className="font-medium text-black">Prestador</span>
+                <p className="text-black">{pago.prestador}</p>
               </div>
               <div>
-                <span className="font-medium text-gray-700">Estado</span>
+                <span className="font-medium text-black">Estado</span>
                 <p className="mt-1"><Badge kind={pago.estado}>{pago.estado}</Badge></p>
               </div>
               <div>
-                <span className="font-medium text-gray-700">Impuestos</span>
-                <p className="text-gray-900">{totales.imp}</p>
+                <span className="font-medium text-black">Impuestos</span>
+                <p className="text-black">{totales.imp}</p>
               </div>
               <div className="h-6"></div> {/* Espaciador */}
               <div>
-                <span className="font-medium text-gray-700">Capturado</span>
-                <p className="text-gray-900">{fechaHora(pago.capturadoISO)}</p>
+                <span className="font-medium text-black">Capturado</span>
+                <p className="text-black">{fechaHora(pago.capturadoISO)}</p>
               </div>
               <div>
-                <span className="font-medium text-gray-700">Descripción</span>
-                <p className="text-gray-900">{pago.descripcion}</p>
+                <span className="font-medium text-black">Descripción</span>
+                <p className="text-black">{pago.descripcion}</p>
               </div>
               <div>
-                <span className="font-medium text-gray-700">Categoría</span>
-                <p className="text-gray-900">{pago.categoria}</p>
+                <span className="font-medium text-black">Categoría</span>
+                <p className="text-black">{pago.categoria}</p>
               </div>
             </div>
           </div>
@@ -523,8 +523,8 @@ window.onload = function(){window.print();}
       
 
       {/* Timeline */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Timeline</h2>
+      <div className="bg-white rounded-2xl border-2 border-sky-400 p-6">
+        <h2 className="text-xl font-bold text-sky-600 mb-4">Timeline</h2>
         {tlErr && <p className="text-red-500 text-sm mb-4">{tlErr}</p>}
         {!tlErr && filteredTimeline.length === 0 && (
           <p className="text-gray-400 text-sm">No hay eventos para el filtro seleccionado.</p>
@@ -535,17 +535,15 @@ window.onload = function(){window.print();}
               const cat = ev.category;
               const open = !!expanded[ev.id];
               const hl = highlightPairs(ev.payload, pago.moneda);
-              
               let borderColor = 'border-gray-300';
               if (cat === 'refund') borderColor = 'border-blue-400';
               if (cat === 'error') borderColor = 'border-red-400';
               if (cat === 'state') borderColor = 'border-green-400';
-              
               return (
                 <div key={ev.id} className={`border-l-4 ${borderColor} pl-4 py-2`}>
                   <div className="flex justify-between items-start">
                     <div>
-                      <span className="font-semibold text-gray-800">{mapEventType(ev.type)}</span>
+                      <span className="font-semibold text-black">{mapEventType(ev.type)}</span>
                       <span className="text-xs text-gray-500 ml-2">{fechaHora(ev.createdISO)}</span>
                     </div>
                     {!open && (
@@ -561,7 +559,7 @@ window.onload = function(){window.print();}
                   {open && (
                     <div className="mt-3 bg-gray-50 rounded-lg p-4">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="font-semibold text-gray-800">{mapEventType(ev.type)}</span>
+                        <span className="font-semibold text-black">{mapEventType(ev.type)}</span>
                         <span className="text-xs text-gray-500">{fechaHora(ev.createdISO)}</span>
                       </div>
                       <div className="text-xs text-gray-600 mb-3">
