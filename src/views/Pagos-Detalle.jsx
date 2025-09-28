@@ -462,7 +462,7 @@ window.onload = function(){window.print();}
       {/* Grid de tarjetas */}
       <div className="grid grid-cols-1 gap-6 mb-10">
         {/* Resumen */}
-        <div className="bg-white rounded-2xl border-2 border-sky-400 p-6">
+  <div className="bg-white border-2 border-sky-500 rounded-2xl p-6 shadow-sm">
           <h2 className="text-xl font-bold text-sky-600 mb-4">Resumen</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-4">
