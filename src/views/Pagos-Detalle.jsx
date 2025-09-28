@@ -457,66 +457,65 @@ window.onload = function(){window.print();}
             ← Volver
           </button>
           <h1 className="text-3xl font-bold text-gray-900">Detalle de pago #{pago?.id ?? ''}</h1>
-          <p className="text-gray-600 mt-1">Resumen, datos fiscales y referencia, comprobantes y timeline.</p>
         </div>
 
         {/* Card Resumen */}
-        <div className="w-full flex justify-center">
-          <div className="w-full max-w-xl bg-white border-4 border-sky-600 rounded-2xl p-8 shadow-2xl">
-            <h2 className="text-xl font-bold text-sky-600 mb-4">Resumen</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div>
-                  <span className="font-medium text-black">Cliente</span>
-                  <p className="text-black">{pago.cliente}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-black">Método</span>
-                  <p className="mt-1"><Badge kind={pago.metodo}>{pago.metodo}</Badge></p>
-                </div>
-                <div>
-                  <span className="font-medium text-black">Subtotal</span>
-                  <p className="text-black">{totales.sub}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-black">Total</span>
-                  <p className="text-black font-bold">{totales.tot}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-black">Creado</span>
-                  <p className="text-black">{fechaHora(pago.creadoISO)}</p>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <span className="font-medium text-black">Prestador</span>
-                  <p className="text-black">{pago.prestador}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-black">Estado</span>
-                  <p className="mt-1"><Badge kind={pago.estado}>{pago.estado}</Badge></p>
-                </div>
-                <div>
-                  <span className="font-medium text-black">Impuestos</span>
-                  <p className="text-black">{totales.imp}</p>
-                </div>
-                <div className="h-6"></div> {/* Espaciador */}
-                <div>
-                  <span className="font-medium text-black">Capturado</span>
-                  <p className="text-black">{fechaHora(pago.capturadoISO)}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-black">Descripción</span>
-                  <p className="text-black">{pago.descripcion}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-black">Categoría</span>
-                  <p className="text-black">{pago.categoria}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+<div className="w-full flex justify-center">
+  <div className="w-full max-w-xl bg-blue-50 border-2 border-blue-200 rounded-2xl p-8 shadow-lg">
+    <h2 className="text-2xl font-bold text-blue-800 mb-6">Resumen</h2>
+    <div className="grid grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <div>
+          <span className="font-medium text-blue-900">Cliente</span>
+          <p className="text-blue-800 mt-1">{pago.cliente}</p>
         </div>
+        <div>
+          <span className="font-medium text-blue-900">Método</span>
+          <p className="mt-1"><Badge kind={pago.metodo}>{pago.metodo}</Badge></p>
+        </div>
+        <div>
+          <span className="font-medium text-blue-900">Subtotal</span>
+          <p className="text-blue-800">{totales.sub}</p>
+        </div>
+        <div>
+          <span className="font-medium text-blue-900">Total</span>
+          <p className="text-blue-800 font-bold text-lg">{totales.tot}</p>
+        </div>
+        <div>
+          <span className="font-medium text-blue-900">Creado</span>
+          <p className="text-blue-800">{fechaHora(pago.creadoISO)}</p>
+        </div>
+      </div>
+      <div className="space-y-4">
+        <div>
+          <span className="font-medium text-blue-900">Prestador</span>
+          <p className="text-blue-800">{pago.prestador}</p>
+        </div>
+        <div>
+          <span className="font-medium text-blue-900">Estado</span>
+          <p className="mt-1"><Badge kind={pago.estado}>{pago.estado}</Badge></p>
+        </div>
+        <div>
+          <span className="font-medium text-blue-900">Impuestos</span>
+          <p className="text-blue-800">{totales.imp}</p>
+        </div>
+        <div className="h-6"></div> {/* Espaciador */}
+        <div>
+          <span className="font-medium text-blue-900">Capturado</span>
+          <p className="text-blue-800">{fechaHora(pago.capturadoISO)}</p>
+        </div>
+        <div>
+          <span className="font-medium text-blue-900">Descripción</span>
+          <p className="text-blue-800">{pago.descripcion}</p>
+        </div>
+        <div>
+          <span className="font-medium text-blue-900">Categoría</span>
+          <p className="text-blue-800">{pago.categoria}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
         {/* Card Timeline */}
         <div className="w-full flex justify-center">
