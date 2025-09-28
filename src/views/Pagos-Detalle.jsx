@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import './Pagos-Detalle.css';
+
 
 const money = (n, curr = 'ARS', locale = 'es-AR') =>
   new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(Number(n || 0));
@@ -18,7 +18,17 @@ function Badge({ kind, children }) {
     .toLowerCase()
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '');
-  return <span className={`pd-badge pd-badge--${key}`}>{children}</span>;
+  // Badge con color según tipo
+  let badgeColor = 'bg-gray-200 text-gray-800';
+  if (key.includes('aprobado') || key.includes('approved') || key.includes('capturado') || key.includes('completed')) badgeColor = 'bg-green-100 text-green-700';
+  if (key.includes('rechazado') || key.includes('rejected') || key.includes('failed')) badgeColor = 'bg-red-100 text-red-700';
+  if (key.includes('pendiente') || key.includes('pending')) badgeColor = 'bg-yellow-100 text-yellow-800';
+  if (key.includes('expirado') || key.includes('expired')) badgeColor = 'bg-gray-300 text-gray-600';
+  if (key.includes('reembolsado') || key.includes('refund')) badgeColor = 'bg-blue-100 text-blue-700';
+  if (key.includes('disputa') || key.includes('dispute')) badgeColor = 'bg-orange-100 text-orange-700';
+  return (
+    <span className={`inline-block rounded px-2 py-0.5 text-xs font-semibold align-middle ${badgeColor}`}>{children}</span>
+  );
 }
 
 const mapStatus = (s) => {
@@ -447,130 +457,83 @@ window.onload = function(){window.print();}
   //  });
   //};
 
+
   if (loading) {
     return (
-      <div className="pd-wrap">
-        <h1 className="pd-title">Detalle de pago</h1>
-        <p className="pd-sub">Cargando…</p>
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <h1 className="text-2xl font-bold mb-2">Detalle de pago</h1>
+        <p className="text-gray-500">Cargando…</p>
       </div>
     );
   }
 
   if (!pago) {
     return (
-      <div className="pd-wrap">
-        <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>
-          ← Volver
-        </button>
-        <h1 className="pd-title">Detalle de pago</h1>
-        <p className="pd-sub">{err || 'No se encontró el pago.'}</p>
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <button className="mb-4 text-blue-600 hover:underline flex items-center gap-1" onClick={() => navigate('/pagos')}>← Volver</button>
+        <h1 className="text-2xl font-bold mb-2">Detalle de pago</h1>
+        <p className="text-gray-500">{err || 'No se encontró el pago.'}</p>
       </div>
     );
   }
 
   return (
-    <div className="pd-wrap">
-      <div className="pd-head">
-        <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>
-          ← Volver
-        </button>
-        <div className="pd-head-center">
-          <h1 className="pd-title">Detalle de pago #{pago?.id ?? ''}</h1>
-          <p className="pd-sub">
-            Resumen, datos fiscales y referencia, comprobantes y timeline.
-          </p>
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+        <button className="text-blue-600 hover:underline flex items-center gap-1 self-start" onClick={() => navigate('/pagos')}>← Volver</button>
+        <div className="flex-1 text-center">
+          <h1 className="text-2xl font-bold">Detalle de pago #{pago?.id ?? ''}</h1>
+          <p className="text-gray-500 text-sm">Resumen, datos fiscales y referencia, comprobantes y timeline.</p>
         </div>
-        <div className="pd-head-spacer"></div>
+        <div className="w-24 hidden sm:block" />
       </div>
 
-      <section className="pd-grid">
-        <article className="pd-card">
-          <header className="pd-card-h">Resumen</header>
-          <div className="pd-kv">
-            <div>
-              <b>Cliente</b>
-              <span>{pago.cliente}</span>
-            </div>
-            <div>
-              <b>Prestador</b>
-              <span>{pago.prestador}</span>
-            </div>
-            <div>
-              <b>Método</b>
-              <span>
-                <Badge kind={pago.metodo}>{pago.metodo}</Badge>
-              </span>
-            </div>
-            <div>
-              <b>Estado</b>
-              <span>
-                <Badge kind={pago.estado}>{pago.estado}</Badge>
-              </span>
-            </div>
-            <div>
-              <b>Subtotal</b>
-              <span>{totales.sub}</span>
-            </div>
-            <div>
-              <b>Impuestos</b>
-              <span>{totales.imp}</span>
-            </div>
-            <div className="pd-total">
-              <b>Total</b>
-              <span>{totales.tot}</span>
-            </div>
-            <div>
-              <b>Creado</b>
-              <span>{fechaHora(pago.creadoISO)}</span>
-            </div>
-            <div>
-              <b>Capturado</b>
-              <span>{fechaHora(pago.capturadoISO)}</span>
-            </div>
+      {/* Grid de tarjetas */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        {/* Resumen */}
+        <article className="bg-white rounded-xl shadow p-5 flex flex-col gap-2 border border-gray-100">
+          <header className="font-semibold text-gray-700 mb-2">Resumen</header>
+          <div className="flex flex-col gap-1 text-sm">
+            <div><b>Cliente</b><div className="text-gray-700">{pago.cliente}</div></div>
+            <div><b>Prestador</b><div className="text-gray-700">{pago.prestador}</div></div>
+            <div><b>Método</b><div><Badge kind={pago.metodo}>{pago.metodo}</Badge></div></div>
+            <div><b>Estado</b><div><Badge kind={pago.estado}>{pago.estado}</Badge></div></div>
+            <div><b>Subtotal</b><div>{totales.sub}</div></div>
+            <div><b>Impuestos</b><div>{totales.imp}</div></div>
+            <div className="mt-2 border-t pt-2"><b>Total</b><div className="text-lg font-bold">{totales.tot}</div></div>
+            <div><b>Creado</b><div>{fechaHora(pago.creadoISO)}</div></div>
+            <div><b>Capturado</b><div>{fechaHora(pago.capturadoISO)}</div></div>
           </div>
         </article>
 
-        <article className="pd-card">
-          <header className="pd-card-h">Datos fiscales y referencia</header>
-          <div className="pd-kv">
-            <div>
-              <b>Moneda</b>
-              <span>{pago.moneda}</span>
-            </div>
-            <div>
-              <b>Fees</b>
-              <span>{money(pago.fees, pago.moneda)}</span>
-            </div>
-            <div>
-              <b>Descripción</b>
-              <span>{pago.descripcion}</span>
-            </div>
-            <div>
-              <b>Categoría</b>
-              <span>{pago.categoria}</span>
-            </div>
+        {/* Datos fiscales y referencia */}
+        <article className="bg-white rounded-xl shadow p-5 flex flex-col gap-2 border border-gray-100">
+          <header className="font-semibold text-gray-700 mb-2">Datos fiscales y referencia</header>
+          <div className="flex flex-col gap-1 text-sm">
+            <div><b>Moneda</b><div>{pago.moneda}</div></div>
+            <div><b>Fees</b><div>{money(pago.fees, pago.moneda)}</div></div>
+            <div><b>Descripción</b><div>{pago.descripcion}</div></div>
+            <div><b>Categoría</b><div>{pago.categoria}</div></div>
           </div>
         </article>
 
-        <article className="pd-card">
-          <header className="pd-card-h">Comprobantes</header>
+        {/* Comprobantes */}
+        <article className="bg-white rounded-xl shadow p-5 flex flex-col gap-2 border border-gray-100">
+          <header className="font-semibold text-gray-700 mb-2">Comprobantes</header>
           {puedeDescargarComprobante ? (
-            <div className="pd-comprobante">
-              <p className="pd-muted">
-                Se genera un comprobante de pago no fiscal con los datos reales.
-              </p>
-              <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
+            <div className="flex flex-col gap-2">
+              <p className="text-gray-500 text-xs">Se genera un comprobante de pago no fiscal con los datos reales.</p>
+              <button className="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2 font-semibold transition" onClick={descargarComprobante}>
                 Descargar Factura
               </button>
             </div>
           ) : (
-            <div className="pd-comprobante">
-              <p className="pd-muted">
-                No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
-              </p>
+            <div className="flex flex-col gap-2">
+              <p className="text-gray-400 text-xs">No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}</p>
               {pago.rawStatus === 'REJECTED' && !isMerchant &&  (
                 <button
-                  className="pd-btn pd-btn--pri"
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2 font-semibold transition"
                   onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
                 >
                   Reintentar pago
@@ -581,40 +544,39 @@ window.onload = function(){window.print();}
         </article>
       </section>
 
-      <section className="pd-timeline pd-timeline--alt">
-        <div className="pd-tl-head">
-          <header className="pd-card-h">Timeline</header>
-          <div className="pd-tl-filters"></div>
+      {/* Timeline */}
+      <section className="bg-white rounded-xl shadow p-6 border border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <header className="font-semibold text-gray-700">Timeline</header>
+          {/* Filtros futuros */}
         </div>
 
-        {tlErr && <p className="pd-muted">{tlErr}</p>}
+        {tlErr && <p className="text-red-500 text-sm">{tlErr}</p>}
         {!tlErr && filteredTimeline.length === 0 && (
-          <p className="pd-muted">No hay eventos para el filtro seleccionado.</p>
+          <p className="text-gray-400 text-sm">No hay eventos para el filtro seleccionado.</p>
         )}
 
         {!tlErr && filteredTimeline.length > 0 && (
-          <ul className="pd-time-alt">
+          <ul className="flex flex-col gap-6">
             {filteredTimeline.map((ev, i) => {
-              const side = i % 2 === 0 ? 'pd-left' : 'pd-right';
               const cat = ev.category;
               const open = !!expanded[ev.id];
               const hl = highlightPairs(ev.payload, pago.moneda);
+              // Color de borde según categoría
+              let borderColor = 'border-gray-200';
+              if (cat === 'refund') borderColor = 'border-blue-300';
+              if (cat === 'error') borderColor = 'border-red-300';
+              if (cat === 'state') borderColor = 'border-green-300';
               return (
-                <li key={ev.id} className={`pd-time-alt-item ${side} pd-time-${cat}`}>
-                  <div className="pd-time-head">
-                    <button
-                      className="pd-dot-label"
-                      data-tip={fechaHora(ev.createdISO)}
-                      type="button"
-                    >
-                      <span className="pd-evt-title">
-                        {mapEventType(ev.type)}
-                        {ev._count ? ` ×${ev._count}` : ''}
-                      </span>
-                    </button>
+                <li key={ev.id} className={`relative bg-gray-50 rounded-lg p-4 border-l-4 ${borderColor} shadow-sm`}> 
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-gray-700">{mapEventType(ev.type)}{ev._count ? ` ×${ev._count}` : ''}</span>
+                      <span className="text-xs text-gray-400">{fechaHora(ev.createdISO)}</span>
+                    </div>
                     {!open && (
                       <button
-                        className="pd-btn pd-btn--chip pd-more"
+                        className="text-blue-600 text-xs hover:underline px-2 py-1"
                         onClick={() => setExpanded((x) => ({ ...x, [ev.id]: true }))}
                       >
                         Ver más
@@ -623,40 +585,32 @@ window.onload = function(){window.print();}
                   </div>
 
                   {open && (
-                    <div className="pd-time-card">
-                      <div className="pd-time-card-h">
-                        <div className="pd-time-title">
-                          {mapEventType(ev.type)}
-                          {ev._count ? ` ×${ev._count}` : ''}
-                        </div>
-                        <div className="pd-time-date">{fechaHora(ev.createdISO)}</div>
+                    <div className="mt-3 bg-white rounded shadow-inner p-4 border border-gray-200">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+                        <div className="font-semibold text-gray-700">{mapEventType(ev.type)}{ev._count ? ` ×${ev._count}` : ''}</div>
+                        <div className="text-xs text-gray-400">{fechaHora(ev.createdISO)}</div>
                       </div>
-                      <div className="pd-time-meta">
-                        Actor: {ev.actor} · Origen: {ev.source}
-                      </div>
+                      <div className="text-xs text-gray-500 mb-2">Actor: {ev.actor} · Origen: {ev.source}</div>
 
                       {hl.length > 0 && (
-                        <div className="pd-tl-highlights">
+                        <div className="flex flex-wrap gap-2 mb-2">
                           {hl.map(([k, v]) => (
-                            <div key={k} className="pd-chip-kv">
-                              <span className="pd-chip-k">{k}</span>
-                              <span className="pd-chip-v">{v}</span>
+                            <div key={k} className="inline-flex items-center bg-blue-100 text-blue-800 rounded px-2 py-0.5 text-xs font-medium">
+                              <span className="mr-1 font-semibold">{k}:</span> {v}
                             </div>
                           ))}
                         </div>
                       )}
 
                       {ev.payload && typeof ev.payload === 'object' && (
-                        <div className="pd-payload">
-                          <pre className="pd-pre">
-                            {JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}
-                          </pre>
+                        <div className="bg-gray-100 rounded p-2 overflow-x-auto text-xs mb-2">
+                          <pre className="whitespace-pre-wrap break-all">{JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}</pre>
                         </div>
                       )}
 
-                      <div className="pd-tl-actions">
+                      <div className="flex justify-end">
                         <button
-                          className="pd-btn pd-btn--chip"
+                          className="text-blue-600 text-xs hover:underline px-2 py-1"
                           onClick={() => setExpanded((x) => ({ ...x, [ev.id]: false }))}
                         >
                           Ver menos
