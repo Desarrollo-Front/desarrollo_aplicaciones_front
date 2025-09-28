@@ -459,57 +459,73 @@ window.onload = function(){window.print();}
           <h1 className="text-3xl font-bold text-gray-900">Detalle de pago #{pago?.id ?? ''}</h1>
         </div>
 
-        {/* Card Resumen */}
+ {/* Card Resumen */}
 <div className="w-full flex justify-center">
   <div className="w-full max-w-xl bg-blue-50 border-2 border-blue-200 rounded-2xl p-8 shadow-lg">
     <h2 className="text-2xl font-bold text-blue-800 mb-6">Resumen</h2>
-    <div className="grid grid-cols-2 gap-6">
-      <div className="space-y-4">
-        <div>
-          <span className="font-medium text-blue-900">Cliente</span>
-          <p className="text-blue-800 mt-1">{pago.cliente}</p>
+    <div className="space-y-4">
+      {/* Fila 1: Cliente y Prestador */}
+      <div className="grid grid-cols-2 gap-6">
+        <div className="flex items-center justify-between">
+          <span className="font-medium text-blue-900">Cliente:</span>
+          <p className="text-blue-800">{pago.cliente}</p>
         </div>
-        <div>
-          <span className="font-medium text-blue-900">Método</span>
-          <p className="mt-1"><Badge kind={pago.metodo}>{pago.metodo}</Badge></p>
-        </div>
-        <div>
-          <span className="font-medium text-blue-900">Subtotal</span>
-          <p className="text-blue-800">{totales.sub}</p>
-        </div>
-        <div>
-          <span className="font-medium text-blue-900">Total</span>
-          <p className="text-blue-800 font-bold text-lg">{totales.tot}</p>
-        </div>
-        <div>
-          <span className="font-medium text-blue-900">Creado</span>
-          <p className="text-blue-800">{fechaHora(pago.creadoISO)}</p>
-        </div>
-      </div>
-      <div className="space-y-4">
-        <div>
-          <span className="font-medium text-blue-900">Prestador</span>
+        <div className="flex items-center justify-between">
+          <span className="font-medium text-blue-900">Prestador:</span>
           <p className="text-blue-800">{pago.prestador}</p>
         </div>
-        <div>
-          <span className="font-medium text-blue-900">Estado</span>
+      </div>
+
+      {/* Fila 2: Método y Estado */}
+      <div className="grid grid-cols-2 gap-6">
+        <div className="flex items-center justify-between">
+          <span className="font-medium text-blue-900">Método:</span>
+          <p className="mt-1"><Badge kind={pago.metodo}>{pago.metodo}</Badge></p>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="font-medium text-blue-900">Estado:</span>
           <p className="mt-1"><Badge kind={pago.estado}>{pago.estado}</Badge></p>
         </div>
-        <div>
-          <span className="font-medium text-blue-900">Impuestos</span>
+      </div>
+
+      {/* Fila 3: Subtotal e Impuestos */}
+      <div className="grid grid-cols-2 gap-6">
+        <div className="flex items-center justify-between">
+          <span className="font-medium text-blue-900">Subtotal:</span>
+          <p className="text-blue-800">{totales.sub}</p>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="font-medium text-blue-900">Impuestos:</span>
           <p className="text-blue-800">{totales.imp}</p>
         </div>
-        <div className="h-6"></div> {/* Espaciador */}
-        <div>
-          <span className="font-medium text-blue-900">Capturado</span>
+      </div>
+
+      {/* Fila 4: Total (ocupa toda la fila) */}
+      <div className="flex items-center justify-between border-t border-blue-200 pt-4">
+        <span className="font-medium text-blue-900">Total:</span>
+        <p className="text-blue-800 font-bold text-lg">{totales.tot}</p>
+      </div>
+
+      {/* Fila 5: Creado y Capturado */}
+      <div className="grid grid-cols-2 gap-6">
+        <div className="flex items-center justify-between">
+          <span className="font-medium text-blue-900">Creado:</span>
+          <p className="text-blue-800">{fechaHora(pago.creadoISO)}</p>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="font-medium text-blue-900">Capturado:</span>
           <p className="text-blue-800">{fechaHora(pago.capturadoISO)}</p>
         </div>
-        <div>
-          <span className="font-medium text-blue-900">Descripción</span>
+      </div>
+
+      {/* Fila 6: Descripción y Categoría */}
+      <div className="grid grid-cols-2 gap-6">
+        <div className="flex items-center justify-between">
+          <span className="font-medium text-blue-900">Descripción:</span>
           <p className="text-blue-800">{pago.descripcion}</p>
         </div>
-        <div>
-          <span className="font-medium text-blue-900">Categoría</span>
+        <div className="flex items-center justify-between">
+          <span className="font-medium text-blue-900">Categoría:</span>
           <p className="text-blue-800">{pago.categoria}</p>
         </div>
       </div>
