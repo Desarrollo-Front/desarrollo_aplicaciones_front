@@ -446,7 +446,7 @@ window.onload = function(){window.print();}
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gray-50 py-10 px-2 flex flex-col items-center">
       {/* Header */}
       <div className="mb-8">
         <button 
@@ -460,9 +460,9 @@ window.onload = function(){window.print();}
       </div>
 
       {/* Grid de tarjetas */}
-      <div className="grid grid-cols-1 gap-6 mb-10">
+      <div className="w-full flex justify-center mb-10">
         {/* Resumen */}
-  <div className="bg-white border-4 border-sky-600 rounded-2xl p-8 shadow-lg mb-8">
+        <div className="w-full max-w-xl bg-white border-4 border-sky-600 rounded-2xl p-8 shadow-lg">
           <h2 className="text-xl font-bold text-sky-600 mb-4">Resumen</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-4">
