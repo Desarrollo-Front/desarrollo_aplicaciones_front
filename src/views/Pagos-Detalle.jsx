@@ -459,9 +459,8 @@ window.onload = function(){window.print();}
         <p className="text-gray-600 mt-1">Resumen, datos fiscales y referencia, comprobantes y timeline.</p>
       </div>
 
-      {/* Grid de tarjetas */}
-      <div className="w-full flex justify-center mb-10">
-        {/* Resumen */}
+      {/* Card Resumen */}
+      <div className="w-full flex justify-center mb-8">
         <div className="w-full max-w-xl bg-white border-4 border-sky-600 rounded-2xl p-8 shadow-lg">
           <h2 className="text-xl font-bold text-sky-600 mb-4">Resumen</h2>
           <div className="grid grid-cols-2 gap-4">
@@ -522,83 +521,85 @@ window.onload = function(){window.print();}
        
       
 
-      {/* Timeline */}
-      <div className="bg-white rounded-2xl border-2 border-sky-400 p-6">
-        <h2 className="text-xl font-bold text-sky-600 mb-4">Timeline</h2>
-        {tlErr && <p className="text-red-500 text-sm mb-4">{tlErr}</p>}
-        {!tlErr && filteredTimeline.length === 0 && (
-          <p className="text-gray-400 text-sm">No hay eventos para el filtro seleccionado.</p>
-        )}
-        {!tlErr && filteredTimeline.length > 0 && (
-          <div className="space-y-4">
-            {filteredTimeline.map((ev, i) => {
-              const cat = ev.category;
-              const open = !!expanded[ev.id];
-              const hl = highlightPairs(ev.payload, pago.moneda);
-              let borderColor = 'border-gray-300';
-              if (cat === 'refund') borderColor = 'border-blue-400';
-              if (cat === 'error') borderColor = 'border-red-400';
-              if (cat === 'state') borderColor = 'border-green-400';
-              return (
-                <div key={ev.id} className={`border-l-4 ${borderColor} pl-4 py-2`}>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="font-semibold text-black">{mapEventType(ev.type)}</span>
-                      <span className="text-xs text-gray-500 ml-2">{fechaHora(ev.createdISO)}</span>
+      {/* Card Timeline */}
+      <div className="w-full flex justify-center">
+        <div className="w-full max-w-xl bg-white border-4 border-sky-600 rounded-2xl p-8 shadow-lg">
+          <h2 className="text-xl font-bold text-sky-600 mb-4">Timeline</h2>
+          {tlErr && <p className="text-red-500 text-sm mb-4">{tlErr}</p>}
+          {!tlErr && filteredTimeline.length === 0 && (
+            <p className="text-gray-400 text-sm">No hay eventos para el filtro seleccionado.</p>
+          )}
+          {!tlErr && filteredTimeline.length > 0 && (
+            <div className="space-y-4">
+              {filteredTimeline.map((ev, i) => {
+                const cat = ev.category;
+                const open = !!expanded[ev.id];
+                const hl = highlightPairs(ev.payload, pago.moneda);
+                let borderColor = 'border-gray-300';
+                if (cat === 'refund') borderColor = 'border-blue-400';
+                if (cat === 'error') borderColor = 'border-red-400';
+                if (cat === 'state') borderColor = 'border-green-400';
+                return (
+                  <div key={ev.id} className={`border-l-4 ${borderColor} pl-4 py-2`}>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="font-semibold text-black">{mapEventType(ev.type)}</span>
+                        <span className="text-xs text-gray-500 ml-2">{fechaHora(ev.createdISO)}</span>
+                      </div>
+                      {!open && (
+                        <button
+                          className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                          onClick={() => setExpanded((x) => ({ ...x, [ev.id]: true }))}
+                        >
+                          Ver más
+                        </button>
+                      )}
                     </div>
-                    {!open && (
-                      <button
-                        className="text-xs text-blue-600 hover:text-blue-800 font-medium"
-                        onClick={() => setExpanded((x) => ({ ...x, [ev.id]: true }))}
-                      >
-                        Ver más
-                      </button>
+
+                    {open && (
+                      <div className="mt-3 bg-gray-50 rounded-lg p-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-semibold text-black">{mapEventType(ev.type)}</span>
+                          <span className="text-xs text-gray-500">{fechaHora(ev.createdISO)}</span>
+                        </div>
+                        <div className="text-xs text-gray-600 mb-3">
+                          Actor: {ev.actor} · Origen: {ev.source}
+                        </div>
+
+                        {hl.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {hl.map(([k, v]) => (
+                              <div key={k} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                                <span className="font-semibold">{k}:</span> {v}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {ev.payload && typeof ev.payload === 'object' && (
+                          <div className="bg-white rounded p-3 overflow-x-auto text-xs mb-3 border">
+                            <pre className="whitespace-pre-wrap break-all">
+                              {JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}
+                            </pre>
+                          </div>
+                        )}
+
+                        <div className="text-right">
+                          <button
+                            className="text-xs text-gray-600 hover:text-gray-800 font-medium"
+                            onClick={() => setExpanded((x) => ({ ...x, [ev.id]: false }))}
+                          >
+                            Ver menos
+                          </button>
+                        </div>
+                      </div>
                     )}
                   </div>
-
-                  {open && (
-                    <div className="mt-3 bg-gray-50 rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="font-semibold text-black">{mapEventType(ev.type)}</span>
-                        <span className="text-xs text-gray-500">{fechaHora(ev.createdISO)}</span>
-                      </div>
-                      <div className="text-xs text-gray-600 mb-3">
-                        Actor: {ev.actor} · Origen: {ev.source}
-                      </div>
-
-                      {hl.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          {hl.map(([k, v]) => (
-                            <div key={k} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                              <span className="font-semibold">{k}:</span> {v}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {ev.payload && typeof ev.payload === 'object' && (
-                        <div className="bg-white rounded p-3 overflow-x-auto text-xs mb-3 border">
-                          <pre className="whitespace-pre-wrap break-all">
-                            {JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}
-                          </pre>
-                        </div>
-                      )}
-
-                      <div className="text-right">
-                        <button
-                          className="text-xs text-gray-600 hover:text-gray-800 font-medium"
-                          onClick={() => setExpanded((x) => ({ ...x, [ev.id]: false }))}
-                        >
-                          Ver menos
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
