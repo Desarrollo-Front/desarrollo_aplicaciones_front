@@ -1,18 +1,9 @@
 .app-main {
-  padding: 20px;
-  padding-top: calc(var(--navbar-h) + 12px);
-  min-height: 100vh;
-  background: #ffffff;
-  /* color eliminado para que Tailwind controle el color */
-  display: flex;
-  justify-content: center;
+  /* reglas eliminadas para permitir que Tailwind controle el layout y fondo */
 }
 
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  /* reglas eliminadas para permitir que Tailwind controle el layout y fondo */
 }
 
 .logo {
@@ -44,7 +35,7 @@
 }
 
 .card {
-  padding: 2em;
+  /* padding eliminado para evitar conflicto con Tailwind */
 }
 
 .read-the-docs {
