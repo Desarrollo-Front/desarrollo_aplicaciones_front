@@ -3,7 +3,7 @@
   padding-top: calc(var(--navbar-h) + 12px);
   min-height: 100vh;
   background: #ffffff;
-  color: #e8ebf3;
+  /* color eliminado para que Tailwind controle el color */
   display: flex;
   justify-content: center;
 }
@@ -22,10 +22,10 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  /* filter eliminado para evitar opacidad global */
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  /* filter eliminado para evitar opacidad global */
 }
 
 @keyframes logo-spin {
@@ -48,7 +48,7 @@
 }
 
 .read-the-docs {
-  color: #888;
+  /* color eliminado para que Tailwind controle el color */
 }
 /* ---- Estilos globales para tablas en cards ---- */
 .table-card {
@@ -74,23 +74,23 @@
   border-bottom: 1px solid var(--line);
   text-align: left;
   vertical-align: middle;
-  color: #000;
+  /* color eliminado para que Tailwind controle el color */
 }
 
 .table-card thead th {
   font-size: 12px;
-  color: #333;
+  /* color eliminado para que Tailwind controle el color */
   font-weight: 600;
   background: #f2f2f2;
 }
 
 .table-card tbody tr:hover {
-  background: #f9f9f9;
+  /* background eliminado para que Tailwind controle el fondo */
 }
 
 .table-card .empty {
   text-align: center;
-  color: var(--muted);
+  /* color eliminado para que Tailwind controle el color */
   padding: 24px 12px;
 }
 
