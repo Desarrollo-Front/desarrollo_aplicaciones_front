@@ -505,28 +505,9 @@ window.onload = function(){window.print();}
                 <span className="font-medium text-gray-700">Capturado</span>
                 <p className="text-gray-900">{fechaHora(pago.capturadoISO)}</p>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Datos fiscales y referencia */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Datos fiscales y referencia</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-4">
-              <div>
-                <span className="font-medium text-gray-700">Moneda</span>
-                <p className="text-gray-900">{pago.moneda}</p>
-              </div>
               <div>
                 <span className="font-medium text-gray-700">Descripción</span>
                 <p className="text-gray-900">{pago.descripcion}</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <span className="font-medium text-gray-700">Fees</span>
-                <p className="text-gray-900">{money(pago.fees, pago.moneda)}</p>
               </div>
               <div>
                 <span className="font-medium text-gray-700">Categoría</span>
@@ -535,33 +516,11 @@ window.onload = function(){window.print();}
             </div>
           </div>
         </div>
+ </div>
 
-        {/* Comprobantes */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Comprobantes</h2>
-          <div className="text-center">
-            <p className="text-gray-600 text-sm mb-4">Se genera un comprobante de pago no fiscal con los datos reales.</p>
-            {puedeDescargarComprobante ? (
-              <button 
-                className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-6 rounded-lg transition-colors"
-                onClick={descargarComprobante}
-              >
-                Descargar Factura
-              </button>
-            ) : (
-              <p className="text-gray-500 text-sm">No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}</p>
-            )}
-            {pago.rawStatus === 'REJECTED' && !isMerchant && (
-              <button
-                className="mt-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
-                onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
-              >
-                Reintentar pago
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+
+       
+      
 
       {/* Timeline */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
