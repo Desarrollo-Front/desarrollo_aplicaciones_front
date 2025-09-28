@@ -459,76 +459,73 @@ window.onload = function(){window.print();}
           <h1 className="text-3xl font-bold text-gray-900">Detalle de pago #{pago?.id ?? ''}</h1>
         </div>
 
- {/* Card Resumen */}
-<div className="w-full flex justify-center">
-  <div className="w-full max-w-xl bg-blue-50 border-2 border-blue-200 rounded-2xl p-8 shadow-lg">
-    <h2 className="text-2xl font-bold text-blue-800 mb-6">Resumen</h2>
-    <div className="space-y-4">
-      {/* Fila 1: Cliente y Prestador */}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="flex items-center justify-between">
-          <span className="font-medium text-blue-900">Cliente:</span>
-          <p className="text-blue-800">{pago.cliente}</p>
+{/* Card Resumen - Versión Corregida */}
+<div className="w-full flex justify-center mb-8">
+  <div className="w-full max-w-2xl bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-2xl p-6 shadow-xl">
+    <h2 className="text-2xl font-bold text-blue-800 mb-6 text-center">Resumen</h2>
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Columna Izquierda */}
+      <div className="space-y-3">
+        <div className="flex justify-between items-center bg-white/50 rounded-lg px-3 py-2">
+          <span className="font-semibold text-blue-900">Cliente:</span>
+          <span className="text-blue-800 font-medium">{pago.cliente}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="font-medium text-blue-900">Prestador:</span>
-          <p className="text-blue-800">{pago.prestador}</p>
+        
+        <div className="flex justify-between items-center bg-white/50 rounded-lg px-3 py-2">
+          <span className="font-semibold text-blue-900">Método:</span>
+          <Badge kind={pago.metodo}>{pago.metodo}</Badge>
         </div>
-      </div>
-
-      {/* Fila 2: Método y Estado */}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="flex items-center justify-between">
-          <span className="font-medium text-blue-900">Método:</span>
-          <p className="mt-1"><Badge kind={pago.metodo}>{pago.metodo}</Badge></p>
+        
+        <div className="flex justify-between items-center bg-white/50 rounded-lg px-3 py-2">
+          <span className="font-semibold text-blue-900">Subtotal:</span>
+          <span className="text-blue-800 font-medium">{totales.sub}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="font-medium text-blue-900">Estado:</span>
-          <p className="mt-1"><Badge kind={pago.estado}>{pago.estado}</Badge></p>
+        
+        <div className="flex justify-between items-center bg-white/50 rounded-lg px-3 py-2">
+          <span className="font-semibold text-blue-900">Creado:</span>
+          <span className="text-blue-800 text-sm">{fechaHora(pago.creadoISO)}</span>
         </div>
-      </div>
-
-      {/* Fila 3: Subtotal e Impuestos */}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="flex items-center justify-between">
-          <span className="font-medium text-blue-900">Subtotal:</span>
-          <p className="text-blue-800">{totales.sub}</p>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="font-medium text-blue-900">Impuestos:</span>
-          <p className="text-blue-800">{totales.imp}</p>
+        
+        <div className="flex justify-between items-center bg-white/50 rounded-lg px-3 py-2">
+          <span className="font-semibold text-blue-900">Descripción:</span>
+          <span className="text-blue-800 text-sm text-right">{pago.descripcion}</span>
         </div>
       </div>
 
-      {/* Fila 4: Total (ocupa toda la fila) */}
-      <div className="flex items-center justify-between border-t border-blue-200 pt-4">
-        <span className="font-medium text-blue-900">Total:</span>
-        <p className="text-blue-800 font-bold text-lg">{totales.tot}</p>
+      {/* Columna Derecha */}
+      <div className="space-y-3">
+        <div className="flex justify-between items-center bg-white/50 rounded-lg px-3 py-2">
+          <span className="font-semibold text-blue-900">Prestador:</span>
+          <span className="text-blue-800 font-medium">{pago.prestador}</span>
+        </div>
+        
+        <div className="flex justify-between items-center bg-white/50 rounded-lg px-3 py-2">
+          <span className="font-semibold text-blue-900">Estado:</span>
+          <Badge kind={pago.estado}>{pago.estado}</Badge>
+        </div>
+        
+        <div className="flex justify-between items-center bg-white/50 rounded-lg px-3 py-2">
+          <span className="font-semibold text-blue-900">Impuestos:</span>
+          <span className="text-blue-800 font-medium">{totales.imp}</span>
+        </div>
+        
+        <div className="flex justify-between items-center bg-white/50 rounded-lg px-3 py-2">
+          <span className="font-semibold text-blue-900">Capturado:</span>
+          <span className="text-blue-800 text-sm">{fechaHora(pago.capturadoISO)}</span>
+        </div>
+        
+        <div className="flex justify-between items-center bg-white/50 rounded-lg px-3 py-2">
+          <span className="font-semibold text-blue-900">Categoría:</span>
+          <span className="text-blue-800">{pago.categoria}</span>
+        </div>
       </div>
+    </div>
 
-      {/* Fila 5: Creado y Capturado */}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="flex items-center justify-between">
-          <span className="font-medium text-blue-900">Creado:</span>
-          <p className="text-blue-800">{fechaHora(pago.creadoISO)}</p>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="font-medium text-blue-900">Capturado:</span>
-          <p className="text-blue-800">{fechaHora(pago.capturadoISO)}</p>
-        </div>
-      </div>
-
-      {/* Fila 6: Descripción y Categoría */}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="flex items-center justify-between">
-          <span className="font-medium text-blue-900">Descripción:</span>
-          <p className="text-blue-800">{pago.descripcion}</p>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="font-medium text-blue-900">Categoría:</span>
-          <p className="text-blue-800">{pago.categoria}</p>
-        </div>
-      </div>
+    {/* Total - Ocupa toda la fila */}
+    <div className="mt-4 flex justify-between items-center bg-blue-200/50 border-2 border-blue-300 rounded-xl px-4 py-3">
+      <span className="font-bold text-lg text-blue-900">Total:</span>
+      <span className="text-blue-900 font-bold text-xl">{totales.tot}</span>
     </div>
   </div>
 </div>
