@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-
 const money = (n, curr = 'ARS', locale = 'es-AR') =>
   new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(Number(n || 0));
 
@@ -18,7 +17,6 @@ function Badge({ kind, children }) {
     .toLowerCase()
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '');
-  // Badge con color según tipo
   let badgeColor = 'bg-gray-200 text-gray-800';
   if (key.includes('aprobado') || key.includes('approved') || key.includes('capturado') || key.includes('completed')) badgeColor = 'bg-green-100 text-green-700';
   if (key.includes('rechazado') || key.includes('rejected') || key.includes('failed')) badgeColor = 'bg-red-100 text-red-700';
@@ -126,16 +124,6 @@ const highlightPairs = (payload, moneda) => {
   if (error) tryPush('Error', typeof error === 'string' ? error : JSON.stringify(error));
   return entries.slice(0, 3);
 };
-
-//const parseJsonSafe = async (res) => {
-//  const text = await res.text();
-//  if (!text) return null;
-//  try {
-//    return JSON.parse(text);
-//  } catch {
-//   return null;
-//  }
-//};
 
 const translatePayloadDeep = (payload) => {
   if (!payload || typeof payload !== 'object') return payload;
@@ -438,26 +426,6 @@ window.onload = function(){window.print();}
     return timeline.filter((e) => e.category === tlFilter);
   }, [timeline, tlFilter]);
 
-  //const isRejected = useMemo(
-  //  () => String(pago?.rawStatus || '').toUpperCase() === 'REJECTED',
-  //  [pago]
-  //);
-
-  //const goRetry = () => {
-  //  if (!pago) return;
-  //  navigate(`/pago/${pago.id}`, {
-  //    state: {
-  //      id: pago.id,
-  //      currency: pago.moneda,
-  //      subtotal: pago.subtotal,
-  //     taxesAndFees: pago.impuestos,
-  //      total: pago.total,
-  //      status: pago.rawStatus,
-  //    },
-  //  });
-  //};
-
-
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -478,148 +446,203 @@ window.onload = function(){window.print();}
   }
 
   return (
-  <div className="max-w-4xl mx-auto px-2 py-10">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex flex-col items-start mb-6">
-        <button className="text-xs border border-gray-300 rounded px-3 py-1 bg-white hover:bg-gray-100 transition mb-4" onClick={() => navigate('/pagos')}>← Volver</button>
-        <h1 className="text-3xl font-bold text-center w-full">Detalle de pago #{pago?.id ?? ''}</h1>
-        <p className="text-gray-400 text-center w-full mt-1">Resumen, datos fiscales y referencia, comprobantes y timeline.</p>
+      <div className="mb-8">
+        <button 
+          className="text-sm text-blue-600 hover:text-blue-800 mb-4 flex items-center" 
+          onClick={() => navigate('/pagos')}
+        >
+          ← Volver
+        </button>
+        <h1 className="text-3xl font-bold text-gray-900">Detalle de pago #{pago?.id ?? ''}</h1>
+        <p className="text-gray-600 mt-1">Resumen, datos fiscales y referencia, comprobantes y timeline.</p>
       </div>
 
       {/* Grid de tarjetas */}
-      <section className="flex flex-col gap-6 mb-10">
+      <div className="grid grid-cols-1 gap-6 mb-10">
         {/* Resumen */}
-        <article className="bg-white rounded-2xl border border-sky-200 p-0 overflow-hidden">
-          <header className="bg-white text-sky-600 font-semibold text-lg px-8 py-3 border-b border-sky-200">Resumen</header>
-          <div className="px-8 py-6">
-            <div className="grid grid-cols-2 md:grid-cols-2 gap-y-2 gap-x-8 text-base">
-              <div className="font-medium text-gray-700">Cliente</div><div className="text-gray-700">{pago.cliente}</div>
-              <div className="font-medium text-gray-700">Prestador</div><div className="text-gray-700">{pago.prestador}</div>
-              <div className="font-medium text-gray-700">Método</div><div><Badge kind={pago.metodo}>{pago.metodo}</Badge></div>
-              <div className="font-medium text-gray-700">Estado</div><div><Badge kind={pago.estado}>{pago.estado}</Badge></div>
-              <div className="font-medium text-gray-700">Subtotal</div><div>{totales.sub}</div>
-              <div className="font-medium text-gray-700">Impuestos</div><div>{totales.imp}</div>
-              <div className="font-medium text-gray-700">Total</div><div className="font-bold">{totales.tot}</div>
-              <div className="font-medium text-gray-700">Creado</div><div>{fechaHora(pago.creadoISO)}</div>
-              <div className="font-medium text-gray-700">Capturado</div><div>{fechaHora(pago.capturadoISO)}</div>
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Resumen</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
+              <div>
+                <span className="font-medium text-gray-700">Cliente</span>
+                <p className="text-gray-900">{pago.cliente}</p>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Método</span>
+                <p className="mt-1"><Badge kind={pago.metodo}>{pago.metodo}</Badge></p>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Subtotal</span>
+                <p className="text-gray-900">{totales.sub}</p>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Total</span>
+                <p className="text-gray-900 font-bold">{totales.tot}</p>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Creado</span>
+                <p className="text-gray-900">{fechaHora(pago.creadoISO)}</p>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <span className="font-medium text-gray-700">Prestador</span>
+                <p className="text-gray-900">{pago.prestador}</p>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Estado</span>
+                <p className="mt-1"><Badge kind={pago.estado}>{pago.estado}</Badge></p>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Impuestos</span>
+                <p className="text-gray-900">{totales.imp}</p>
+              </div>
+              <div className="h-6"></div> {/* Espaciador */}
+              <div>
+                <span className="font-medium text-gray-700">Capturado</span>
+                <p className="text-gray-900">{fechaHora(pago.capturadoISO)}</p>
+              </div>
             </div>
           </div>
-        </article>
+        </div>
 
         {/* Datos fiscales y referencia */}
-        <article className="bg-white rounded-2xl border border-sky-200 p-0 overflow-hidden">
-          <header className="bg-white text-sky-600 font-semibold text-lg px-8 py-3 border-b border-sky-200">Datos fiscales y referencia</header>
-          <div className="px-8 py-6">
-            <div className="grid grid-cols-2 md:grid-cols-2 gap-y-2 gap-x-8 text-base">
-              <div className="font-medium text-gray-700">Moneda</div><div>{pago.moneda}</div>
-              <div className="font-medium text-gray-700">Fees</div><div>{money(pago.fees, pago.moneda)}</div>
-              <div className="font-medium text-gray-700">Descripción</div><div>{pago.descripcion}</div>
-              <div className="font-medium text-gray-700">Categoría</div><div>{pago.categoria}</div>
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Datos fiscales y referencia</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
+              <div>
+                <span className="font-medium text-gray-700">Moneda</span>
+                <p className="text-gray-900">{pago.moneda}</p>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Descripción</span>
+                <p className="text-gray-900">{pago.descripcion}</p>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <span className="font-medium text-gray-700">Fees</span>
+                <p className="text-gray-900">{money(pago.fees, pago.moneda)}</p>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Categoría</span>
+                <p className="text-gray-900">{pago.categoria}</p>
+              </div>
             </div>
           </div>
-        </article>
+        </div>
 
         {/* Comprobantes */}
-        <article className="bg-white rounded-2xl border border-sky-200 p-0 overflow-hidden">
-          <header className="bg-white text-sky-600 font-semibold text-lg px-8 py-3 border-b border-sky-200">Comprobantes</header>
-          <div className="px-8 py-6 flex flex-col items-center">
-            <p className="text-gray-500 text-sm mb-3">Se genera un comprobante de pago no fiscal con los datos reales.</p>
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Comprobantes</h2>
+          <div className="text-center">
+            <p className="text-gray-600 text-sm mb-4">Se genera un comprobante de pago no fiscal con los datos reales.</p>
             {puedeDescargarComprobante ? (
-              <button className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 rounded px-4 py-2 font-semibold transition shadow border border-yellow-300" onClick={descargarComprobante}>
+              <button 
+                className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-6 rounded-lg transition-colors"
+                onClick={descargarComprobante}
+              >
                 Descargar Factura
               </button>
             ) : (
-              <p className="text-gray-400 text-xs">No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}</p>
+              <p className="text-gray-500 text-sm">No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}</p>
             )}
-            {pago.rawStatus === 'REJECTED' && !isMerchant &&  (
+            {pago.rawStatus === 'REJECTED' && !isMerchant && (
               <button
-                className="mt-2 bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2 font-semibold transition"
+                className="mt-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
                 onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
               >
                 Reintentar pago
               </button>
             )}
           </div>
-        </article>
-      </section>
+        </div>
+      </div>
 
       {/* Timeline */}
-      <section className="bg-white rounded-2xl border border-sky-200 p-0 overflow-hidden">
-        <header className="bg-white text-sky-600 font-semibold text-lg px-8 py-3 border-b border-sky-200">Timeline</header>
-        <div className="px-8 py-6">
-          {tlErr && <p className="text-red-500 text-sm">{tlErr}</p>}
-          {!tlErr && filteredTimeline.length === 0 && (
-            <p className="text-gray-400 text-sm">No hay eventos para el filtro seleccionado.</p>
-          )}
-          {!tlErr && filteredTimeline.length > 0 && (
-            <ul className="flex flex-col gap-6">
-              {filteredTimeline.map((ev, i) => {
-                const cat = ev.category;
-                const open = !!expanded[ev.id];
-                const hl = highlightPairs(ev.payload, pago.moneda);
-                // Color de borde según categoría
-                let borderColor = 'border-gray-200';
-                if (cat === 'refund') borderColor = 'border-blue-300';
-                if (cat === 'error') borderColor = 'border-red-300';
-                if (cat === 'state') borderColor = 'border-green-300';
-                return (
-                  <li key={ev.id} className={`relative bg-gray-50 rounded-lg p-4 border-l-4 ${borderColor} shadow-sm`}> 
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-700">{mapEventType(ev.type)}{ev._count ? ` ×${ev._count}` : ''}</span>
-                        <span className="text-xs text-gray-400">{fechaHora(ev.createdISO)}</span>
-                      </div>
-                      {!open && (
-                        <button
-                          className="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded px-4 py-1 text-xs font-semibold transition border border-gray-300"
-                          onClick={() => setExpanded((x) => ({ ...x, [ev.id]: true }))}
-                        >
-                          Ver más
-                        </button>
-                      )}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Timeline</h2>
+        {tlErr && <p className="text-red-500 text-sm mb-4">{tlErr}</p>}
+        {!tlErr && filteredTimeline.length === 0 && (
+          <p className="text-gray-400 text-sm">No hay eventos para el filtro seleccionado.</p>
+        )}
+        {!tlErr && filteredTimeline.length > 0 && (
+          <div className="space-y-4">
+            {filteredTimeline.map((ev, i) => {
+              const cat = ev.category;
+              const open = !!expanded[ev.id];
+              const hl = highlightPairs(ev.payload, pago.moneda);
+              
+              let borderColor = 'border-gray-300';
+              if (cat === 'refund') borderColor = 'border-blue-400';
+              if (cat === 'error') borderColor = 'border-red-400';
+              if (cat === 'state') borderColor = 'border-green-400';
+              
+              return (
+                <div key={ev.id} className={`border-l-4 ${borderColor} pl-4 py-2`}>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <span className="font-semibold text-gray-800">{mapEventType(ev.type)}</span>
+                      <span className="text-xs text-gray-500 ml-2">{fechaHora(ev.createdISO)}</span>
                     </div>
-
-                    {open && (
-                      <div className="mt-3 bg-white rounded shadow-inner p-4 border border-gray-200">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-                          <div className="font-semibold text-gray-700">{mapEventType(ev.type)}{ev._count ? ` ×${ev._count}` : ''}</div>
-                          <div className="text-xs text-gray-400">{fechaHora(ev.createdISO)}</div>
-                        </div>
-                        <div className="text-xs text-gray-500 mb-2">Actor: {ev.actor} · Origen: {ev.source}</div>
-
-                        {hl.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mb-2">
-                            {hl.map(([k, v]) => (
-                              <div key={k} className="inline-flex items-center bg-blue-100 text-blue-800 rounded px-2 py-0.5 text-xs font-medium">
-                                <span className="mr-1 font-semibold">{k}:</span> {v}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {ev.payload && typeof ev.payload === 'object' && (
-                          <div className="bg-gray-100 rounded p-2 overflow-x-auto text-xs mb-2">
-                            <pre className="whitespace-pre-wrap break-all">{JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}</pre>
-                          </div>
-                        )}
-
-                        <div className="flex justify-end">
-                          <button
-                            className="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded px-4 py-1 text-xs font-semibold transition border border-gray-300"
-                            onClick={() => setExpanded((x) => ({ ...x, [ev.id]: false }))}
-                          >
-                            Ver menos
-                          </button>
-                        </div>
-                      </div>
+                    {!open && (
+                      <button
+                        className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                        onClick={() => setExpanded((x) => ({ ...x, [ev.id]: true }))}
+                      >
+                        Ver más
+                      </button>
                     )}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-      </section>
+                  </div>
+
+                  {open && (
+                    <div className="mt-3 bg-gray-50 rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-semibold text-gray-800">{mapEventType(ev.type)}</span>
+                        <span className="text-xs text-gray-500">{fechaHora(ev.createdISO)}</span>
+                      </div>
+                      <div className="text-xs text-gray-600 mb-3">
+                        Actor: {ev.actor} · Origen: {ev.source}
+                      </div>
+
+                      {hl.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {hl.map(([k, v]) => (
+                            <div key={k} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                              <span className="font-semibold">{k}:</span> {v}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {ev.payload && typeof ev.payload === 'object' && (
+                        <div className="bg-white rounded p-3 overflow-x-auto text-xs mb-3 border">
+                          <pre className="whitespace-pre-wrap break-all">
+                            {JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}
+                          </pre>
+                        </div>
+                      )}
+
+                      <div className="text-right">
+                        <button
+                          className="text-xs text-gray-600 hover:text-gray-800 font-medium"
+                          onClick={() => setExpanded((x) => ({ ...x, [ev.id]: false }))}
+                        >
+                          Ver menos
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
