@@ -128,13 +128,26 @@ body {
 .pd-timeline--horizontal {
   overflow-x: auto;
   padding-bottom: 12px;
+  position: relative;
 }
 .pd-time-horizontal-list {
   display: flex;
   flex-direction: row;
   gap: 18px;
-  padding: 18px 0 6px 0;
+  padding: 48px 0 6px 0; /* Aumenté el padding-top para dar espacio a la línea */
   min-height: 180px;
+  position: relative;
+}
+/* Línea gris continua */
+.pd-time-horizontal-list::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 32px; /* Misma posición que los círculos */
+  height: 2px;
+  background: var(--line);
+  z-index: 1;
 }
 .pd-time-horizontal-item {
   min-width: 320px;
@@ -147,7 +160,39 @@ body {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  position: relative;
+  z-index: 2; /* Tarjetas sobre la línea */
 }
+/* Círculos sobre la línea */
+.pd-time-horizontal-item::before {
+  content: '';
+  position: absolute;
+  top: -24px; /* Posicionado arriba de la tarjeta */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+  background: var(--info-700);
+  z-index: 3; /* Círculos sobre la línea */
+}
+
+/* Estados de los círculos (opcional - puedes agregar estas clases a los items) */
+.pd-time-horizontal-item.pd-time-state::before {
+  background: #16a34a;
+}
+.pd-time-horizontal-item.pd-time-error::before {
+  background: #dc2626;
+}
+.pd-time-horizontal-item.pd-time-refund::before {
+  background: #2c7bbd;
+}
+.pd-time-horizontal-item.pd-time-info::before {
+  background: #6b7280;
+}
+
 .pd-time-head-horizontal {
   display: flex;
   align-items: center;
@@ -156,6 +201,7 @@ body {
   margin-bottom: 8px;
 }
 
+/* El resto de tu CSS se mantiene igual */
 .pd-card {
   background: var(--panel);
   border: 1px solid var(--brand-blue);
