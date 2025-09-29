@@ -516,41 +516,77 @@ window.onload = function(){window.print();}
         </article>
       </section>
 
-      <section className="pd-timeline pd-timeline--alt pd-timeline--horizontal">
-        <div className="pd-tl-head">
-          <header className="pd-card-h">Timeline</header>
-          <div className="pd-tl-filters"></div>
-        </div>
+      <section className="pd-timeline pd-timeline--horizontal">
+  <div className="pd-tl-head">
+    <header className="pd-card-h">Timeline</header>
+    <div className="pd-tl-filters"></div>
+  </div>
 
-        {tlErr && <p className="pd-muted">{tlErr}</p>}
-        {!tlErr && filteredTimeline.length === 0 && (
-          <p className="pd-muted">No hay eventos para el filtro seleccionado.</p>
-        )}
+  {tlErr && <p className="pd-muted">{tlErr}</p>}
+  {!tlErr && filteredTimeline.length === 0 && (
+    <p className="pd-muted">No hay eventos para el filtro seleccionado.</p>
+  )}
 
-        {!tlErr && filteredTimeline.length > 0 && (
-          <ul className="pd-time-alt pd-time-alt--horizontal">
-            {filteredTimeline.map((ev, i) => {
-              const cat = ev.category;
-              return (
-                <li key={ev.id} className={`pd-time-alt-item pd-time-${cat}`} style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                  <div className="pd-time-head">
-                    <button
-                      className="pd-dot-label"
-                      data-tip={fechaHora(ev.createdISO)}
-                      type="button"
-                    >
-                      <span className="pd-evt-title">
-                        {mapEventType(ev.type)}
-                        {ev._count ? ` ×${ev._count}` : ''}
-                      </span>
-                    </button>
+  {!tlErr && filteredTimeline.length > 0 && (
+    <ul className="pd-time-horizontal-list">
+      {filteredTimeline.map((ev, i) => {
+        const cat = ev.category;
+        const highlights = highlightPairs(ev.payload, pago?.moneda);
+        
+        return (
+          <li key={ev.id} className={`pd-time-horizontal-item pd-time-${cat}`}>
+            {/* Los círculos ya están en el CSS via ::before */}
+            
+            {/* Contenido de la tarjeta */}
+            <div className="pd-time-head-horizontal">
+              <h3 className="pd-time-title">{mapEventType(ev.type)}</h3>
+              <Badge kind={cat}>{cat}</Badge>
+            </div>
+            
+            <div className="pd-time-meta">
+              {fechaHora(ev.createdISO)}
+            </div>
+            
+            <div className="pd-time-meta">
+              Por: {ev.actor || 'Sistema'} • Fuente: {ev.source}
+            </div>
+            
+            {highlights.length > 0 && (
+              <div className="pd-tl-highlights">
+                {highlights.map(([k, v], j) => (
+                  <div key={j} className="pd-chip-kv">
+                    <span className="pd-chip-k">{k}</span>
+                    <span className="pd-chip-v">{v}</span>
                   </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
+                ))}
+              </div>
+            )}
+            
+            {ev.payload && (
+              <div className="pd-tl-actions">
+                <button
+                  className="pd-btn pd-btn--ghost pd-btn--chip"
+                  onClick={() => setExpanded(prev => ({
+                    ...prev,
+                    [ev.id]: !prev[ev.id]
+                  }))}
+                >
+                  {expanded[ev.id] ? 'Ocultar' : 'Ver'} detalles
+                </button>
+              </div>
+            )}
+            
+            {expanded[ev.id] && ev.payload && (
+              <pre className="pd-pre">
+                {JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}
+              </pre>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  )}
+</section>
     </div>
   );
 }
