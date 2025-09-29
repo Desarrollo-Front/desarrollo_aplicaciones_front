@@ -141,6 +141,22 @@ body {
   min-height: 180px;
   position: relative;
 }
+
+/* Círculos sobre la línea */
+.pd-time-horizontal-item::before {
+  content: '';
+  position: absolute;
+  top: 32px; /* Posicionado arriba de la tarjeta */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+  background: var(--info-700);
+  z-index: 3; /* Círculos sobre la línea */
+}
 /* Línea gris continua */
 .pd-time-horizontal-list::before {
   content: '';
@@ -166,21 +182,8 @@ body {
   position: relative;
   z-index: 2; /* Tarjetas sobre la línea */
 }
-/* Círculos sobre la línea */
-.pd-time-horizontal-item::before {
-  content: '';
-  position: absolute;
-  top: -24px; /* Posicionado arriba de la tarjeta */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 3px solid #fff;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
-  background: var(--info-700);
-  z-index: 3; /* Círculos sobre la línea */
-}
+
+
 
 /* Estados de los círculos (opcional - puedes agregar estas clases a los items) */
 .pd-time-horizontal-item.pd-time-state::before {
