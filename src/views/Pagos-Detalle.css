@@ -1,3 +1,27 @@
+/* Layout resumen con totales fijos a la derecha */
+.pd-resumen-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 32px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+.pd-resumen-main {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+.pd-resumen-totales-fixed {
+  width: 260px;
+  flex-shrink: 0;
+  position: relative;
+  top: 0;
+}
+.pd-resumen-totales {
+  /* ya tiene estilos, pero aquí puedes reforzar el ancho si quieres */
+  width: 100%;
+  box-sizing: border-box;
+}
 /* Círculo de la timeline horizontal, fuera del botón */
 .pd-timeline-dot {
   position: absolute;
