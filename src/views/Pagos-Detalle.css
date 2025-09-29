@@ -137,7 +137,7 @@ body {
   display: flex;
   flex-direction: row;
   gap: 18px;
-  padding: 48px 0 6px 0; /* Aumenté el padding-top para dar espacio a la línea */
+  padding: 48px 0 6px 0;
   min-height: 180px;
   position: relative;
 }
@@ -147,7 +147,7 @@ body {
   position: absolute;
   left: 0;
   right: 0;
-  top: 32px; /* Misma posición que los círculos */
+  top: 40px; /* Cambié de 32px a 40px para que coincida con los círculos */
   height: 2px;
   background: var(--line);
   z-index: 1;
@@ -164,13 +164,13 @@ body {
   flex-direction: column;
   align-items: stretch;
   position: relative;
-  z-index: 2; /* Tarjetas sobre la línea */
+  z-index: 2;
 }
-/* Círculos sobre la línea */
+/* Círculos sobre la línea - CORREGIDO */
 .pd-time-horizontal-item::before {
   content: '';
   position: absolute;
-  top: -24px; /* Posicionado arriba de la tarjeta */
+  top: 32px; /* 40px (línea) - 8px (mitad de 16px) = 32px */
   left: 50%;
   transform: translateX(-50%);
   width: 16px;
@@ -179,259 +179,8 @@ body {
   border: 3px solid #fff;
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
   background: var(--info-700);
-  z-index: 3; /* Círculos sobre la línea */
+  z-index: 3; /* Aumenté el z-index */
 }
-
-/* Estados de los círculos (opcional - puedes agregar estas clases a los items) */
-.pd-time-horizontal-item.pd-time-state::before {
-  background: #16a34a;
-}
-.pd-time-horizontal-item.pd-time-error::before {
-  background: #dc2626;
-}
-.pd-time-horizontal-item.pd-time-refund::before {
-  background: #2c7bbd;
-}
-.pd-time-horizontal-item.pd-time-info::before {
-  background: #6b7280;
-}
-
-.pd-time-head-horizontal {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-/* El resto de tu CSS se mantiene igual */
-.pd-card {
-  background: var(--panel);
-  border: 1px solid var(--brand-blue);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-lg);
-  padding: 14px;
-}
-.pd-card-h {
-  font-weight: 700;
-  margin: 0 0 15px;
-  color: var(--brand-blue-dark);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  font-size: 18px;
-  text-align: center;
-}
-.pd-card-h--left {
-  justify-content: flex-start;
-  text-align: left;
-}
-
-.pd-kv {
-  display: block;
-}
-.pd-kv > div {
-  display: grid;
-  grid-template-columns: 170px 1fr;
-  gap: 8px;
-  align-items: center;
-  padding: 8px 0;
-  border: none;
-  background: transparent;
-}
-.pd-kv b {
-  font-weight: 700;
-  color: #111;
-}
-.pd-kv > div span {
-  color: var(--muted);
-}
-
-.pd-total {
-  display: grid;
-  grid-template-columns: 170px 1fr;
-  gap: 8px;
-  align-items: center;
-  padding: 10px 12px;
-  margin: 6px 0;
-  background: #fff8db;
-  border: 1px dashed #f2e3a4;
-  border-radius: 10px;
-}
-.pd-total b {
-  font-size: 16px;
-  color: #111;
-}
-.pd-total span {
-  color: #111;
-}
-
-.pd-actions {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 16px;
-  margin-top: 8px;
-}
-.pd-muted {
-  color: var(--muted);
-  margin: 0;
-}
-
-.pd-tbl {
-  width: 100%;
-  border-collapse: collapse;
-}
-.pd-tbl th,
-.pd-tbl td {
-  padding: 10px;
-  border-bottom: 1px solid var(--line);
-  text-align: left;
-  color: #000;
-}
-.pd-empty {
-  text-align: center;
-  color: var(--muted);
-  padding: 20px 10px;
-}
-
-.pd-btn {
-  height: 34px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  padding: 0 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  background: #fff;
-  transition: 0.15s;
-  font-size: 13px;
-  color: var(--text);
-}
-.pd-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-.pd-btn--pri {
-  border: 1px solid var(--brand-yellow);
-  background: var(--brand-yellow);
-  color: #000;
-}
-.pd-btn--pri:hover {
-  filter: brightness(0.95);
-}
-.pd-btn--ghost {
-  background: transparent;
-  border: 1px solid var(--line);
-  color: var(--text);
-}
-.pd-btn--chip {
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 999px;
-}
-
-.pd-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-}
-.pd-badge--aprobado {
-  background: var(--success-50);
-  color: var(--success-700);
-}
-.pd-badge--pendiente,
-.pd-badge--pendiente-de-pago,
-.pd-badge--pendiente-de-aprobacion {
-  background: #fff8db;
-  color: #b08900;
-}
-.pd-badge--rechazado {
-  background: var(--danger-50);
-  color: var(--danger-700);
-}
-.pd-badge--expirado {
-  background: #eef0f3;
-  color: #374151;
-}
-.pd-badge--reembolsado {
-  background: #e6f4fb;
-  color: #2c7bbd;
-}
-.pd-badge--disputa {
-  background: #e9e7ff;
-  color: #4b49a0;
-}
-.pd-badge--credito {
-  background: #e2e6ff;
-  color: #1a237e;
-}
-.pd-badge--debito {
-  background: #e0f7fa;
-  color: #006064;
-}
-.pd-badge--mercado-pago {
-  background: #e6f4fb;
-  color: #2c7bbd;
-}
-.pd-badge--efectivo {
-  background: #e8f5e9;
-  color: #1b5e20;
-}
-
-.pd-timeline {
-  margin-top: 12px;
-  background: var(--panel);
-  border: 1px solid var(--brand-blue);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-lg);
-  padding: 14px;
-}
-.pd-tl-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: inherit;
-}
-.pd-tl-filters {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-.pd-select {
-  height: 34px;
-}
-
-.pd-head {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  margin-bottom: 8px;
-}
-.pd-head-center {
-  justify-self: center;
-  text-align: center;
-}
-.pd-head-spacer {
-  height: 1px;
-}
-.pd-back {
-  justify-self: start;
-}
-
-.pd-comprobante {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-}
-
 /* ===== TIMELINE ALTERNADO ===== */
 
 /* Timeline alternada horizontal */
