@@ -477,7 +477,7 @@ window.onload = function(){window.print();}
         <div className="pd-head-center">
           <h1 className="pd-title">Detalle de pago #{pago?.id ?? ''}</h1>
           <p className="pd-sub">
-            Resumen, datos fiscales y referencia, comprobantes y timeline.
+            Resumen y timeline.
           </p>
         </div>
         <div className="pd-head-spacer"></div>
@@ -527,20 +527,6 @@ window.onload = function(){window.print();}
               <b>Capturado</b>
               <span>{fechaHora(pago.capturadoISO)}</span>
             </div>
-          </div>
-        </article>
-
-        <article className="pd-card">
-          <header className="pd-card-h">Datos fiscales y referencia</header>
-          <div className="pd-kv">
-            <div>
-              <b>Moneda</b>
-              <span>{pago.moneda}</span>
-            </div>
-            <div>
-              <b>Fees</b>
-              <span>{money(pago.fees, pago.moneda)}</span>
-            </div>
             <div>
               <b>Descripción</b>
               <span>{pago.descripcion}</span>
@@ -552,33 +538,7 @@ window.onload = function(){window.print();}
           </div>
         </article>
 
-        <article className="pd-card">
-          <header className="pd-card-h">Comprobantes</header>
-          {puedeDescargarComprobante ? (
-            <div className="pd-comprobante">
-              <p className="pd-muted">
-                Se genera un comprobante de pago no fiscal con los datos reales.
-              </p>
-              <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
-                Descargar Factura
-              </button>
-            </div>
-          ) : (
-            <div className="pd-comprobante">
-              <p className="pd-muted">
-                No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
-              </p>
-              {pago.rawStatus === 'REJECTED' && !isMerchant &&  (
-                <button
-                  className="pd-btn pd-btn--pri"
-                  onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
-                >
-                  Reintentar pago
-                </button>
-              )}
-            </div>
-          )}
-        </article>
+        
       </section>
 
       <section className="pd-timeline pd-timeline--alt">
