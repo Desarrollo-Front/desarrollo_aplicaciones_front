@@ -122,6 +122,7 @@ body {
 
 .pd-card {
   width: 100%;
+  box-sizing: border-box;
 }
 
 /* Timeline horizontal */
@@ -444,7 +445,7 @@ body {
   align-items: flex-start;
   position: relative;
   margin: 0;
-  padding: 48px 0 0 0;
+  padding: 40px 0 0 0; /* padding-top igual a la línea */
   list-style: none;
   gap: 0;
   width: 100%;
@@ -456,7 +457,7 @@ body {
   position: absolute;
   left: 0;
   right: 0;
-  top: 40px; /* Ajuste para que la línea pase por el centro de los círculos */
+  top: 40px; /* Línea a 40px del top */
   height: 2px;
   background: var(--line);
   z-index: 1;
@@ -481,7 +482,7 @@ body {
   /* El centro del círculo debe coincidir con top: 40px (línea) => top: 40px - 8px (radio) = 32px */
   top: 32px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(0);
   width: 16px;
   height: 16px;
   border-radius: 50%;
