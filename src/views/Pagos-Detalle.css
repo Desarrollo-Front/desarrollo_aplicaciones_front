@@ -508,33 +508,6 @@ body {
   border: none;
   text-align: center;
 }
-.pd-time-alt-item::before {
-  content: '';
-  position: absolute;
-  /* El centro del círculo debe coincidir con top: 40px (línea) => top: 40px - 8px (radio) = 32px */
-  top: 32px;
-  left: 50%;
-  transform: translateX(-50%) translateY(0);
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 3px solid #fff;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
-  background: var(--info-700);
-  z-index: 2;
-}
-.pd-time-state::before {
-  background: #16a34a;
-}
-.pd-time-error::before {
-  background: #dc2626;
-}
-.pd-time-refund::before {
-  background: #2c7bbd;
-}
-.pd-time-info::before {
-  background: #6b7280;
-}
 
 .pd-time-card {
   display: inline-block;
