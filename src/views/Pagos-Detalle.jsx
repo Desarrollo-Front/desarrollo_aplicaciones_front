@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './Pagos-Detalle.css';
-
+const API_URL = import.meta.env.VITE_API_URL;
 const money = (n, curr = 'ARS', locale = 'es-AR') =>
   new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(Number(n || 0));
 
@@ -205,10 +205,10 @@ export default function PagosDetalle() {
           `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
 
         const [resPago, resTl] = await Promise.all([
-          fetch(`/api/payments/${id}`, {
+          fetch(`${API_URL}/api/payments/${id}`, {
             headers: { 'Content-Type': 'application/json', Authorization: authHeader },
           }),
-          fetch(`/api/payments/${id}/timeline`, {
+          fetch(`${API_URL}/api/payments/${id}/timeline`, {
             headers: { 'Content-Type': 'application/json', Authorization: authHeader },
           }),
         ]);

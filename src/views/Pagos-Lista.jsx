@@ -141,7 +141,7 @@ export default function PagosLista() {
       window.removeEventListener('resize', onResize);
     };
   }, []);
-
+  const API_URL = import.meta.env.VITE_API_URL;
   useEffect(() => {
     const fetchPayments = async () => {
       setLoading(true);
@@ -151,7 +151,7 @@ export default function PagosLista() {
           localStorage.getItem('authHeader') ||
           `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
 
-        const res = await fetch('/api/payments/my-payments', {
+        const res = await fetch(`${API_URL}/api/payments/my-payments`, {
           headers: { 'Content-Type': 'application/json', Authorization: authHeader },
         });
 

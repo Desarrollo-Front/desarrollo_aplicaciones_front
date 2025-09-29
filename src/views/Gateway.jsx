@@ -5,6 +5,7 @@ import visaLogo from '../assets/logos/Visa.png';
 import mcLogo from '../assets/logos/mastercard.png';
 import amexLogo from '../assets/logos/amex.png';
 import mpLogo from '../assets/logos/mercadopago.png';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Gateway() {
   const { id } = useParams();
@@ -43,7 +44,8 @@ export default function Gateway() {
     const authHeader =
       localStorage.getItem('authHeader') ||
       `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
-    return fetch(`${path}`, {
+
+    return fetch(`${API_URL}${path}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: authHeader,
@@ -141,27 +143,26 @@ export default function Gateway() {
   };
 
   const ensurePendingBeforePurchase = async (paymentId) => {
-  const current = payment?.status ? payment : await loadPayment(paymentId);
-  if (String(current.status || '').toUpperCase() === 'REJECTED') {
-    const res = await api(`/api/payments/${paymentId}/retry-balance`, { method: 'POST' });
-    if (!res.ok) {
-      const serverMsg = res.headers.get('Error-Message');
-      const fallback = await fetchJsonOrText(res);
-      const msg = serverMsg || fallback || 'No hay saldo suficiente para reintentar el pago.';
-      throw new Error(msg);
+    const current = payment?.status ? payment : await loadPayment(paymentId);
+    if (String(current.status || '').toUpperCase() === 'REJECTED') {
+      const res = await api(`/api/payments/${paymentId}/retry-balance`, { method: 'POST' });
+      if (!res.ok) {
+        const serverMsg = res.headers.get('Error-Message');
+        const fallback = await fetchJsonOrText(res);
+        const msg = serverMsg || fallback || 'No hay saldo suficiente para reintentar el pago.';
+        throw new Error(msg);
+      }
+      const updated = await res.json();
+      setPayment(updated);
+      const s = String(updated.status || '').toUpperCase();
+      if (s !== 'PENDING_PAYMENT') {
+        mostrarAlerta('No pudimos reservar el saldo para este pago.', 'error');
+        throw new Error('Retry balance no dejó el pago en PENDING_PAYMENT');
+      }
+      return updated;
     }
-    const updated = await res.json();
-    setPayment(updated);
-    const s = String(updated.status || '').toUpperCase();
-    if (s !== 'PENDING_PAYMENT') {
-      mostrarAlerta('No pudimos reservar el saldo para este pago.', 'error');
-      throw new Error('Retry balance no dejó el pago en PENDING_PAYMENT');
-    }
-    return updated;
-  }
-  return current;
-};
-
+    return current;
+  };
 
   const comprar = async () => {
     if (!method) {
@@ -227,7 +228,6 @@ export default function Gateway() {
           <i className="ri-check-line" /> {okMsg}
         </div>
       )}
-     
 
       <section className="gx-grid">
         <aside className="gx-card">

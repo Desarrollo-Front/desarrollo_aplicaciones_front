@@ -9,6 +9,9 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
 
+  // 👇 Traemos la URL del back desde el .env
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const onChange = (e) => {
     const { name, value } = e.target;
     setForm((s) => ({ ...s, [name]: value }));
@@ -23,7 +26,8 @@ export default function Login() {
     }
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/login', {
+      // 👇 usamos la variable de entorno
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: form.email.trim(), password: form.password }),
@@ -35,6 +39,8 @@ export default function Login() {
       }
 
       const data = await res.json(); // { token, userId, email, name, role, type }
+
+      // Guardamos la sesión en localStorage
       localStorage.setItem('auth', JSON.stringify(data));
       localStorage.setItem('token', data.token);
       localStorage.setItem('tokenType', data.type);
@@ -83,7 +89,7 @@ export default function Login() {
             />
           </div>
 
-          {/* Password con ojo dentro del input */}
+          {/* Password con ojo */}
           <div className="pl-field">
             <label htmlFor="password">Contraseña</label>
             <div className="pass-wrapper">
@@ -106,47 +112,7 @@ export default function Login() {
                 aria-label={showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 title={showPass ? 'Ocultar' : 'Mostrar'}
               >
-                {showPass ? (
-                  /* ojo tachado */
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M3 3l18 18"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M1 12s4-7 11-7c2.4 0 4.5.7 6.2 1.7"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="none"
-                    />
-                    <path
-                      d="M23 13s-4 7-11 7c-2.1 0-4-.5-5.6-1.3"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="none"
-                    />
-                  </svg>
-                ) : (
-                  /* ojo abierto */
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="none"
-                    />
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="3"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="none"
-                    />
-                  </svg>
-                )}
+                {showPass ? '🙈' : '👁️'}
               </button>
             </div>
           </div>
