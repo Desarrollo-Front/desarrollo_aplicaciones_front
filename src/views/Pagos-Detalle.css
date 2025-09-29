@@ -17,13 +17,15 @@
 }
 
 .pd-resumen-info {
-  padding-left: 24px;
+  padding-left: 48px;
 }
 .pd-resumen-info b {
-  min-width: 90px;
+  min-width: 130px;
+  display: inline-block;
   color: #222;
   font-weight: 600;
   margin-right: 10px;
+  text-align: left;
 }
 .pd-resumen-info span {
   color: var(--muted);
