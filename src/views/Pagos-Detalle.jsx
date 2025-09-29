@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './Pagos-Detalle.css';
-import { CgWorkAlt, CgProfile, CgPullClear, CgFileDocument, CgEye, CgShoppingCart } from "react-icons/cg";
 
 const money = (n, curr = 'ARS', locale = 'es-AR') =>
   new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(Number(n || 0));
@@ -337,15 +336,9 @@ export default function PagosDetalle() {
     <div>
       <div style="font-size:22px;font-weight:700">Factura</div>
       <div style="font-size:12px;color:#666">No fiscal</div>
-              <div>
-                <b>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <CgShoppingCart style={{ fontSize: 18, marginRight: 4 }} />
-                    Método
-                  </span>
-                </b>
-                <span>{pago.metodo}</span>
-              </div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:12px;color:#666">ID de pago</div>
       <div style="font-size:16px;font-weight:700">#${pago.id}</div>
     </div>
   </div>
@@ -490,79 +483,38 @@ window.onload = function(){window.print();}
         <div className="pd-head-spacer"></div>
       </div>
 
-      <div style={{display: 'flex', flexDirection: 'row', alignItems: 'flex-start', width: '100%', gap: 32}}>
-        <section style={{flex: 1}}>
-          <article className="pd-card pd-card-resumen" style={{width: '100%'}}>
-            <header className="pd-card-h pd-card-h--left">Resumen</header>
+      <section style={{width: '100%'}}>
+        <article className="pd-card pd-card-resumen" style={{width: '100%'}}>
+          <header className="pd-card-h pd-card-h--left">Resumen</header>
+          <div className="pd-resumen-grid">
             <div className="pd-resumen-info">
-              <div>
-                <b>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <CgFileDocument style={{ fontSize: 18, marginRight: 4 }} />
-                    Descripción
-                  </span>
-                </b>
-                <span>{pago.descripcion}</span>
-              </div>
-              <div>
-                <b>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <CgPullClear style={{ fontSize: 18, marginRight: 4 }} />
-                    Categoría
-                  </span>
-                </b>
-                <span>{pago.categoria}</span>
-              </div>
-              <div>
-                <b>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <CgProfile style={{ fontSize: 18, marginRight: 4 }} />
-                    Cliente
-                  </span>
-                </b>
-                <span>{pago.cliente}</span>
-              </div>
-              <div>
-                <b>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <CgWorkAlt style={{ fontSize: 18, marginRight: 4 }} />
-                    Prestador
-                  </span>
-                </b>
-                <span>{pago.prestador}</span>
-              </div>
+              <div><b>Descripción</b><span>{pago.descripcion}</span></div>
+              <div><b>Categoría</b><span>{pago.categoria}</span></div>
+              <div><b>Cliente</b><span>{pago.cliente}</span></div>
+              <div><b>Prestador</b><span>{pago.prestador}</span></div>
               <div><b>Método</b><span><Badge kind={pago.metodo}>{pago.metodo}</Badge></span></div>
-              <div>
-                <b>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <CgEye style={{ fontSize: 18, marginRight: 4 }} />
-                    Estado
-                  </span>
-                </b>
-                <span><Badge kind={pago.estado}>{pago.estado}</Badge></span>
-              </div>
+              <div><b>Estado</b><span><Badge kind={pago.estado}>{pago.estado}</Badge></span></div>
               <div><b>Creado</b><span>{fechaHora(pago.creadoISO)}</span></div>
               <div><b>Capturado</b><span>{fechaHora(pago.capturadoISO)}</span></div>
+              
             </div>
-          </article>
-        </section>
-        <aside style={{width: 320, minWidth: 260, maxWidth: 360, position: 'sticky', top: 32, alignSelf: 'flex-start'}}>
-          <div className="pd-resumen-totales">
-            <div className="pd-resumen-tot-row">
-              <span className="pd-resumen-tot-label">Subtotal</span>
-              <span className="pd-resumen-tot-value">{totales.sub}</span>
-            </div>
-            <div className="pd-resumen-tot-row">
-              <span className="pd-resumen-tot-label">Impuestos</span>
-              <span className="pd-resumen-tot-value">{totales.imp}</span>
-            </div>
-            <div className="pd-resumen-tot-row pd-resumen-tot-row-total">
-              <span className="pd-resumen-tot-label">Total</span>
-              <span className="pd-resumen-tot-value pd-resumen-tot-main">{totales.tot}</span>
+            <div className="pd-resumen-totales">
+              <div className="pd-resumen-tot-row">
+                <span className="pd-resumen-tot-label">Subtotal</span>
+                <span className="pd-resumen-tot-value">{totales.sub}</span>
+              </div>
+              <div className="pd-resumen-tot-row">
+                <span className="pd-resumen-tot-label">Impuestos</span>
+                <span className="pd-resumen-tot-value">{totales.imp}</span>
+              </div>
+              <div className="pd-resumen-tot-row pd-resumen-tot-row-total">
+                <span className="pd-resumen-tot-label">Total</span>
+                <span className="pd-resumen-tot-value pd-resumen-tot-main">{totales.tot}</span>
+              </div>
             </div>
           </div>
-        </aside>
-      </div>
+        </article>
+      </section>
 
       <section className="pd-timeline pd-timeline--alt pd-timeline--horizontal">
         <div className="pd-tl-head">
