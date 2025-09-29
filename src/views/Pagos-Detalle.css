@@ -453,6 +453,7 @@ body {
   position: absolute;
   left: 0;
   right: 0;
+  /* La línea debe pasar por el centro de los círculos (círculo: 16px alto, top del círculo: 24px, centro: 24px + 8px = 32px) */
   top: 32px;
   height: 2px;
   background: var(--line);
@@ -475,9 +476,10 @@ body {
 .pd-time-alt-item::before {
   content: '';
   position: absolute;
+  /* El centro del círculo debe coincidir con top: 32px (línea) => top: 32px - 8px (radio) = 24px */
   top: 24px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   width: 16px;
   height: 16px;
   border-radius: 50%;

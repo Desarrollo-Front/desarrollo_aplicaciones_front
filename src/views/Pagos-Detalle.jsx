@@ -531,7 +531,6 @@ window.onload = function(){window.print();}
           <ul className="pd-time-alt pd-time-alt--horizontal">
             {filteredTimeline.map((ev, i) => {
               const cat = ev.category;
-              const hl = highlightPairs(ev.payload, pago.moneda);
               return (
                 <li key={ev.id} className={`pd-time-alt-item pd-time-${cat}`} style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                   <div className="pd-time-head">
@@ -545,35 +544,6 @@ window.onload = function(){window.print();}
                         {ev._count ? ` ×${ev._count}` : ''}
                       </span>
                     </button>
-                  </div>
-                  <div className="pd-time-card">
-                    <div className="pd-time-card-h">
-                      <div className="pd-time-title">
-                        {mapEventType(ev.type)}
-                        {ev._count ? ` ×${ev._count}` : ''}
-                      </div>
-                      <div className="pd-time-date">{fechaHora(ev.createdISO)}</div>
-                    </div>
-                    <div className="pd-time-meta">
-                      Actor: {ev.actor} · Origen: {ev.source}
-                    </div>
-                    {hl.length > 0 && (
-                      <div className="pd-tl-highlights">
-                        {hl.map(([k, v]) => (
-                          <div key={k} className="pd-chip-kv">
-                            <span className="pd-chip-k">{k}</span>
-                            <span className="pd-chip-v">{v}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {ev.payload && typeof ev.payload === 'object' && (
-                      <div className="pd-payload">
-                        <pre className="pd-pre">
-                          {JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}
-                        </pre>
-                      </div>
-                    )}
                   </div>
                 </li>
               );
