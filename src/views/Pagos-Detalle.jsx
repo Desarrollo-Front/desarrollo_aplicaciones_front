@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './Pagos-Detalle.css';
-import { CgWorkAlt } from "react-icons/cg";
+import { CgWorkAlt, CgProfile, CgPullClear, CgFileDocument, CgEye, CgShoppingCart } from "react-icons/cg";
 
 const money = (n, curr = 'ARS', locale = 'es-AR') =>
   new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(Number(n || 0));
@@ -337,9 +337,15 @@ export default function PagosDetalle() {
     <div>
       <div style="font-size:22px;font-weight:700">Factura</div>
       <div style="font-size:12px;color:#666">No fiscal</div>
-    </div>
-    <div style="text-align:right">
-      <div style="font-size:12px;color:#666">ID de pago</div>
+              <div>
+                <b>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <CgShoppingCart style={{ fontSize: 18, marginRight: 4 }} />
+                    Método
+                  </span>
+                </b>
+                <span>{pago.metodo}</span>
+              </div>
       <div style="font-size:16px;font-weight:700">#${pago.id}</div>
     </div>
   </div>
@@ -489,9 +495,33 @@ window.onload = function(){window.print();}
           <article className="pd-card pd-card-resumen" style={{width: '100%'}}>
             <header className="pd-card-h pd-card-h--left">Resumen</header>
             <div className="pd-resumen-info">
-              <div><b>Descripción</b><span>{pago.descripcion}</span></div>
-              <div><b>Categoría</b><span>{pago.categoria}</span></div>
-              <div><b>Cliente</b><span>{pago.cliente}</span></div>
+              <div>
+                <b>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <CgFileDocument style={{ fontSize: 18, marginRight: 4 }} />
+                    Descripción
+                  </span>
+                </b>
+                <span>{pago.descripcion}</span>
+              </div>
+              <div>
+                <b>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <CgPullClear style={{ fontSize: 18, marginRight: 4 }} />
+                    Categoría
+                  </span>
+                </b>
+                <span>{pago.categoria}</span>
+              </div>
+              <div>
+                <b>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <CgProfile style={{ fontSize: 18, marginRight: 4 }} />
+                    Cliente
+                  </span>
+                </b>
+                <span>{pago.cliente}</span>
+              </div>
               <div>
                 <b>
                   <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
@@ -502,7 +532,15 @@ window.onload = function(){window.print();}
                 <span>{pago.prestador}</span>
               </div>
               <div><b>Método</b><span><Badge kind={pago.metodo}>{pago.metodo}</Badge></span></div>
-              <div><b>Estado</b><span><Badge kind={pago.estado}>{pago.estado}</Badge></span></div>
+              <div>
+                <b>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <CgEye style={{ fontSize: 18, marginRight: 4 }} />
+                    Estado
+                  </span>
+                </b>
+                <span><Badge kind={pago.estado}>{pago.estado}</Badge></span>
+              </div>
               <div><b>Creado</b><span>{fechaHora(pago.creadoISO)}</span></div>
               <div><b>Capturado</b><span>{fechaHora(pago.capturadoISO)}</span></div>
             </div>
