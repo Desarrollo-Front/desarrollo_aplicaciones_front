@@ -338,25 +338,26 @@ body {
   margin: 0;
   padding: 48px 0 0 0;
   list-style: none;
-  overflow-x: auto;
   gap: 0;
+  width: 100%;
+  overflow-x: visible;
 }
 .pd-time-alt.pd-time-alt--horizontal::before {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
-  top: 34px;
+  top: 32px;
   height: 2px;
   background: var(--line);
   z-index: 1;
 }
 .pd-time-alt-item {
   position: relative;
-  min-width: 220px;
-  max-width: 340px;
-  flex: 1 0 220px;
-  padding: 0 28px;
+  min-width: 0;
+  max-width: 1fr;
+  flex: 1 1 0%;
+  padding: 0 12px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -368,7 +369,7 @@ body {
 .pd-time-alt-item::before {
   content: '';
   position: absolute;
-  top: 28px;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
   width: 16px;
