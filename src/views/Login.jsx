@@ -112,7 +112,41 @@ export default function Login() {
                 aria-label={showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 title={showPass ? 'Ocultar' : 'Mostrar'}
               >
-                {showPass ? '🙈' : '👁️'}
+                {showPass ? (
+                  // Ojo tachado
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    stroke="#3ba8e7"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M2 2l20 20" />
+                    <path d="M10.58 10.58a3.5 3.5 0 0 0 4.95 4.95" />
+                    <path d="M9.88 4.55a9.9 9.9 0 0 1 12.12 7.45 9.9 9.9 0 0 1-4.62 6.12" />
+                    <path d="M6.17 6.17A9.9 9.9 0 0 0 2 12a9.9 9.9 0 0 0 5.17 6.83" />
+                  </svg>
+                ) : (
+                  // Ojo abierto
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    stroke="#3ba8e7"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8S2 12 2 12z" />
+                  </svg>
+                )}
               </button>
             </div>
           </div>
