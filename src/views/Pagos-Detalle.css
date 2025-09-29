@@ -475,9 +475,9 @@ body {
 .pd-time-alt-item::before {
   content: '';
   position: absolute;
-  top: 16px;
+  top: 24px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   width: 16px;
   height: 16px;
   border-radius: 50%;

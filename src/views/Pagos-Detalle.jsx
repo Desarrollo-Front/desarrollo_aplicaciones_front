@@ -488,14 +488,15 @@ window.onload = function(){window.print();}
           <header className="pd-card-h pd-card-h--left">Resumen</header>
           <div className="pd-resumen-grid">
             <div className="pd-resumen-info">
+              <div><b>Descripción</b><span>{pago.descripcion}</span></div>
+              <div><b>Categoría</b><span>{pago.categoria}</span></div>
               <div><b>Cliente</b><span>{pago.cliente}</span></div>
               <div><b>Prestador</b><span>{pago.prestador}</span></div>
               <div><b>Método</b><span><Badge kind={pago.metodo}>{pago.metodo}</Badge></span></div>
               <div><b>Estado</b><span><Badge kind={pago.estado}>{pago.estado}</Badge></span></div>
               <div><b>Creado</b><span>{fechaHora(pago.creadoISO)}</span></div>
               <div><b>Capturado</b><span>{fechaHora(pago.capturadoISO)}</span></div>
-              <div><b>Descripción</b><span>{pago.descripcion}</span></div>
-              <div><b>Categoría</b><span>{pago.categoria}</span></div>
+              
             </div>
             <div className="pd-resumen-totales">
               <div className="pd-resumen-tot-row">
@@ -530,7 +531,6 @@ window.onload = function(){window.print();}
           <ul className="pd-time-alt pd-time-alt--horizontal">
             {filteredTimeline.map((ev, i) => {
               const cat = ev.category;
-              const open = !!expanded[ev.id];
               const hl = highlightPairs(ev.payload, pago.moneda);
               return (
                 <li key={ev.id} className={`pd-time-alt-item pd-time-${cat}`} style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
@@ -545,58 +545,36 @@ window.onload = function(){window.print();}
                         {ev._count ? ` ×${ev._count}` : ''}
                       </span>
                     </button>
-                    {!open && (
-                      <button
-                        className="pd-btn pd-btn--chip pd-more"
-                        onClick={() => setExpanded((x) => ({ ...x, [ev.id]: true }))}
-                      >
-                        Ver más
-                      </button>
+                  </div>
+                  <div className="pd-time-card">
+                    <div className="pd-time-card-h">
+                      <div className="pd-time-title">
+                        {mapEventType(ev.type)}
+                        {ev._count ? ` ×${ev._count}` : ''}
+                      </div>
+                      <div className="pd-time-date">{fechaHora(ev.createdISO)}</div>
+                    </div>
+                    <div className="pd-time-meta">
+                      Actor: {ev.actor} · Origen: {ev.source}
+                    </div>
+                    {hl.length > 0 && (
+                      <div className="pd-tl-highlights">
+                        {hl.map(([k, v]) => (
+                          <div key={k} className="pd-chip-kv">
+                            <span className="pd-chip-k">{k}</span>
+                            <span className="pd-chip-v">{v}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {ev.payload && typeof ev.payload === 'object' && (
+                      <div className="pd-payload">
+                        <pre className="pd-pre">
+                          {JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}
+                        </pre>
+                      </div>
                     )}
                   </div>
-
-                  {open && (
-                    <div className="pd-time-card">
-                      <div className="pd-time-card-h">
-                        <div className="pd-time-title">
-                          {mapEventType(ev.type)}
-                          {ev._count ? ` ×${ev._count}` : ''}
-                        </div>
-                        <div className="pd-time-date">{fechaHora(ev.createdISO)}</div>
-                      </div>
-                      <div className="pd-time-meta">
-                        Actor: {ev.actor} · Origen: {ev.source}
-                      </div>
-
-                      {hl.length > 0 && (
-                        <div className="pd-tl-highlights">
-                          {hl.map(([k, v]) => (
-                            <div key={k} className="pd-chip-kv">
-                              <span className="pd-chip-k">{k}</span>
-                              <span className="pd-chip-v">{v}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {ev.payload && typeof ev.payload === 'object' && (
-                        <div className="pd-payload">
-                          <pre className="pd-pre">
-                            {JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}
-                          </pre>
-                        </div>
-                      )}
-
-                      <div className="pd-tl-actions">
-                        <button
-                          className="pd-btn pd-btn--chip"
-                          onClick={() => setExpanded((x) => ({ ...x, [ev.id]: false }))}
-                        >
-                          Ver menos
-                        </button>
-                      </div>
-                    </div>
-                  )}
                 </li>
               );
             })}
