@@ -324,63 +324,61 @@ body {
 }
 
 /* ===== TIMELINE ALTERNADO ===== */
+
+/* Timeline alternada horizontal */
 .pd-timeline--alt {
   position: relative;
   padding: 14px;
 }
-.pd-time-alt {
+.pd-time-alt.pd-time-alt--horizontal {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
   position: relative;
   margin: 0;
-  padding: 24px 0;
+  padding: 48px 0 0 0;
   list-style: none;
+  overflow-x: auto;
+  gap: 0;
 }
-.pd-time-alt::before {
+.pd-time-alt.pd-time-alt--horizontal::before {
   content: '';
   position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 2px;
+  left: 0;
+  right: 0;
+  top: 34px;
+  height: 2px;
   background: var(--line);
-  transform: translateX(-50%);
+  z-index: 1;
 }
-
 .pd-time-alt-item {
   position: relative;
-  width: 50%;
-  padding: 12px 28px;
+  min-width: 220px;
+  max-width: 340px;
+  flex: 1 0 220px;
+  padding: 0 28px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border: none;
+  text-align: center;
 }
-.pd-time-alt-item.pd-left {
-  left: 0;
-  text-align: right;
-}
-.pd-time-alt-item.pd-right {
-  left: 50%;
-  text-align: left;
-}
-
 .pd-time-alt-item::before {
   content: '';
   position: absolute;
   top: 28px;
-  width: 12px;
-  height: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   border: 3px solid #fff;
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
   background: var(--info-700);
   z-index: 2;
 }
-.pd-time-alt-item.pd-left::before {
-  right: -6px;
-  left: auto;
-}
-.pd-time-alt-item.pd-right::before {
-  left: -6px;
-  right: auto;
-}
-
 .pd-time-state::before {
   background: #16a34a;
 }

@@ -539,7 +539,7 @@ window.onload = function(){window.print();}
         </article>
       </section>
 
-      <section className="pd-timeline pd-timeline--horizontal">
+      <section className="pd-timeline pd-timeline--alt pd-timeline--horizontal">
         <div className="pd-tl-head">
           <header className="pd-card-h">Timeline</header>
           <div className="pd-tl-filters"></div>
@@ -551,14 +551,14 @@ window.onload = function(){window.print();}
         )}
 
         {!tlErr && filteredTimeline.length > 0 && (
-          <div className="pd-time-horizontal-list">
+          <ul className="pd-time-alt pd-time-alt--horizontal">
             {filteredTimeline.map((ev, i) => {
               const cat = ev.category;
               const open = !!expanded[ev.id];
               const hl = highlightPairs(ev.payload, pago.moneda);
               return (
-                <div key={ev.id} className={`pd-time-horizontal-item pd-time-${cat}`}>
-                  <div className="pd-time-head-horizontal">
+                <li key={ev.id} className={`pd-time-alt-item pd-time-${cat}`} style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                  <div className="pd-time-head">
                     <button
                       className="pd-dot-label"
                       data-tip={fechaHora(ev.createdISO)}
@@ -621,10 +621,10 @@ window.onload = function(){window.print();}
                       </div>
                     </div>
                   )}
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ul>
         )}
       </section>
     </div>
