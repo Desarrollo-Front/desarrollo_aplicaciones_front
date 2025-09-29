@@ -57,11 +57,43 @@ body {
   margin: 0 0 12px;
 }
 
-.pd-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 14px;
+
+/* La card resumen ocupa todo el ancho */
+
+.pd-card {
+  width: 100%;
+}
+
+/* Timeline horizontal */
+.pd-timeline--horizontal {
+  overflow-x: auto;
+  padding-bottom: 12px;
+}
+.pd-time-horizontal-list {
+  display: flex;
+  flex-direction: row;
+  gap: 18px;
+  padding: 18px 0 6px 0;
+  min-height: 180px;
+}
+.pd-time-horizontal-item {
+  min-width: 320px;
+  max-width: 400px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.pd-time-head-horizontal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .pd-card {

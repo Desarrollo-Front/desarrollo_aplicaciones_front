@@ -483,8 +483,8 @@ window.onload = function(){window.print();}
         <div className="pd-head-spacer"></div>
       </div>
 
-      <section className="pd-grid">
-        <article className="pd-card">
+      <section style={{width: '100%'}}>
+        <article className="pd-card" style={{width: '100%'}}>
           <header className="pd-card-h">Resumen</header>
           <div className="pd-kv">
             <div>
@@ -537,11 +537,9 @@ window.onload = function(){window.print();}
             </div>
           </div>
         </article>
-
-        
       </section>
 
-      <section className="pd-timeline pd-timeline--alt">
+      <section className="pd-timeline pd-timeline--horizontal">
         <div className="pd-tl-head">
           <header className="pd-card-h">Timeline</header>
           <div className="pd-tl-filters"></div>
@@ -553,15 +551,14 @@ window.onload = function(){window.print();}
         )}
 
         {!tlErr && filteredTimeline.length > 0 && (
-          <ul className="pd-time-alt">
+          <div className="pd-time-horizontal-list">
             {filteredTimeline.map((ev, i) => {
-              const side = i % 2 === 0 ? 'pd-left' : 'pd-right';
               const cat = ev.category;
               const open = !!expanded[ev.id];
               const hl = highlightPairs(ev.payload, pago.moneda);
               return (
-                <li key={ev.id} className={`pd-time-alt-item ${side} pd-time-${cat}`}>
-                  <div className="pd-time-head">
+                <div key={ev.id} className={`pd-time-horizontal-item pd-time-${cat}`}>
+                  <div className="pd-time-head-horizontal">
                     <button
                       className="pd-dot-label"
                       data-tip={fechaHora(ev.createdISO)}
@@ -624,10 +621,10 @@ window.onload = function(){window.print();}
                       </div>
                     </div>
                   )}
-                </li>
+                </div>
               );
             })}
-          </ul>
+          </div>
         )}
       </section>
     </div>
