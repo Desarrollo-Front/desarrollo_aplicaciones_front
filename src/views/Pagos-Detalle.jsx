@@ -483,10 +483,10 @@ window.onload = function(){window.print();}
         <div className="pd-head-spacer"></div>
       </div>
 
-      <section style={{width: '100%'}}>
-        <article className="pd-card pd-card-resumen" style={{width: '100%'}}>
-          <header className="pd-card-h pd-card-h--left">Resumen</header>
-          <div className="pd-resumen-grid">
+      <div style={{display: 'flex', flexDirection: 'row', alignItems: 'flex-start', width: '100%', gap: 32}}>
+        <section style={{flex: 1}}>
+          <article className="pd-card pd-card-resumen" style={{width: '100%'}}>
+            <header className="pd-card-h pd-card-h--left">Resumen</header>
             <div className="pd-resumen-info">
               <div><b>Descripción</b><span>{pago.descripcion}</span></div>
               <div><b>Categoría</b><span>{pago.categoria}</span></div>
@@ -496,25 +496,26 @@ window.onload = function(){window.print();}
               <div><b>Estado</b><span><Badge kind={pago.estado}>{pago.estado}</Badge></span></div>
               <div><b>Creado</b><span>{fechaHora(pago.creadoISO)}</span></div>
               <div><b>Capturado</b><span>{fechaHora(pago.capturadoISO)}</span></div>
-              
             </div>
-            <div className="pd-resumen-totales">
-              <div className="pd-resumen-tot-row">
-                <span className="pd-resumen-tot-label">Subtotal</span>
-                <span className="pd-resumen-tot-value">{totales.sub}</span>
-              </div>
-              <div className="pd-resumen-tot-row">
-                <span className="pd-resumen-tot-label">Impuestos</span>
-                <span className="pd-resumen-tot-value">{totales.imp}</span>
-              </div>
-              <div className="pd-resumen-tot-row pd-resumen-tot-row-total">
-                <span className="pd-resumen-tot-label">Total</span>
-                <span className="pd-resumen-tot-value pd-resumen-tot-main">{totales.tot}</span>
-              </div>
+          </article>
+        </section>
+        <aside style={{width: 320, minWidth: 260, maxWidth: 360, position: 'sticky', top: 32, alignSelf: 'flex-start'}}>
+          <div className="pd-resumen-totales">
+            <div className="pd-resumen-tot-row">
+              <span className="pd-resumen-tot-label">Subtotal</span>
+              <span className="pd-resumen-tot-value">{totales.sub}</span>
+            </div>
+            <div className="pd-resumen-tot-row">
+              <span className="pd-resumen-tot-label">Impuestos</span>
+              <span className="pd-resumen-tot-value">{totales.imp}</span>
+            </div>
+            <div className="pd-resumen-tot-row pd-resumen-tot-row-total">
+              <span className="pd-resumen-tot-label">Total</span>
+              <span className="pd-resumen-tot-value pd-resumen-tot-main">{totales.tot}</span>
             </div>
           </div>
-        </article>
-      </section>
+        </aside>
+      </div>
 
       <section className="pd-timeline pd-timeline--alt pd-timeline--horizontal">
         <div className="pd-tl-head">
