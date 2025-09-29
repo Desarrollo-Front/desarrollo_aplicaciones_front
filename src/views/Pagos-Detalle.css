@@ -43,7 +43,7 @@
 }
 
 .pd-resumen-info {
-  padding-left: 48px;
+  padding-left: 85px;
 }
 .pd-resumen-info b {
   min-width: 130px;
@@ -54,7 +54,7 @@
   text-align: left;
 }
 .pd-resumen-info span {
-  color: var(--muted);
+  color: #111;
   font-weight: 400;
 }
 .pd-resumen-totales {

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './Pagos-Detalle.css';
+import { CgWorkAlt } from "react-icons/cg";
 
 const money = (n, curr = 'ARS', locale = 'es-AR') =>
   new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(Number(n || 0));
@@ -491,7 +492,15 @@ window.onload = function(){window.print();}
               <div><b>Descripción</b><span>{pago.descripcion}</span></div>
               <div><b>Categoría</b><span>{pago.categoria}</span></div>
               <div><b>Cliente</b><span>{pago.cliente}</span></div>
-              <div><b>Prestador</b><span>{pago.prestador}</span></div>
+              <div>
+                <b>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <CgWorkAlt style={{ fontSize: 18, marginRight: 4 }} />
+                    Prestador
+                  </span>
+                </b>
+                <span>{pago.prestador}</span>
+              </div>
               <div><b>Método</b><span><Badge kind={pago.metodo}>{pago.metodo}</Badge></span></div>
               <div><b>Estado</b><span><Badge kind={pago.estado}>{pago.estado}</Badge></span></div>
               <div><b>Creado</b><span>{fechaHora(pago.creadoISO)}</span></div>
