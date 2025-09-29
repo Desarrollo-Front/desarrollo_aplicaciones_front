@@ -1,3 +1,63 @@
+/* === Card Resumen estilo dos columnas === */
+.pd-card-resumen {
+  padding: 24px 24px 18px 24px;
+}
+.pd-resumen-grid {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 0 32px;
+  align-items: flex-start;
+}
+.pd-resumen-info > div {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+.pd-resumen-info b {
+  min-width: 90px;
+  color: #222;
+  font-weight: 600;
+  margin-right: 10px;
+}
+.pd-resumen-info span {
+  color: var(--muted);
+  font-weight: 400;
+}
+.pd-resumen-totales {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  padding: 18px 18px 10px 18px;
+  min-width: 180px;
+  margin-bottom: 8px;
+}
+.pd-resumen-tot-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+.pd-resumen-tot-label {
+  color: #888;
+}
+.pd-resumen-tot-value {
+  color: #222;
+  font-weight: 600;
+}
+.pd-resumen-tot-row-total {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+.pd-resumen-tot-main {
+  color: #0b0b0b;
+  font-size: 20px;
+  font-weight: 800;
+}
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
 :root {

@@ -484,56 +484,32 @@ window.onload = function(){window.print();}
       </div>
 
       <section style={{width: '100%'}}>
-        <article className="pd-card" style={{width: '100%'}}>
-          <header className="pd-card-h">Resumen</header>
-          <div className="pd-kv">
-            <div>
-              <b>Cliente</b>
-              <span>{pago.cliente}</span>
+        <article className="pd-card pd-card-resumen" style={{width: '100%'}}>
+          <header className="pd-card-h pd-card-h--left">Resumen</header>
+          <div className="pd-resumen-grid">
+            <div className="pd-resumen-info">
+              <div><b>Cliente</b><span>{pago.cliente}</span></div>
+              <div><b>Prestador</b><span>{pago.prestador}</span></div>
+              <div><b>Método</b><span><Badge kind={pago.metodo}>{pago.metodo}</Badge></span></div>
+              <div><b>Estado</b><span><Badge kind={pago.estado}>{pago.estado}</Badge></span></div>
+              <div><b>Creado</b><span>{fechaHora(pago.creadoISO)}</span></div>
+              <div><b>Capturado</b><span>{fechaHora(pago.capturadoISO)}</span></div>
+              <div><b>Descripción</b><span>{pago.descripcion}</span></div>
+              <div><b>Categoría</b><span>{pago.categoria}</span></div>
             </div>
-            <div>
-              <b>Prestador</b>
-              <span>{pago.prestador}</span>
-            </div>
-            <div>
-              <b>Método</b>
-              <span>
-                <Badge kind={pago.metodo}>{pago.metodo}</Badge>
-              </span>
-            </div>
-            <div>
-              <b>Estado</b>
-              <span>
-                <Badge kind={pago.estado}>{pago.estado}</Badge>
-              </span>
-            </div>
-            <div>
-              <b>Subtotal</b>
-              <span>{totales.sub}</span>
-            </div>
-            <div>
-              <b>Impuestos</b>
-              <span>{totales.imp}</span>
-            </div>
-            <div className="pd-total">
-              <b>Total</b>
-              <span>{totales.tot}</span>
-            </div>
-            <div>
-              <b>Creado</b>
-              <span>{fechaHora(pago.creadoISO)}</span>
-            </div>
-            <div>
-              <b>Capturado</b>
-              <span>{fechaHora(pago.capturadoISO)}</span>
-            </div>
-            <div>
-              <b>Descripción</b>
-              <span>{pago.descripcion}</span>
-            </div>
-            <div>
-              <b>Categoría</b>
-              <span>{pago.categoria}</span>
+            <div className="pd-resumen-totales">
+              <div className="pd-resumen-tot-row">
+                <span className="pd-resumen-tot-label">Subtotal</span>
+                <span className="pd-resumen-tot-value">{totales.sub}</span>
+              </div>
+              <div className="pd-resumen-tot-row">
+                <span className="pd-resumen-tot-label">Impuestos</span>
+                <span className="pd-resumen-tot-value">{totales.imp}</span>
+              </div>
+              <div className="pd-resumen-tot-row pd-resumen-tot-row-total">
+                <span className="pd-resumen-tot-label">Total</span>
+                <span className="pd-resumen-tot-value pd-resumen-tot-main">{totales.tot}</span>
+              </div>
             </div>
           </div>
         </article>
