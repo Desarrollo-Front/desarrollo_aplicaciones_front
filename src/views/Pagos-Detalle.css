@@ -18,37 +18,13 @@
   top: 0;
 }
 .pd-resumen-totales {
-  /* ya tiene estilos, pero aquí puedes reforzar el ancho si quieres */
+  
   width: 100%;
   box-sizing: border-box;
 }
-/* Círculo de la timeline horizontal, fuera del botón */
-.pd-timeline-dot {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 3px solid #fff;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
-  background: var(--info-700);
-  z-index: 3;
-}
-.pd-timeline-dot--state {
-  background: #16a34a;
-}
-.pd-timeline-dot--error {
-  background: #dc2626;
-}
-.pd-timeline-dot--refund {
-  background: #2c7bbd;
-}
-.pd-timeline-dot--info {
-  background: #6b7280;
-}
-/* === Card Resumen estilo dos columnas === */
+/* Círculo de la timeline horizontal*/
+/* Eliminados los estilos de .pd-timeline-dot, usar solo ::before en .pd-time-horizontal-item */
+/* Card Resumen */
 .pd-card-resumen {
   padding: 24px 24px 18px 24px;
 }
@@ -175,7 +151,7 @@ body {
 }
 
 
-/* La card resumen ocupa todo el ancho */
+/* Card resumen */
 
 .pd-card {
   width: 100%;
@@ -194,17 +170,17 @@ body {
   display: flex;
   flex-direction: row;
   gap: 18px;
-  padding: 40px 0 6px 0; /* Reducí el padding-top */
+  padding: 40px 0 6px 0; 
   min-height: 180px;
   position: relative;
 }
-/* Línea gris continua */
+/* Línea gris  */
 .pd-time-horizontal-list::before {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
-  top: 24px; /* Bajé la línea para que esté más cerca de las tarjetas */
+  top: 24px; 
   height: 2px;
   background: var(--line);
   z-index: 1;
@@ -223,11 +199,11 @@ body {
   position: relative;
   z-index: 2;
 }
-/* Círculos sobre la línea - CORREGIDO */
+/* Círculos sobre la línea */
 .pd-time-horizontal-item::before {
   content: '';
   position: absolute;
-  top: 16px; /* 24px (línea) - 8px (mitad de 16px) = 16px */
+  top: 16px; 
   left: 50%;
   transform: translateX(-50%);
   width: 16px;
@@ -236,10 +212,10 @@ body {
   border: 3px solid #fff;
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
   background: var(--info-700);
-  z-index: 3; /* Círculos sobre la línea */
+  z-index: 3;
 }
 
-/* Estados de los círculos (opcional - puedes agregar estas clases a los items) */
+/* Estados de los círculos */
 .pd-time-horizontal-item.pd-time-state::before {
   background: #16a34a;
 }
@@ -261,7 +237,7 @@ body {
   margin-bottom: 8px;
 }
 
-/* El resto de tu CSS se mantiene igual */
+
 .pd-card {
   background: var(--panel);
   border: 1px solid var(--brand-blue);
@@ -502,7 +478,7 @@ body {
   align-items: flex-start;
   position: relative;
   margin: 0;
-  padding: 40px 0 0 0; /* padding-top igual a la línea */
+  padding: 40px 0 0 0; 
   list-style: none;
   gap: 0;
   width: 100%;
@@ -514,7 +490,7 @@ body {
   position: absolute;
   left: 0;
   right: 0;
-  top: 40px; /* Línea a 40px del top */
+  top: 40px; 
   height: 2px;
   background: var(--line);
   z-index: 1;
