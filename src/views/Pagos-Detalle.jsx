@@ -534,11 +534,12 @@ window.onload = function(){window.print();}
               const cat = ev.category;
               return (
                 <li key={ev.id} className={`pd-time-alt-item pd-time-${cat}`} style={{position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'none', border: 'none', textAlign: 'center', minWidth: 0, flex: '1 1 0%', boxSizing: 'border-box', padding: '0 12px'}}>
+                  <span className={`pd-timeline-dot pd-timeline-dot--${cat}`}></span>
                   <button
                     className="pd-dot-label"
                     data-tip={fechaHora(ev.createdISO)}
                     type="button"
-                    style={{marginTop: '48px'}}
+                    style={{marginTop: '32px'}}
                   >
                     <span className="pd-evt-title">
                       {mapEventType(ev.type)}
