@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, useRef, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AnimatedCard from '../components/ui/AnimatedCard';
+import AnimatedList from '../components/ui/AnimatedList';
 import './Pagos-Lista.css';
 import Select from 'react-select';
 
@@ -124,7 +126,6 @@ export default function PagosLista() {
     setChips(new Set());
   };
 
-  // === altura dinámica del masthead ===
   const mastRef = useRef(null);
   useLayoutEffect(() => {
     const el = mastRef.current;
@@ -315,7 +316,6 @@ export default function PagosLista() {
 
   return (
     <div className="pl-wrap">
-      {/* Sticky: topbar + filtros + chips */}
       <div className="pl-masthead" ref={mastRef}>
         <div className="pl-topbar">
           <div className="pl-topbar__brand">
@@ -332,109 +332,111 @@ export default function PagosLista() {
           </div>
         </div>
 
-        <section className="pl-filters">
-          <div className="pl-field">
-            <label>Buscar por {searchBy.toLowerCase()}</label>
-            <div className="pl-inline">
-              <i className="ri-search-line pl-input__ico" />
-              <input
-                className="pl-input pl-input--with-ico"
-                placeholder={`Buscar por ${searchBy.toLowerCase()}...`}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
+        <AnimatedCard>
+          <section className="pl-filters">
+            <div className="pl-field">
+              <label>Buscar por {searchBy.toLowerCase()}</label>
+              <div className="pl-inline">
+                <i className="ri-search-line pl-input__ico" />
+                <input
+                  className="pl-input pl-input--with-ico"
+                  placeholder={`Buscar por ${searchBy.toLowerCase()}...`}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="pl-field">
+              <label>Método</label>
+              <Select
+                options={METODOS.map((m) => ({ value: m, label: m }))}
+                value={{ value: metodo, label: metodo }}
+                onChange={(opt) => setMetodo(opt.value)}
+                classNamePrefix="pl-sel"
+                theme={(theme) => ({
+                  ...theme,
+                  borderRadius: 8,
+                  colors: {
+                    ...theme.colors,
+                    primary25: '#f0f4ff',
+                    primary: '#2563eb',
+                    neutral0: '#ffffff',
+                    neutral80: '#111111',
+                    neutral20: '#e6eaf0',
+                  },
+                })}
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    borderRadius: '8px',
+                    borderColor: '#e6eaf0',
+                    minHeight: '36px',
+                    fontSize: '14px',
+                    boxShadow: 'none',
+                    '&:hover': { borderColor: '#2563eb' },
+                  }),
+                  menu: (base) => ({
+                    ...base,
+                    borderRadius: '8px',
+                    marginTop: 4,
+                    fontSize: '14px',
+                    zIndex: 9999,
+                  }),
+                  option: (base, { isFocused, isSelected }) => ({
+                    ...base,
+                    backgroundColor: isSelected ? '#2563eb' : isFocused ? '#f0f4ff' : '#fff',
+                    color: isSelected ? '#fff' : '#111',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                  }),
+                }}
               />
             </div>
-          </div>
 
-          <div className="pl-field">
-            <label>Método</label>
-            <Select
-              options={METODOS.map((m) => ({ value: m, label: m }))}
-              value={{ value: metodo, label: metodo }}
-              onChange={(opt) => setMetodo(opt.value)}
-              classNamePrefix="pl-sel"
-              theme={(theme) => ({
-                ...theme,
-                borderRadius: 8,
-                colors: {
-                  ...theme.colors,
-                  primary25: '#f0f4ff', // hover
-                  primary: '#2563eb', // seleccionado
-                  neutral0: '#ffffff', // fondo
-                  neutral80: '#111111', // texto
-                  neutral20: '#e6eaf0', // borde
-                },
-              })}
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  borderRadius: '8px',
-                  borderColor: '#e6eaf0',
-                  minHeight: '36px',
-                  fontSize: '14px',
-                  boxShadow: 'none',
-                  '&:hover': { borderColor: '#2563eb' },
-                }),
-                menu: (base) => ({
-                  ...base,
-                  borderRadius: '8px',
-                  marginTop: 4,
-                  fontSize: '14px',
-                  zIndex: 9999,
-                }),
-                option: (base, { isFocused, isSelected }) => ({
-                  ...base,
-                  backgroundColor: isSelected ? '#2563eb' : isFocused ? '#f0f4ff' : '#fff',
-                  color: isSelected ? '#fff' : '#111',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                }),
-              }}
-            />
-          </div>
+            <div className="pl-field">
+              <label>Desde</label>
+              <input
+                type="date"
+                className="pl-input"
+                value={desde}
+                onChange={(e) => setDesde(e.target.value)}
+              />
+            </div>
 
-          <div className="pl-field">
-            <label>Desde</label>
-            <input
-              type="date"
-              className="pl-input"
-              value={desde}
-              onChange={(e) => setDesde(e.target.value)}
-            />
-          </div>
+            <div className="pl-field">
+              <label>Hasta</label>
+              <input
+                type="date"
+                className="pl-input"
+                value={hasta}
+                onChange={(e) => setHasta(e.target.value)}
+              />
+            </div>
 
-          <div className="pl-field">
-            <label>Hasta</label>
-            <input
-              type="date"
-              className="pl-input"
-              value={hasta}
-              onChange={(e) => setHasta(e.target.value)}
-            />
-          </div>
+            <div className="pl-field">
+              <label>Orden</label>
+              <Select
+                options={[
+                  { value: 'Fecha ⬇', label: 'Fecha ⬇' },
+                  { value: 'Fecha ⬆', label: 'Fecha ⬆' },
+                  { value: 'Monto ⬇', label: 'Monto ⬇' },
+                  { value: 'Monto ⬆', label: 'Monto ⬆' },
+                ]}
+                value={{ value: orden, label: orden }}
+                onChange={(opt) => setOrden(opt.value)}
+                classNamePrefix="pl-sel"
+              />
+            </div>
 
-          <div className="pl-field">
-            <label>Orden</label>
-            <Select
-              options={[
-                { value: 'Fecha ⬇', label: 'Fecha ⬇' },
-                { value: 'Fecha ⬆', label: 'Fecha ⬆' },
-                { value: 'Monto ⬇', label: 'Monto ⬇' },
-                { value: 'Monto ⬆', label: 'Monto ⬆' },
-              ]}
-              value={{ value: orden, label: orden }}
-              onChange={(opt) => setOrden(opt.value)}
-              classNamePrefix="pl-sel"
-            />
-          </div>
-
-          <div className="pl-field">
-            <label>&nbsp;</label>
-            <button className="pl-btn--reset" onClick={resetFiltros}>
-              <i className="ri-restart-line" /> Reset
-            </button>
-          </div>
-        </section>
+            <div className="pl-field">
+              <label>&nbsp;</label>
+              <button className="pl-btn--reset" onClick={resetFiltros}>
+                <i className="ri-restart-line" /> Reset
+              </button>
+            </div>
+          </section>
+        </AnimatedCard>
 
         <div className="pl-chips">
           <Chip
@@ -469,58 +471,56 @@ export default function PagosLista() {
           >
             Reembolsado
           </Chip>
-
-          {/* Exportar CSV a la derecha */}
           <span className="pl-export" onClick={exportCSV}>
             <i className="ri-download-2-line" /> Exportar CSV
           </span>
         </div>
       </div>
 
-      <section className="pl-card">
-        <table className="pl-tbl">
-          <thead>
-            <tr>
-              <th>ID</th>
-              {authRole !== 'USER' && <th>Cliente</th>}
-              {authRole !== 'MERCHANT' && <th>Prestador</th>}
-              <th>Método</th>
-              <th>Estado</th>
-              <th>Subtotal</th>
-              <th>Impuestos</th>
-              <th>Total</th>
-              <th>Moneda</th>
-              <th>Fecha</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {!loading &&
-              !fetchErr &&
-              pagos.map((p) => {
+      <AnimatedCard>
+        <div className="pl-table">
+          <div className="pl-th">
+            <div>ID</div>
+            {authRole !== 'USER' && <div>Cliente</div>}
+            {authRole !== 'MERCHANT' && <div>Prestador</div>}
+            <div>Método</div>
+            <div>Estado</div>
+            <div>Subtotal</div>
+            <div>Impuestos</div>
+            <div>Total</div>
+            <div>Moneda</div>
+            <div>Fecha</div>
+            <div></div>
+          </div>
+
+          {!loading && !fetchErr && pagos.length > 0 && (
+            <AnimatedList
+              items={pagos}
+              getKey={(p) => p.id}
+              renderItem={(p) => {
                 const { fecha, hora } = fechaFmt(p.fechaISO);
                 return (
-                  <tr key={p.id}>
-                    <td>#{p.id}</td>
-                    {authRole !== 'USER' && <td>{p.cliente}</td>}
-                    {authRole !== 'MERCHANT' && <td>{p.prestador}</td>}
-                    <td>
+                  <div className="pl-row">
+                    <div>#{p.id}</div>
+                    {authRole !== 'USER' && <div>{p.cliente}</div>}
+                    {authRole !== 'MERCHANT' && <div>{p.prestador}</div>}
+                    <div>
                       <Badge kind={p.metodo}>{p.metodo}</Badge>
-                    </td>
-                    <td>
+                    </div>
+                    <div>
                       <Badge kind={p.estado}>{p.estado}</Badge>
-                    </td>
-                    <td>{money(p.subtotal, p.moneda)}</td>
-                    <td>{money(p.impuestos, p.moneda)}</td>
-                    <td className="pl-bold">{money(p.total, p.moneda)}</td>
-                    <td>{p.moneda}</td>
-                    <td>
+                    </div>
+                    <div>{money(p.subtotal, p.moneda)}</div>
+                    <div>{money(p.impuestos, p.moneda)}</div>
+                    <div className="pl-bold">{money(p.total, p.moneda)}</div>
+                    <div>{p.moneda}</div>
+                    <div>
                       <div className="pl-fecha">
                         <div>{fecha}</div>
                         <small>{hora}</small>
                       </div>
-                    </td>
-                    <td>
+                    </div>
+                    <div>
                       {p.estado === 'Pendiente de Pago' && authRole !== 'MERCHANT' ? (
                         <button
                           className="pl-btn pl-btn--pagar"
@@ -536,34 +536,38 @@ export default function PagosLista() {
                           <i className="ri-eye-line" /> Ver
                         </button>
                       )}
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 );
-              })}
-            {!loading && !fetchErr && pagos.length === 0 && (
-              <tr>
-                <td className="pl-empty" colSpan={11}>
-                  <i className="ri-folder-2-line" /> No hay pagos para mostrar.
-                </td>
-              </tr>
-            )}
-            {loading && (
-              <tr>
-                <td className="pl-empty" colSpan={11}>
-                  Cargando pagos…
-                </td>
-              </tr>
-            )}
-            {!loading && fetchErr && (
-              <tr>
-                <td className="pl-empty" colSpan={11}>
-                  {fetchErr}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </section>
+              }}
+            />
+          )}
+
+          {!loading && !fetchErr && pagos.length === 0 && (
+            <div className="pl-empty-row">
+              <div className="pl-empty" style={{ gridColumn: '1 / -1' }}>
+                <i className="ri-folder-2-line" /> No hay pagos para mostrar.
+              </div>
+            </div>
+          )}
+
+          {loading && (
+            <div className="pl-empty-row">
+              <div className="pl-empty" style={{ gridColumn: '1 / -1' }}>
+                Cargando pagos…
+              </div>
+            </div>
+          )}
+
+          {!loading && fetchErr && (
+            <div className="pl-empty-row">
+              <div className="pl-empty" style={{ gridColumn: '1 / -1' }}>
+                {fetchErr}
+              </div>
+            </div>
+          )}
+        </div>
+      </AnimatedCard>
     </div>
   );
 }
