@@ -477,111 +477,47 @@ window.onload = function(){window.print();}
         <div className="pd-head-center">
           <h1 className="pd-title">Detalle de pago #{pago?.id ?? ''}</h1>
           <p className="pd-sub">
-            Resumen, datos fiscales y referencia, comprobantes y timeline.
+            Resumen y timeline.
           </p>
         </div>
         <div className="pd-head-spacer"></div>
       </div>
 
-      <section className="pd-grid">
-        <article className="pd-card">
-          <header className="pd-card-h">Resumen</header>
-          <div className="pd-kv">
-            <div>
-              <b>Cliente</b>
-              <span>{pago.cliente}</span>
+      <div className="pd-resumen-layout">
+        <section className="pd-resumen-main">
+          <article className="pd-card pd-card-resumen" style={{width: '100%'}}>
+            <header className="pd-card-h pd-card-h--left">Resumen</header>
+            <div className="pd-resumen-info">
+              <div><b>Descripción</b><span>{pago.descripcion}</span></div>
+              <div><b>Categoría</b><span>{pago.categoria}</span></div>
+              <div><b>Cliente</b><span>{pago.cliente}</span></div>
+              <div><b>Prestador</b><span>{pago.prestador}</span></div>
+              <div><b>Método</b><span><Badge kind={pago.metodo}>{pago.metodo}</Badge></span></div>
+              <div><b>Estado</b><span><Badge kind={pago.estado}>{pago.estado}</Badge></span></div>
+              <div><b>Creado</b><span>{fechaHora(pago.creadoISO)}</span></div>
+              <div><b>Capturado</b><span>{fechaHora(pago.capturadoISO)}</span></div>
             </div>
-            <div>
-              <b>Prestador</b>
-              <span>{pago.prestador}</span>
+          </article>
+        </section>
+        <aside className="pd-resumen-totales-fixed">
+          <div className="pd-resumen-totales">
+            <div className="pd-resumen-tot-row">
+              <span className="pd-resumen-tot-label">Subtotal</span>
+              <span className="pd-resumen-tot-value">{totales.sub}</span>
             </div>
-            <div>
-              <b>Método</b>
-              <span>
-                <Badge kind={pago.metodo}>{pago.metodo}</Badge>
-              </span>
+            <div className="pd-resumen-tot-row">
+              <span className="pd-resumen-tot-label">Impuestos</span>
+              <span className="pd-resumen-tot-value">{totales.imp}</span>
             </div>
-            <div>
-              <b>Estado</b>
-              <span>
-                <Badge kind={pago.estado}>{pago.estado}</Badge>
-              </span>
-            </div>
-            <div>
-              <b>Subtotal</b>
-              <span>{totales.sub}</span>
-            </div>
-            <div>
-              <b>Impuestos</b>
-              <span>{totales.imp}</span>
-            </div>
-            <div className="pd-total">
-              <b>Total</b>
-              <span>{totales.tot}</span>
-            </div>
-            <div>
-              <b>Creado</b>
-              <span>{fechaHora(pago.creadoISO)}</span>
-            </div>
-            <div>
-              <b>Capturado</b>
-              <span>{fechaHora(pago.capturadoISO)}</span>
+            <div className="pd-resumen-tot-row pd-resumen-tot-row-total">
+              <span className="pd-resumen-tot-label">Total</span>
+              <span className="pd-resumen-tot-value pd-resumen-tot-main">{totales.tot}</span>
             </div>
           </div>
-        </article>
+        </aside>
+      </div>
 
-        <article className="pd-card">
-          <header className="pd-card-h">Datos fiscales y referencia</header>
-          <div className="pd-kv">
-            <div>
-              <b>Moneda</b>
-              <span>{pago.moneda}</span>
-            </div>
-            <div>
-              <b>Fees</b>
-              <span>{money(pago.fees, pago.moneda)}</span>
-            </div>
-            <div>
-              <b>Descripción</b>
-              <span>{pago.descripcion}</span>
-            </div>
-            <div>
-              <b>Categoría</b>
-              <span>{pago.categoria}</span>
-            </div>
-          </div>
-        </article>
-
-        <article className="pd-card">
-          <header className="pd-card-h">Comprobantes</header>
-          {puedeDescargarComprobante ? (
-            <div className="pd-comprobante">
-              <p className="pd-muted">
-                Se genera un comprobante de pago no fiscal con los datos reales.
-              </p>
-              <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
-                Descargar Factura
-              </button>
-            </div>
-          ) : (
-            <div className="pd-comprobante">
-              <p className="pd-muted">
-                No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
-              </p>
-              {pago.rawStatus === 'REJECTED' && !isMerchant &&  (
-                <button
-                  className="pd-btn pd-btn--pri"
-                  onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
-                >
-                  Reintentar pago
-                </button>
-              )}
-            </div>
-          )}
-        </article>
-      </section>
-
-      <section className="pd-timeline pd-timeline--alt">
+      <section className="pd-timeline pd-timeline--alt pd-timeline--horizontal">
         <div className="pd-tl-head">
           <header className="pd-card-h">Timeline</header>
           <div className="pd-tl-filters"></div>
@@ -593,77 +529,23 @@ window.onload = function(){window.print();}
         )}
 
         {!tlErr && filteredTimeline.length > 0 && (
-          <ul className="pd-time-alt">
+          <ul className="pd-time-alt pd-time-alt--horizontal">
             {filteredTimeline.map((ev, i) => {
-              const side = i % 2 === 0 ? 'pd-left' : 'pd-right';
               const cat = ev.category;
-              const open = !!expanded[ev.id];
-              const hl = highlightPairs(ev.payload, pago.moneda);
               return (
-                <li key={ev.id} className={`pd-time-alt-item ${side} pd-time-${cat}`}>
-                  <div className="pd-time-head">
-                    <button
-                      className="pd-dot-label"
-                      data-tip={fechaHora(ev.createdISO)}
-                      type="button"
-                    >
-                      <span className="pd-evt-title">
-                        {mapEventType(ev.type)}
-                        {ev._count ? ` ×${ev._count}` : ''}
-                      </span>
-                    </button>
-                    {!open && (
-                      <button
-                        className="pd-btn pd-btn--chip pd-more"
-                        onClick={() => setExpanded((x) => ({ ...x, [ev.id]: true }))}
-                      >
-                        Ver más
-                      </button>
-                    )}
-                  </div>
-
-                  {open && (
-                    <div className="pd-time-card">
-                      <div className="pd-time-card-h">
-                        <div className="pd-time-title">
-                          {mapEventType(ev.type)}
-                          {ev._count ? ` ×${ev._count}` : ''}
-                        </div>
-                        <div className="pd-time-date">{fechaHora(ev.createdISO)}</div>
-                      </div>
-                      <div className="pd-time-meta">
-                        Actor: {ev.actor} · Origen: {ev.source}
-                      </div>
-
-                      {hl.length > 0 && (
-                        <div className="pd-tl-highlights">
-                          {hl.map(([k, v]) => (
-                            <div key={k} className="pd-chip-kv">
-                              <span className="pd-chip-k">{k}</span>
-                              <span className="pd-chip-v">{v}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {ev.payload && typeof ev.payload === 'object' && (
-                        <div className="pd-payload">
-                          <pre className="pd-pre">
-                            {JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}
-                          </pre>
-                        </div>
-                      )}
-
-                      <div className="pd-tl-actions">
-                        <button
-                          className="pd-btn pd-btn--chip"
-                          onClick={() => setExpanded((x) => ({ ...x, [ev.id]: false }))}
-                        >
-                          Ver menos
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                <li key={ev.id} className={`pd-time-alt-item pd-time-${cat}`} style={{position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'none', border: 'none', textAlign: 'center', minWidth: 0, flex: '1 1 0%', boxSizing: 'border-box', padding: '0 12px'}}>
+                  <span className={`pd-timeline-dot pd-timeline-dot--${cat}`}></span>
+                  <button
+                    className="pd-dot-label"
+                    data-tip={fechaHora(ev.createdISO)}
+                    type="button"
+                    style={{marginTop: '32px'}}
+                  >
+                    <span className="pd-evt-title">
+                      {mapEventType(ev.type)}
+                      {ev._count ? ` ×${ev._count}` : ''}
+                    </span>
+                  </button>
                 </li>
               );
             })}

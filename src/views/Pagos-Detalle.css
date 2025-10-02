@@ -1,3 +1,120 @@
+/* Layout resumen con totales fijos a la derecha */
+.pd-resumen-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 32px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+.pd-resumen-main {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+.pd-resumen-totales-fixed {
+  width: 260px;
+  flex-shrink: 0;
+  position: relative;
+  top: 0;
+}
+.pd-resumen-totales {
+  
+  width: 100%;
+  box-sizing: border-box;
+}
+/* Círculo de la timeline horizontal*/
+.pd-timeline-dot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+  background: var(--info-700);
+  z-index: 3;
+}
+.pd-timeline-dot--state {
+  background: #16a34a;
+}
+.pd-timeline-dot--error {
+  background: #dc2626;
+}
+.pd-timeline-dot--refund {
+  background: #2c7bbd;
+}
+.pd-timeline-dot--info {
+  background: #6b7280;
+}
+/* Card Resumen */
+.pd-card-resumen {
+  padding: 24px 24px 18px 24px;
+}
+.pd-resumen-grid {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 0 32px;
+  align-items: flex-start;
+}
+.pd-resumen-info > div {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.pd-resumen-info {
+  padding-left: 85px;
+}
+.pd-resumen-info b {
+  min-width: 130px;
+  display: inline-block;
+  color: #222;
+  font-weight: 600;
+  margin-right: 10px;
+  text-align: left;
+}
+.pd-resumen-info span {
+  color: #111;
+  font-weight: 400;
+}
+.pd-resumen-totales {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  padding: 18px 18px 10px 18px;
+  min-width: 180px;
+  margin-bottom: 8px;
+}
+.pd-resumen-tot-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+  margin-bottom: 12px;
+  gap: 36px;
+}
+.pd-resumen-tot-label {
+  color: #888;
+}
+.pd-resumen-tot-value {
+  color: #222;
+  font-weight: 600;
+}
+.pd-resumen-tot-row-total {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+.pd-resumen-tot-main {
+  color: #0b0b0b;
+  font-size: 20px;
+  font-weight: 800;
+}
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
 :root {
@@ -57,12 +174,93 @@ body {
   margin: 0 0 12px;
 }
 
-.pd-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 14px;
+
+/* Card resumen */
+
+.pd-card {
+  width: 100%;
+  box-sizing: border-box;
 }
+
+/* Timeline horizontal */
+.pd-timeline--horizontal {
+  overflow-x: auto;
+  padding-bottom: 12px;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+.pd-time-horizontal-list {
+  display: flex;
+  flex-direction: row;
+  gap: 18px;
+  padding: 40px 0 6px 0; 
+  min-height: 180px;
+  position: relative;
+}
+/* Línea gris  */
+.pd-time-horizontal-list::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 24px; 
+  height: 2px;
+  background: var(--line);
+  z-index: 1;
+}
+.pd-time-horizontal-item {
+  min-width: 320px;
+  max-width: 400px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: relative;
+  z-index: 2;
+}
+/* Círculos sobre la línea */
+.pd-time-horizontal-item::before {
+  content: '';
+  position: absolute;
+  top: 0px; 
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+  background: var(--info-700);
+  z-index: 3;
+}
+
+/* Estados de los círculos */
+.pd-time-horizontal-item.pd-time-state::before {
+  background: #16a34a;
+}
+.pd-time-horizontal-item.pd-time-error::before {
+  background: #dc2626;
+}
+.pd-time-horizontal-item.pd-time-refund::before {
+  background: #2c7bbd;
+}
+.pd-time-horizontal-item.pd-time-info::before {
+  background: #6b7280;
+}
+
+.pd-time-head-horizontal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
 
 .pd-card {
   background: var(--panel);
@@ -292,74 +490,48 @@ body {
 }
 
 /* ===== TIMELINE ALTERNADO ===== */
+
+/* Timeline alternada horizontal */
 .pd-timeline--alt {
   position: relative;
   padding: 14px;
 }
-.pd-time-alt {
+.pd-time-alt.pd-time-alt--horizontal {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
   position: relative;
   margin: 0;
-  padding: 24px 0;
+  padding: 40px 0 0 0; 
   list-style: none;
+  gap: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: visible;
 }
-.pd-time-alt::before {
+.pd-time-alt.pd-time-alt--horizontal::before {
   content: '';
   position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 2px;
+  left: 0;
+  right: 0;
+  top: 40px; 
+  height: 2px;
   background: var(--line);
-  transform: translateX(-50%);
+  z-index: 1;
 }
-
 .pd-time-alt-item {
   position: relative;
-  width: 50%;
-  padding: 12px 28px;
+  min-width: 0;
+  max-width: 1fr;
+  flex: 1 1 0%;
+  padding: 0 12px;
   box-sizing: border-box;
-}
-.pd-time-alt-item.pd-left {
-  left: 0;
-  text-align: right;
-}
-.pd-time-alt-item.pd-right {
-  left: 50%;
-  text-align: left;
-}
-
-.pd-time-alt-item::before {
-  content: '';
-  position: absolute;
-  top: 28px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 3px solid #fff;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
-  background: var(--info-700);
-  z-index: 2;
-}
-.pd-time-alt-item.pd-left::before {
-  right: -6px;
-  left: auto;
-}
-.pd-time-alt-item.pd-right::before {
-  left: -6px;
-  right: auto;
-}
-
-.pd-time-state::before {
-  background: #16a34a;
-}
-.pd-time-error::before {
-  background: #dc2626;
-}
-.pd-time-refund::before {
-  background: #2c7bbd;
-}
-.pd-time-info::before {
-  background: #6b7280;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border: none;
+  text-align: center;
 }
 
 .pd-time-card {
