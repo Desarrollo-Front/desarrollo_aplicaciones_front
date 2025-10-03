@@ -7,7 +7,7 @@
   --gx-chip: var(--chip, #eef2f7);
   --gx-blue: var(--brand-blue, #3BA8E7);
   --gx-blue-dark: var(--brand-blue-dark, #2c7bbd);
-  --gx-yellow: var(--brand-yellow, #FBBF24);
+  --gx-yellow: var(--brand-yellow, #2ecc71);
   --gx-shadow-sm: var(--shadow-sm, 0 1px 2px rgba(0,0,0,.06));
   --gx-shadow-md: var(--shadow-md, 0 3px 8px rgba(0,0,0,.08));
   --gx-shadow-lg: var(--shadow-lg, 0 8px 20px rgba(0,0,0,.10));
