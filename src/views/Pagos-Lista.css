@@ -3,23 +3,22 @@
 @import url('https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css');
 
 :root {
-  --bg: #ffffff;
+ --bg: #ffffff;
   --panel: #ffffff;
   --muted: #6b7280;
   --text: #000000; 
   --line: #e5e7eb;
   --chip: #eef2f7;
-
   --brand-blue: #3BA8E7;  
   --brand-blue-dark: #2c7bbd;
   --brand-yellow: #FBBF24;
-
   --success-50:#e8f6ef; --success-700:#15803d;
   --warn-50:#fff7e6; --warn-700:#b45309;
   --danger-50:#fdecec; --danger-700:#b71c1c;
-
   --radius: 16px;
   --masthead-h: 0px;
+  --brand-green: #2ecc71;
+  --brand-green-dark: #27ae60;
 }
 
 body {
@@ -279,13 +278,13 @@ body {
 }
 .pl-btn--logout:hover { background:#c82333; }
 .pl-btn--pagar {
-  border: 1px solid var(--brand-yellow);
-  background: var(--brand-yellow);
-  color: #000;
+  border: 1px solid var(--brand-green);
+  background: var(--brand-green);
+  color: #fff;
 }
 .pl-btn--pagar:hover {
-  background: #2ecc71;
-  border-color: #2ecc718a;
+  background: var(--brand-green-dark);
+  border-color: var(--brand-green-dark);
 }
 .pl-btn--ghost {
   background: transparent;
