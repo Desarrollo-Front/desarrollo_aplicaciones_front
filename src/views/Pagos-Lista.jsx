@@ -75,6 +75,43 @@ const getMetodoTag = (method) => {
   if (type === 'MERCADO_PAGO') return 'Mercado Pago';
   return '—';
 };
+function KebabMenu({ onVerFactura, onVerPago }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const onClickAway = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onClickAway);
+    return () => document.removeEventListener("mousedown", onClickAway);
+  }, []);
+
+  return (
+    <div className="pl-kebab" ref={ref}>
+      <button className="pl-kebab__btn" onClick={() => setOpen((v) => !v)} aria-haspopup="menu" aria-expanded={open}>
+        <span className="pl-kebab__dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      </button>
+      {open && (
+        <div className="pl-kebab__menu" role="menu">
+          <button className="pl-kebab__item" onClick={() => { setOpen(false); onVerFactura(); }}>
+            <i className="ri-file-text-line" aria-hidden="true" />
+            Ver factura
+          </button>
+          <button className="pl-kebab__item" onClick={() => { setOpen(false); onVerPago(); }}>
+            <i className="ri-eye-line" aria-hidden="true" />
+            Ver pago
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 export default function PagosLista() {
   const navigate = useNavigate();
@@ -529,12 +566,10 @@ export default function PagosLista() {
                           <i className="ri-wallet-2-line" /> Pagar
                         </button>
                       ) : (
-                        <button
-                          className="pl-btn pl-btn--ghost"
-                          onClick={() => navigate(`/detalle/${p.id}`)}
-                        >
-                          <i className="ri-eye-line" /> Ver
-                        </button>
+                        <KebabMenu
+                        onVerFactura={() => navigate(`/factura/${p.id}`)}
+                        onVerPago={() => navigate(`/detalle/${p.id}`)}
+                      />
                       )}
                     </td>
                   </tr>
