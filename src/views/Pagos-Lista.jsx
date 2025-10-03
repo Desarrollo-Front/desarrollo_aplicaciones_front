@@ -131,6 +131,122 @@ function KebabMenu({ estado, onVerFactura, onVerPago }) {
   );
 }
 
+const fechaHoraUI = (iso, locale = 'es-AR') => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const f = d.toLocaleDateString(locale, { year: 'numeric', month: '2-digit', day: '2-digit' });
+  const h = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+  return `${f} ${h}`;
+};
+
+const buildFacturaHTML = (p) => {
+  const emisor = p.prestador || 'Prestador';
+  const cliente = p.cliente || 'Consumidor Final';
+  const metodo = p.metodo || '—';
+  const fechaEmision = fechaHoraUI(p.fechaISO);
+  const otrosCargos = Number(p.impuestos || 0);
+  const lines = [
+    { cant: 1, det: 'Pago', pu: p.subtotal, imp: p.subtotal },
+    ...(otrosCargos > 0 ? [{ cant: 1, det: 'Cargos e impuestos', pu: otrosCargos, imp: otrosCargos }] : []),
+  ];
+  const rows = lines.map(
+    (l) =>
+      `<tr><td style="padding:6px;border:1px solid #ddd;text-align:center">${l.cant}</td><td style="padding:6px;border:1px solid #ddd">${l.det}</td><td style="padding:6px;border:1px solid #ddd;text-align:right">${money(l.pu, p.moneda)}</td><td style="padding:6px;border:1px solid #ddd;text-align:right">${money(l.imp, p.moneda)}</td></tr>`
+  ).join('');
+  const html = `
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Factura</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="font-family:Arial,Helvetica,sans-serif;color:#111;margin:24px">
+<div style="max-width:820px;margin:0 auto">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+    <div>
+      <div style="font-size:22px;font-weight:700">Factura</div>
+      <div style="font-size:12px;color:#666">No fiscal</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:12px;color:#666">ID de pago</div>
+      <div style="font-size:16px;font-weight:700">#${p.id}</div>
+    </div>
+  </div>
+  <hr style="border:none;border-top:1px solid #e5e5e5;margin:12px 0">
+  <div style="display:flex;gap:24px;margin:12px 0 20px">
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Prestador</div>
+      <div style="font-size:14px;font-weight:600">${emisor}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Cliente</div>
+      <div style="font-size:14px;font-weight:600">${cliente}</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:24px;margin:0 0 16px">
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Fecha de emisión</div>
+      <div style="font-size:14px">${fechaEmision}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Moneda</div>
+      <div style="font-size:14px">${p.moneda}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Método</div>
+      <div style="font-size:14px">${metodo}</div>
+    </div>
+  </div>
+  <table style="width:100%;border-collapse:collapse;margin-top:8px">
+    <thead>
+      <tr>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:center;font-size:12px">Cant.</th>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:left;font-size:12px">Detalle</th>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:right;font-size:12px">P. unitario</th>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:right;font-size:12px">Importe</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+    </tbody>
+  </table>
+  <div style="display:flex;justify-content:flex-end;margin-top:12px">
+    <div style="min-width:280px">
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ddd">
+        <div style="color:#666">Subtotal</div><div>${money(p.subtotal, p.moneda)}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ddd">
+        <div style="color:#666">Otros cargos</div><div>${money(p.impuestos, p.moneda)}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:16px">
+        <div>Total</div><div>${money(p.total, p.moneda)}</div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:18px;padding:12px;background:#f7f7f7;border:1px solid #eee;font-size:12px;color:#444">
+    Este es un comprobante no fiscal emitido a partir de datos reales del pago.
+  </div>
+</div>
+<script>
+window.onload = function(){window.print();}
+</script>
+</body>
+</html>
+`;
+  return html;
+};
+
+const verFacturaDesdeLista = (p) => {
+  const html = buildFacturaHTML(p);
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, '_blank');
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  if (!win) alert('No se pudo abrir el comprobante. Verificá el bloqueador de pop-ups.');
+};
+
+
 
 export default function PagosLista() {
   const navigate = useNavigate();
@@ -587,7 +703,7 @@ export default function PagosLista() {
                       ) : (
                         <KebabMenu
                         estado={p.estado}
-                        onVerFactura={() => navigate(`/factura/${p.id}`)}
+                        onVerFactura={() => verFacturaDesdeLista(p)}
                         onVerPago={() => navigate(`/detalle/${p.id}`)}
                       />
                       )}
