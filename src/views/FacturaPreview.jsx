@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import './FacturaPreview.css';
 
 export default function FacturaPreview({ html, onClose }) {
   const iframeRef = useRef(null);
