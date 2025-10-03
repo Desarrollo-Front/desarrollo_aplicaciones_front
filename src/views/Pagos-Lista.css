@@ -280,7 +280,7 @@ body {
 .pl-btn--pagar {
   border: 1px solid var(--brand-green);
   background: var(--brand-green);
-  color: #fff;
+  color: #000000;
 }
 .pl-btn--pagar:hover {
   background: var(--brand-green-dark);
