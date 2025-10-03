@@ -281,11 +281,31 @@ body {
   border: 1px solid var(--brand-green);
   background: var(--brand-green);
   color: #fff;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+.pl-btn--pagar i {
+  font-size: 16px;
 }
 .pl-btn--pagar:hover {
   background: var(--brand-green-dark);
   border-color: var(--brand-green-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(39, 174, 96, .25);
 }
+.pl-btn--pagar:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.pl-btn--pagar:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, .45);
+}
+
+
 .pl-btn--ghost {
   background: transparent;
   border: 1px solid var(--line);
