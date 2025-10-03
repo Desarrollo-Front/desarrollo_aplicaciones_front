@@ -22,19 +22,19 @@ export default function FacturaPreview({ html, onClose }) {
   };
 
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',display:'grid',placeItems:'center',zIndex:9999}}>
-      <div style={{background:'#fff',width:'min(1000px,95vw)',height:'min(85vh,900px)',borderRadius:12,boxShadow:'0 10px 30px rgba(0,0,0,.2)',display:'flex',flexDirection:'column',overflow:'hidden'}}>
-        <div style={{padding:'12px 16px',borderBottom:'1px solid #eee',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <div style={{fontWeight:700,fontSize:16}}>Vista previa de la factura</div>
-          <button onClick={onClose} style={{border:'1px solid #e5e7eb',background:'#fff',borderRadius:8,padding:'6px 10px',cursor:'pointer'}}>Cerrar</button>
+    <div className="gx-ticket-ov" role="dialog" aria-modal="true">
+      <div className="gx-ticket">
+        <header className="gx-ticket-h">
+          <div className="gx-ticket-title">Vista previa de la factura</div>
+          <button className="gx-ticket-close" onClick={onClose}>Cerrar</button>
+        </header>
+        <div className="gx-ticket-body">
+          <iframe className="gx-ticket-iframe" ref={iframeRef} title="Factura" srcDoc={html} />
         </div>
-        <div style={{flex:1,background:'#f7f7f8'}}>
-          <iframe ref={iframeRef} title="Factura" style={{width:'100%',height:'100%',border:'none'}} srcDoc={html} />
-        </div>
-        <div style={{padding:'12px 16px',borderTop:'1px solid #eee',display:'flex',gap:12,justifyContent:'flex-end'}}>
-          <button onClick={onDescargarHTML} style={{border:'1px solid #e5e7eb',background:'#fff',borderRadius:8,padding:'10px 14px',cursor:'pointer'}}>Descargar HTML</button>
-          <button onClick={onImprimir} style={{border:'none',background:'#0ea5a6',color:'#fff',borderRadius:8,padding:'10px 14px',cursor:'pointer'}}>Imprimir / Guardar PDF</button>
-        </div>
+        <footer className="gx-ticket-f">
+          <button className="gx-btn gx-btn--ghost" onClick={onDescargarHTML}>Descargar HTML</button>
+          <button className="gx-btn gx-btn--pri" onClick={onImprimir}>Imprimir / Guardar PDF</button>
+        </footer>
       </div>
     </div>
   );
