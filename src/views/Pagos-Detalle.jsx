@@ -18,7 +18,7 @@ function Badge({ kind, children }) {
     .toLowerCase()
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '');
-  return <span className={`pd-badge pd-badge--${key}`}>{children}</span>;
+  return <span className={`payment-detail-badge payment-detail-badge--${key}`}>{children}</span>;
 }
 
 const mapStatus = (s) => {
@@ -449,108 +449,272 @@ window.onload = function(){window.print();}
 
   if (loading) {
     return (
-      <div className="pd-wrap">
-        <h1 className="pd-title">Detalle de pago</h1>
-        <p className="pd-sub">Cargando…</p>
+      <div className="payment-detail-container">
+        <div className="payment-detail-loading">
+          <h1>Detalle de pago</h1>
+          <p>Cargando…</p>
+        </div>
       </div>
     );
   }
 
   if (!pago) {
     return (
-      <div className="pd-wrap">
-        <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>
-          ← Volver
-        </button>
-        <h1 className="pd-title">Detalle de pago</h1>
-        <p className="pd-sub">{err || 'No se encontró el pago.'}</p>
+      <div className="payment-detail-container">
+        <div className="payment-detail-header">
+          <button className="payment-detail-back-btn" onClick={() => navigate('/pagos')}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Volver
+          </button>
+          <div className="payment-detail-title-section">
+            <h1 className="payment-detail-title">Detalle de pago</h1>
+            <p className="payment-detail-subtitle">{err || 'No se encontró el pago.'}</p>
+          </div>
+          <div></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="pd-wrap">
-      <div className="pd-head">
-        <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>
-          ← Volver
+    <div className="payment-detail-container">
+      {/* Header mejorado */}
+      <div className="payment-detail-header">
+        <button className="payment-detail-back-btn" onClick={() => navigate('/pagos')}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Volver
         </button>
-        <div className="pd-head-center">
-          <h1 className="pd-title">Detalle de pago #{pago?.id ?? ''}</h1>
-          <p className="pd-sub">
-            Resumen y timeline.
-          </p>
+        <div className="payment-detail-title-section">
+          <div className="payment-detail-title-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M16 13H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M16 17H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M10 9H9H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1 className="payment-detail-title">Detalle de pago #{pago?.id ?? ''}</h1>
+            <p className="payment-detail-subtitle">Resumen completo y timeline de eventos</p>
+          </div>
         </div>
-        <div className="pd-head-spacer"></div>
+        <div className="payment-detail-actions">
+          {puedeDescargarComprobante && (
+            <button className="payment-detail-action-btn" onClick={descargarComprobante}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <polyline points="7,10 12,15 17,10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Descargar comprobante
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="pd-resumen-layout">
-        <section className="pd-resumen-main">
-          <article className="pd-card pd-card-resumen" style={{width: '100%'}}>
-            <header className="pd-card-h pd-card-h--left">Resumen</header>
-            <div className="pd-resumen-info">
-              <div><b>Descripción</b><span>{pago.descripcion}</span></div>
-              <div><b>Categoría</b><span>{pago.categoria}</span></div>
-              <div><b>Cliente</b><span>{pago.cliente}</span></div>
-              <div><b>Prestador</b><span>{pago.prestador}</span></div>
-              <div><b>Método</b><span><Badge kind={pago.metodo}>{pago.metodo}</Badge></span></div>
-              <div><b>Estado</b><span><Badge kind={pago.estado}>{pago.estado}</Badge></span></div>
-              <div><b>Creado</b><span>{fechaHora(pago.creadoISO)}</span></div>
-              <div><b>Capturado</b><span>{fechaHora(pago.capturadoISO)}</span></div>
+      {/* Layout principal mejorado */}
+      <div className="payment-detail-main-layout">
+        {/* Sección de información del pago */}
+        <section className="payment-detail-info-section">
+          <div className="payment-detail-card">
+            <div className="payment-detail-card-header">
+              <div className="payment-detail-card-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h2 className="payment-detail-card-title">Información del pago</h2>
             </div>
-          </article>
+            <div className="payment-detail-info-grid">
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Descripción
+                </div>
+                <div className="payment-detail-info-value">{pago.descripcion || '—'}</div>
+              </div>
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 7H17V17H7V7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M7 7L12 12L17 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Categoría
+                </div>
+                <div className="payment-detail-info-value">{pago.categoria || '—'}</div>
+              </div>
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Cliente
+                </div>
+                <div className="payment-detail-info-value">{pago.cliente}</div>
+              </div>
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 21V19C19 17.9391 18.5786 16.9217 17.8284 16.1716C17.0783 15.4214 16.0609 15 15 15H9C7.93913 15 6.92172 15.4214 6.17157 16.1716C5.42143 16.9217 5 17.9391 5 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Prestador
+                </div>
+                <div className="payment-detail-info-value">{pago.prestador}</div>
+              </div>
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
+                    <line x1="1" y1="10" x2="23" y2="10" stroke="currentColor" strokeWidth="2"/>
+                  </svg>
+                  Método de pago
+                </div>
+                <div className="payment-detail-info-value">
+                  <Badge kind={pago.metodo}>{pago.metodo}</Badge>
+                </div>
+              </div>
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                    <path d="M9 12L11 14L15 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Estado
+                </div>
+                <div className="payment-detail-info-value">
+                  <Badge kind={pago.estado}>{pago.estado}</Badge>
+                </div>
+              </div>
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                    <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Creado
+                </div>
+                <div className="payment-detail-info-value">{fechaHora(pago.creadoISO)}</div>
+              </div>
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                    <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Capturado
+                </div>
+                <div className="payment-detail-info-value">{fechaHora(pago.capturadoISO)}</div>
+              </div>
+            </div>
+          </div>
         </section>
-        <aside className="pd-resumen-totales-fixed">
-          <div className="pd-resumen-totales">
-            <div className="pd-resumen-tot-row">
-              <span className="pd-resumen-tot-label">Subtotal</span>
-              <span className="pd-resumen-tot-value">{totales.sub}</span>
+
+        {/* Sección de totales mejorada */}
+        <aside className="payment-detail-totals-section">
+          <div className="payment-detail-totals-card">
+            <div className="payment-detail-totals-header">
+              <div className="payment-detail-totals-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M17 5H9.5C8.11929 5 7 6.11929 7 7.5S8.11929 10 9.5 10H14.5C15.8807 10 17 11.1193 17 12.5S15.8807 15 14.5 15H7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3 className="payment-detail-totals-title">Resumen financiero</h3>
             </div>
-            <div className="pd-resumen-tot-row">
-              <span className="pd-resumen-tot-label">Impuestos</span>
-              <span className="pd-resumen-tot-value">{totales.imp}</span>
-            </div>
-            <div className="pd-resumen-tot-row pd-resumen-tot-row-total">
-              <span className="pd-resumen-tot-label">Total</span>
-              <span className="pd-resumen-tot-value pd-resumen-tot-main">{totales.tot}</span>
+            <div className="payment-detail-totals-content">
+              <div className="payment-detail-total-row">
+                <span className="payment-detail-total-label">Subtotal</span>
+                <span className="payment-detail-total-value">{totales.sub}</span>
+              </div>
+              <div className="payment-detail-total-row">
+                <span className="payment-detail-total-label">Impuestos y cargos</span>
+                <span className="payment-detail-total-value">{totales.imp}</span>
+              </div>
+              <div className="payment-detail-total-divider"></div>
+              <div className="payment-detail-total-row payment-detail-total-row--main">
+                <span className="payment-detail-total-label">Total</span>
+                <span className="payment-detail-total-value payment-detail-total-value--main">{totales.tot}</span>
+              </div>
             </div>
           </div>
         </aside>
       </div>
 
-      <section className="pd-timeline pd-timeline--alt pd-timeline--horizontal">
-        <div className="pd-tl-head">
-          <header className="pd-card-h">Timeline</header>
-          <div className="pd-tl-filters"></div>
+      {/* Timeline mejorado */}
+      <section className="payment-detail-timeline-section">
+        <div className="payment-detail-timeline-card">
+          <div className="payment-detail-timeline-header">
+            <div className="payment-detail-timeline-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <h3 className="payment-detail-timeline-title">Timeline de eventos</h3>
+            <div className="payment-detail-timeline-count">
+              {filteredTimeline.length} eventos
+            </div>
+          </div>
+
+          {tlErr && (
+            <div className="payment-detail-timeline-error">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              {tlErr}
+            </div>
+          )}
+
+          {!tlErr && filteredTimeline.length === 0 && (
+            <div className="payment-detail-timeline-empty">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                <path d="M9 12L11 14L15 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <p>No hay eventos para mostrar</p>
+            </div>
+          )}
+
+          {!tlErr && filteredTimeline.length > 0 && (
+            <div className="payment-detail-timeline-container">
+              <div className="payment-detail-timeline-line"></div>
+              <div className="payment-detail-timeline-events">
+                {filteredTimeline.map((ev, i) => {
+                  const cat = ev.category;
+                  return (
+                    <div key={ev.id} className={`payment-detail-timeline-event payment-detail-timeline-event--${cat}`}>
+                      <div className="payment-detail-timeline-dot">
+                        <div className="payment-detail-timeline-dot-inner"></div>
+                      </div>
+                      <div className="payment-detail-timeline-content">
+                        <div className="payment-detail-timeline-event-title">
+                          {mapEventType(ev.type)}
+                          {ev._count ? ` ×${ev._count}` : ''}
+                        </div>
+                        <div className="payment-detail-timeline-event-date">
+                          {fechaHora(ev.createdISO)}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
-
-        {tlErr && <p className="pd-muted">{tlErr}</p>}
-        {!tlErr && filteredTimeline.length === 0 && (
-          <p className="pd-muted">No hay eventos para el filtro seleccionado.</p>
-        )}
-
-        {!tlErr && filteredTimeline.length > 0 && (
-          <ul className="pd-time-alt pd-time-alt--horizontal">
-            {filteredTimeline.map((ev, i) => {
-              const cat = ev.category;
-              return (
-                <li key={ev.id} className={`pd-time-alt-item pd-time-${cat}`} style={{position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'none', border: 'none', textAlign: 'center', minWidth: 0, flex: '1 1 0%', boxSizing: 'border-box', padding: '0 12px'}}>
-                  <span className={`pd-timeline-dot pd-timeline-dot--${cat}`}></span>
-                  <button
-                    className="pd-dot-label"
-                    data-tip={fechaHora(ev.createdISO)}
-                    type="button"
-                    style={{marginTop: '32px'}}
-                  >
-                    <span className="pd-evt-title">
-                      {mapEventType(ev.type)}
-                      {ev._count ? ` ×${ev._count}` : ''}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        )}
       </section>
     </div>
   );
