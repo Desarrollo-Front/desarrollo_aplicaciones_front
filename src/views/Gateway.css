@@ -160,7 +160,7 @@
   color: var(--gx-text);
 }
 .gx-btn:hover { transform: translateY(-1px); box-shadow: var(--gx-shadow-sm); }
-.gx-btn--pri { border: 1px solid var(--gx-yellow); background: var(--gx-yellow); color: #000; justify-content: center; text-align: center; width: 100%;}
+.gx-btn--pri { border: 1px solid var(--gx-yellow); background: var(--gx-yellow); color: #ffffff; justify-content: center; text-align: center; width: 100%;}
 .gx-btn--pri:hover { filter: brightness(.95); }
 .gx-btn--ghost { background: transparent; border: 1px solid var(--gx-line); color: var(--gx-text); }
 
