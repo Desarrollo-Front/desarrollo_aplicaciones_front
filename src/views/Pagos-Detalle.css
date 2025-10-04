@@ -86,7 +86,6 @@ body {
   display: flex;
   align-items: center;
   gap: 1rem;
-  flex: 1;
   justify-content: center;
 }
 
@@ -213,12 +212,15 @@ body {
   color: var(--payment-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
 }
 
 .payment-detail-info-value {
   font-size: 1rem;
   color: var(--payment-text);
   font-weight: 500;
+  margin-left: 0;
+  padding-left: 0;
 }
 
 /* Sección de totales */
@@ -391,8 +393,8 @@ body {
 .payment-detail-timeline-horizontal-line {
   position: absolute;
   top: 2rem;
-  left: 2rem;
-  right: 2rem;
+  left: 0;
+  right: 0;
   height: 2px;
   background: var(--payment-border);
   z-index: 1;
@@ -401,10 +403,12 @@ body {
 .payment-detail-timeline-horizontal-events {
   display: flex;
   flex-direction: row;
-  gap: 2rem;
+  gap: 0;
   position: relative;
   z-index: 2;
   min-width: max-content;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .payment-detail-timeline-horizontal-event {
@@ -413,8 +417,9 @@ body {
   align-items: center;
   gap: 1rem;
   position: relative;
-  min-width: 200px;
+  flex: 1;
   text-align: center;
+  min-width: 150px;
 }
 
 .payment-detail-timeline-horizontal-dot {
@@ -429,6 +434,7 @@ body {
   flex-shrink: 0;
   position: relative;
   z-index: 3;
+  margin-top: -12px;
 }
 
 .payment-detail-timeline-horizontal-dot-inner {
@@ -475,6 +481,7 @@ body {
   flex-direction: column;
   gap: 0.25rem;
   align-items: center;
+  margin-top: 1rem;
 }
 
 .payment-detail-timeline-horizontal-event-title {
@@ -616,11 +623,13 @@ body {
   }
   
   .payment-detail-timeline-horizontal-events {
-    gap: 1rem;
+    gap: 0;
+    justify-content: space-between;
   }
   
   .payment-detail-timeline-horizontal-event {
-    min-width: 150px;
+    min-width: 120px;
+    flex: 1;
   }
 }
 
@@ -665,7 +674,8 @@ body {
   }
   
   .payment-detail-timeline-horizontal-event {
-    min-width: 120px;
+    min-width: 100px;
+    flex: 1;
   }
 }
 
