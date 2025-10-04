@@ -789,6 +789,8 @@ body {
   opacity: 0.9;
   margin: 0.25rem 0 0 0;
   font-weight: 400;
+  color: white;
+  display: block;
 }
 
 .card-modal-close {
@@ -924,7 +926,7 @@ body {
 .card-modal-actions {
   display: flex;
   gap: 1rem;
-  justify-content: flex-end;
+  justify-content: center;
 }
 
 .card-btn {
@@ -1006,12 +1008,12 @@ body {
   }
   
   .card-modal-actions {
-    flex-direction: column;
-    gap: 0.75rem;
+    justify-content: center;
   }
   
   .card-btn {
     width: 100%;
+    max-width: 200px;
   }
   
   .card-field-row {
