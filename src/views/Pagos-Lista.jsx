@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useRef, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Pagos-Lista.css';
 import Select from 'react-select';
+import FacturaPreview from './FacturaPreview';
 
 const METODOS = ['Todos los métodos', 'Tarjeta crédito', 'Tarjeta débito', 'Mercado Pago'];
 const ESTADOS_CHIPS = ['Pendiente', 'Aprobado', 'Rechazado'];
@@ -75,6 +76,7 @@ const getMetodoTag = (method) => {
   if (type === 'MERCADO_PAGO') return 'Mercado Pago';
   return '—';
 };
+
 function KebabMenu({ estado, onVerFactura, onVerPago }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -228,25 +230,11 @@ const buildFacturaHTML = (p) => {
     Este es un comprobante no fiscal emitido a partir de datos reales del pago.
   </div>
 </div>
-<script>
-window.onload = function(){window.print();}
-</script>
 </body>
 </html>
 `;
   return html;
 };
-
-const verFacturaDesdeLista = (p) => {
-  const html = buildFacturaHTML(p);
-  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const win = window.open(url, '_blank');
-  setTimeout(() => URL.revokeObjectURL(url), 60000);
-  if (!win) alert('No se pudo abrir el comprobante. Verificá el bloqueador de pop-ups.');
-};
-
-
 
 export default function PagosLista() {
   const navigate = useNavigate();
@@ -255,11 +243,12 @@ export default function PagosLista() {
   const [loading, setLoading] = useState(true);
   const [fetchErr, setFetchErr] = useState('');
 
-  const authRole = (
-    JSON.parse(localStorage.getItem('auth') || '{}').role ||
-    localStorage.getItem('role') ||
-    'USER'
-  ).toUpperCase();
+  const [previewHTML, setPreviewHTML] = useState('');
+
+  const authRole =
+    (JSON.parse(localStorage.getItem('auth') || '{}').role ||
+      localStorage.getItem('role') ||
+      'USER').toUpperCase();
 
   const searchBy =
     authRole === 'MERCHANT' ? 'Cliente' : authRole === 'USER' ? 'Prestador' : 'Cliente';
@@ -296,7 +285,6 @@ export default function PagosLista() {
     setChips(new Set());
   };
 
-  // === altura dinámica del masthead ===
   const mastRef = useRef(null);
   useLayoutEffect(() => {
     const el = mastRef.current;
@@ -485,9 +473,13 @@ export default function PagosLista() {
     URL.revokeObjectURL(url);
   };
 
+  const onVerFacturaPreview = (p) => {
+    const html = buildFacturaHTML(p);
+    setPreviewHTML(html);
+  };
+
   return (
     <div className="pl-wrap">
-      {/* Sticky: topbar + filtros + chips */}
       <div className="pl-masthead" ref={mastRef}>
         <div className="pl-topbar">
           <div className="pl-topbar__brand">
@@ -530,11 +522,11 @@ export default function PagosLista() {
                 borderRadius: 8,
                 colors: {
                   ...theme.colors,
-                  primary25: '#f0f4ff', // hover
-                  primary: '#2563eb', // seleccionado
-                  neutral0: '#ffffff', // fondo
-                  neutral80: '#111111', // texto
-                  neutral20: '#e6eaf0', // borde
+                  primary25: '#f0f4ff',
+                  primary: '#2563eb',
+                  neutral0: '#ffffff',
+                  neutral80: '#111111',
+                  neutral20: '#e6eaf0',
                 },
               })}
               styles={{
@@ -641,8 +633,6 @@ export default function PagosLista() {
           >
             Reembolsado
           </Chip>
-
-          {/* Exportar CSV a la derecha */}
           <span className="pl-export" onClick={exportCSV}>
             <i className="ri-download-2-line" /> Exportar CSV
           </span>
@@ -702,10 +692,10 @@ export default function PagosLista() {
                         </button>
                       ) : (
                         <KebabMenu
-                        estado={p.estado}
-                        onVerFactura={() => verFacturaDesdeLista(p)}
-                        onVerPago={() => navigate(`/detalle/${p.id}`)}
-                      />
+                          estado={p.estado}
+                          onVerFactura={() => onVerFacturaPreview(p)}
+                          onVerPago={() => navigate(`/detalle/${p.id}`)}
+                        />
                       )}
                     </td>
                   </tr>
@@ -735,6 +725,13 @@ export default function PagosLista() {
           </tbody>
         </table>
       </section>
+
+      {previewHTML && (
+        <FacturaPreview
+          html={previewHTML}
+          onClose={() => setPreviewHTML('')}
+        />
+      )}
     </div>
   );
 }
