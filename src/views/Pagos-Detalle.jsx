@@ -503,18 +503,7 @@ window.onload = function(){window.print();}
             <p className="payment-detail-subtitle">Resumen completo y timeline de eventos</p>
           </div>
         </div>
-        <div className="payment-detail-actions">
-          {puedeDescargarComprobante && (
-            <button className="payment-detail-action-btn" onClick={descargarComprobante}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <polyline points="7,10 12,15 17,10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Descargar comprobante
-            </button>
-          )}
-        </div>
+        <div></div>
       </div>
 
       {/* Layout principal mejorado */}
@@ -689,22 +678,22 @@ window.onload = function(){window.print();}
           )}
 
           {!tlErr && filteredTimeline.length > 0 && (
-            <div className="payment-detail-timeline-container">
-              <div className="payment-detail-timeline-line"></div>
-              <div className="payment-detail-timeline-events">
+            <div className="payment-detail-timeline-horizontal">
+              <div className="payment-detail-timeline-horizontal-line"></div>
+              <div className="payment-detail-timeline-horizontal-events">
                 {filteredTimeline.map((ev, i) => {
                   const cat = ev.category;
                   return (
-                    <div key={ev.id} className={`payment-detail-timeline-event payment-detail-timeline-event--${cat}`}>
-                      <div className="payment-detail-timeline-dot">
-                        <div className="payment-detail-timeline-dot-inner"></div>
+                    <div key={ev.id} className={`payment-detail-timeline-horizontal-event payment-detail-timeline-horizontal-event--${cat}`}>
+                      <div className="payment-detail-timeline-horizontal-dot">
+                        <div className="payment-detail-timeline-horizontal-dot-inner"></div>
                       </div>
-                      <div className="payment-detail-timeline-content">
-                        <div className="payment-detail-timeline-event-title">
+                      <div className="payment-detail-timeline-horizontal-content">
+                        <div className="payment-detail-timeline-horizontal-event-title">
                           {mapEventType(ev.type)}
                           {ev._count ? ` ×${ev._count}` : ''}
                         </div>
-                        <div className="payment-detail-timeline-event-date">
+                        <div className="payment-detail-timeline-horizontal-event-date">
                           {fechaHora(ev.createdISO)}
                         </div>
                       </div>

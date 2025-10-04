@@ -51,9 +51,10 @@ body {
 
 /* Header mejorado */
 .payment-detail-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
+  gap: 2rem;
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--payment-border-light);
@@ -192,7 +193,7 @@ body {
 
 .payment-detail-info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
   padding: 2rem;
 }
@@ -380,12 +381,14 @@ body {
   font-weight: 500;
 }
 
-.payment-detail-timeline-container {
+/* Timeline horizontal */
+.payment-detail-timeline-horizontal {
   position: relative;
   padding: 2rem;
+  overflow-x: auto;
 }
 
-.payment-detail-timeline-line {
+.payment-detail-timeline-horizontal-line {
   position: absolute;
   top: 2rem;
   left: 2rem;
@@ -395,22 +398,26 @@ body {
   z-index: 1;
 }
 
-.payment-detail-timeline-events {
+.payment-detail-timeline-horizontal-events {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 2rem;
   position: relative;
   z-index: 2;
+  min-width: max-content;
 }
 
-.payment-detail-timeline-event {
+.payment-detail-timeline-horizontal-event {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
   gap: 1rem;
   position: relative;
+  min-width: 200px;
+  text-align: center;
 }
 
-.payment-detail-timeline-dot {
+.payment-detail-timeline-horizontal-dot {
   width: 24px;
   height: 24px;
   background: var(--payment-background);
@@ -424,61 +431,65 @@ body {
   z-index: 3;
 }
 
-.payment-detail-timeline-dot-inner {
+.payment-detail-timeline-horizontal-dot-inner {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--payment-text-muted);
 }
 
-.payment-detail-timeline-event--state .payment-detail-timeline-dot {
+.payment-detail-timeline-horizontal-event--state .payment-detail-timeline-horizontal-dot {
   border-color: var(--payment-success);
 }
 
-.payment-detail-timeline-event--state .payment-detail-timeline-dot-inner {
+.payment-detail-timeline-horizontal-event--state .payment-detail-timeline-horizontal-dot-inner {
   background: var(--payment-success);
 }
 
-.payment-detail-timeline-event--error .payment-detail-timeline-dot {
+.payment-detail-timeline-horizontal-event--error .payment-detail-timeline-horizontal-dot {
   border-color: var(--payment-danger);
 }
 
-.payment-detail-timeline-event--error .payment-detail-timeline-dot-inner {
+.payment-detail-timeline-horizontal-event--error .payment-detail-timeline-horizontal-dot-inner {
   background: var(--payment-danger);
 }
 
-.payment-detail-timeline-event--refund .payment-detail-timeline-dot {
+.payment-detail-timeline-horizontal-event--refund .payment-detail-timeline-horizontal-dot {
   border-color: var(--payment-info);
 }
 
-.payment-detail-timeline-event--refund .payment-detail-timeline-dot-inner {
+.payment-detail-timeline-horizontal-event--refund .payment-detail-timeline-horizontal-dot-inner {
   background: var(--payment-info);
 }
 
-.payment-detail-timeline-event--info .payment-detail-timeline-dot {
+.payment-detail-timeline-horizontal-event--info .payment-detail-timeline-horizontal-dot {
   border-color: var(--payment-warning);
 }
 
-.payment-detail-timeline-event--info .payment-detail-timeline-dot-inner {
+.payment-detail-timeline-horizontal-event--info .payment-detail-timeline-horizontal-dot-inner {
   background: var(--payment-warning);
 }
 
-.payment-detail-timeline-content {
-  flex: 1;
-  padding-top: 0.25rem;
+.payment-detail-timeline-horizontal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: center;
 }
 
-.payment-detail-timeline-event-title {
-  font-size: 1rem;
+.payment-detail-timeline-horizontal-event-title {
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--payment-text);
-  margin-bottom: 0.25rem;
+  text-align: center;
+  line-height: 1.2;
 }
 
-.payment-detail-timeline-event-date {
-  font-size: 0.875rem;
+.payment-detail-timeline-horizontal-event-date {
+  font-size: 0.75rem;
   color: var(--payment-text-muted);
   font-weight: 500;
+  text-align: center;
 }
 
 /* Badges mejorados */
@@ -558,7 +569,7 @@ body {
   }
   
   .payment-detail-info-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -568,16 +579,12 @@ body {
   }
   
   .payment-detail-header {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 1rem;
-    align-items: stretch;
+    text-align: center;
   }
   
   .payment-detail-title-section {
-    justify-content: flex-start;
-  }
-  
-  .payment-detail-actions {
     justify-content: center;
   }
   
@@ -595,14 +602,25 @@ body {
     padding: 1rem 1.5rem;
   }
   
-  .payment-detail-info-grid,
-  .payment-detail-totals-content,
-  .payment-detail-timeline-container {
+  .payment-detail-info-grid {
+    grid-template-columns: 1fr;
     padding: 1.5rem;
   }
   
-  .payment-detail-timeline-events {
-    gap: 1.5rem;
+  .payment-detail-totals-content {
+    padding: 1.5rem;
+  }
+  
+  .payment-detail-timeline-horizontal {
+    padding: 1.5rem;
+  }
+  
+  .payment-detail-timeline-horizontal-events {
+    gap: 1rem;
+  }
+  
+  .payment-detail-timeline-horizontal-event {
+    min-width: 150px;
   }
 }
 
@@ -633,14 +651,21 @@ body {
   }
   
   .payment-detail-info-grid,
-  .payment-detail-totals-content,
-  .payment-detail-timeline-container {
+  .payment-detail-totals-content {
     padding: 1rem;
   }
   
-  .payment-detail-timeline-line {
+  .payment-detail-timeline-horizontal {
+    padding: 1rem;
+  }
+  
+  .payment-detail-timeline-horizontal-line {
     left: 1rem;
     right: 1rem;
+  }
+  
+  .payment-detail-timeline-horizontal-event {
+    min-width: 120px;
   }
 }
 
