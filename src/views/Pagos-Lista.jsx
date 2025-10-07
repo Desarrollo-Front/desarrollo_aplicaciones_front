@@ -358,36 +358,36 @@ export default function PagosLista() {
                 borderRadius: 8,
                 colors: {
                   ...theme.colors,
-                  primary25: '#f0f4ff', // hover
-                  primary: '#2563eb', // seleccionado
-                  neutral0: '#ffffff', // fondo
-                  neutral80: '#111111', // texto
-                  neutral20: '#e6eaf0', // borde
+                  primary25: '#E6F4FB',
+                  primary: 'var(--brand-blue)',
+                  neutral0: '#ffffff',
+                  neutral80: '#111111',
+                  neutral20: 'var(--line)'
                 },
               })}
               styles={{
                 control: (base) => ({
                   ...base,
                   borderRadius: '8px',
-                  borderColor: '#e6eaf0',
-                  minHeight: '36px',
-                  fontSize: '14px',
+                  borderColor: 'var(--line)',
+                  minHeight: '34px',
+                  fontSize: '13px',
                   boxShadow: 'none',
-                  '&:hover': { borderColor: '#2563eb' },
+                  '&:hover': { borderColor: 'var(--brand-blue)' },
                 }),
                 menu: (base) => ({
                   ...base,
                   borderRadius: '8px',
                   marginTop: 4,
-                  fontSize: '14px',
+                  fontSize: '13px',
                   zIndex: 9999,
                 }),
                 option: (base, { isFocused, isSelected }) => ({
                   ...base,
-                  backgroundColor: isSelected ? '#2563eb' : isFocused ? '#f0f4ff' : '#fff',
+                  backgroundColor: isSelected ? 'var(--brand-blue)' : isFocused ? '#E6F4FB' : '#fff',
                   color: isSelected ? '#fff' : '#111',
                   cursor: 'pointer',
-                  fontSize: '14px',
+                  fontSize: '13px',
                 }),
               }}
             />
@@ -425,6 +425,43 @@ export default function PagosLista() {
               value={{ value: orden, label: orden }}
               onChange={(opt) => setOrden(opt.value)}
               classNamePrefix="pl-sel"
+              theme={(theme) => ({
+                ...theme,
+                borderRadius: 8,
+                colors: {
+                  ...theme.colors,
+                  primary25: '#E6F4FB',
+                  primary: 'var(--brand-blue)',
+                  neutral0: '#ffffff',
+                  neutral80: '#111111',
+                  neutral20: 'var(--line)'
+                },
+              })}
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  borderRadius: '8px',
+                  borderColor: 'var(--line)',
+                  minHeight: '34px',
+                  fontSize: '13px',
+                  boxShadow: 'none',
+                  '&:hover': { borderColor: 'var(--brand-blue)' },
+                }),
+                menu: (base) => ({
+                  ...base,
+                  borderRadius: '8px',
+                  marginTop: 4,
+                  fontSize: '13px',
+                  zIndex: 9999,
+                }),
+                option: (base, { isFocused, isSelected }) => ({
+                  ...base,
+                  backgroundColor: isSelected ? 'var(--brand-blue)' : isFocused ? '#E6F4FB' : '#fff',
+                  color: isSelected ? '#fff' : '#111',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                }),
+              }}
             />
           </div>
 
