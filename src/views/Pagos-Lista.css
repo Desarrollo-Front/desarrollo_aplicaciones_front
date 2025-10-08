@@ -277,23 +277,28 @@ body {
   border:1px solid #dc3545;
 }
 .pl-btn--logout:hover { background:#c82333; }
+
 .pl-btn--pagar {
-  border: 1px solid var(--brand-green);
-  background: var(--brand-green);
+  border: 1px solid var(--brand-blue-dark);
+  background: linear-gradient(90deg, var(--brand-blue), var(--brand-blue-dark));
   color: #fff;
-  height: 32px;
-  padding: 0 12px;
-  border-radius: 10px;
-  font-weight: 700;
+  height: 36px;
+  padding: 0 18px;
+  border-radius: 11px;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.10);
+  transition: background 0.15s, box-shadow 0.15s, transform 0.13s;
 }
 .pl-btn--pagar i {
-  font-size: 16px;
+  font-size: 17px;
 }
 .pl-btn--pagar:hover {
-  background: var(--brand-green-dark);
-  border-color: var(--brand-green-dark);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(39, 174, 96, .25);
+  background: linear-gradient(90deg, var(--brand-blue-dark), var(--brand-blue));
+  border-color: var(--brand-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59,130,246,0.18);
 }
 .pl-btn--pagar:active {
   transform: translateY(0);
@@ -302,7 +307,7 @@ body {
 .pl-btn--pagar:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
-  box-shadow: 0 0 0 3px rgba(39, 174, 96, .45);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
 }
 
 
