@@ -77,9 +77,12 @@ const getMetodoTag = (method) => {
   return '—';
 };
 
+
 function KebabMenu({ estado, onVerFactura, onVerPago }) {
   const [open, setOpen] = useState(false);
+  const [up, setUp] = useState(false);
   const ref = useRef(null);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     const onClickAway = (e) => {
@@ -88,6 +91,22 @@ function KebabMenu({ estado, onVerFactura, onVerPago }) {
     document.addEventListener("mousedown", onClickAway);
     return () => document.removeEventListener("mousedown", onClickAway);
   }, []);
+
+  useEffect(() => {
+    if (open && menuRef.current && ref.current) {
+      // Timeout para esperar render
+      setTimeout(() => {
+        const menu = menuRef.current;
+        const rect = menu.getBoundingClientRect();
+        const bottomSpace = window.innerHeight - rect.bottom;
+        if (bottomSpace < 10) {
+          setUp(true);
+        } else {
+          setUp(false);
+        }
+      }, 0);
+    }
+  }, [open]);
 
   return (
     <div className="pl-kebab" ref={ref}>
@@ -104,7 +123,11 @@ function KebabMenu({ estado, onVerFactura, onVerPago }) {
         </span>
       </button>
       {open && (
-        <div className="pl-kebab__menu" role="menu">
+        <div
+          className={`pl-kebab__menu${up ? ' is-up' : ''}`}
+          role="menu"
+          ref={menuRef}
+        >
           {estado === "Aprobado" && (
             <button
               className="pl-kebab__item"
