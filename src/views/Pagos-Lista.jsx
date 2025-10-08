@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState, useRef, useLayoutEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import './Pagos-Lista.css';
 import Select from 'react-select';
@@ -79,13 +78,10 @@ const getMetodoTag = (method) => {
 };
 
 
-
 function KebabMenu({ estado, onVerFactura, onVerPago }) {
   const [open, setOpen] = useState(false);
   const [up, setUp] = useState(false);
-  const [menuPos, setMenuPos] = useState({ top: 0, left: 0, width: 0 });
   const ref = useRef(null);
-  const btnRef = useRef(null);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -97,36 +93,33 @@ function KebabMenu({ estado, onVerFactura, onVerPago }) {
   }, []);
 
   useEffect(() => {
-    if (open && btnRef.current) {
+    if (open && menuRef.current && ref.current) {
       setTimeout(() => {
-        const btn = btnRef.current;
         const menu = menuRef.current;
-        if (!btn) return;
+        const btn = ref.current.querySelector('.pl-kebab__btn');
+        if (!menu || !btn) return;
         const btnRect = btn.getBoundingClientRect();
-        const menuHeight = menu ? menu.offsetHeight : 0;
+        const menuRect = menu.getBoundingClientRect();
         const spaceBelow = window.innerHeight - btnRect.bottom;
         const spaceAbove = btnRect.top;
-        let showUp = false;
-        let top = btnRect.bottom + 4;
-        if (spaceBelow < menuHeight + 8 && spaceAbove > menuHeight + 8) {
-          showUp = true;
-          top = btnRect.top - menuHeight - 4;
+        const menuHeight = menuRect.height;
+        // Si el menú cabe abajo, mostrar abajo. Si no, mostrar arriba.
+        if (spaceBelow >= menuHeight + 8) {
+          setUp(false);
+        } else if (spaceAbove >= menuHeight + 8) {
+          setUp(true);
+        } else {
+          // Si no cabe en ninguna dirección, priorizar abajo
+          setUp(false);
         }
-        setUp(showUp);
-        setMenuPos({
-          top: Math.max(top, 8),
-          left: btnRect.right - (menu ? menu.offsetWidth : 170),
-          width: btnRect.width
-        });
       }, 0);
     }
   }, [open]);
 
   return (
-    <div className="pl-kebab" ref={ref} style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+    <div className="pl-kebab" ref={ref}>
       <button
         className="pl-kebab__btn"
-        ref={btnRef}
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -137,18 +130,11 @@ function KebabMenu({ estado, onVerFactura, onVerPago }) {
           <span></span>
         </span>
       </button>
-      {open && createPortal(
+      {open && (
         <div
           className={`pl-kebab__menu${up ? ' is-up' : ''}`}
           role="menu"
           ref={menuRef}
-          style={{
-            position: 'fixed',
-            top: `${menuPos.top}px`,
-            left: `${menuPos.left}px`,
-            minWidth: 170,
-            zIndex: 20000
-          }}
         >
           {estado === "Aprobado" && (
             <button
@@ -172,8 +158,7 @@ function KebabMenu({ estado, onVerFactura, onVerPago }) {
             <i className="ri-eye-line" aria-hidden="true" />
             Ver pago
           </button>
-        </div>,
-        document.body
+        </div>
       )}
     </div>
   );
