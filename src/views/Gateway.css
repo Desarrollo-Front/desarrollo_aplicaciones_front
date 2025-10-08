@@ -811,8 +811,9 @@ body {
 }
 
 .card-modal-close:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--invoice-danger); /* Color rojo al pasar el mouse */
+  transform: scale(1.1);
 }
 
 /* Modal body */
