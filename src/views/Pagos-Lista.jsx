@@ -94,14 +94,22 @@ function KebabMenu({ estado, onVerFactura, onVerPago }) {
 
   useEffect(() => {
     if (open && menuRef.current && ref.current) {
-      // Timeout para esperar render
       setTimeout(() => {
         const menu = menuRef.current;
-        const rect = menu.getBoundingClientRect();
-        const bottomSpace = window.innerHeight - rect.bottom;
-        if (bottomSpace < 10) {
+        const btn = ref.current.querySelector('.pl-kebab__btn');
+        if (!menu || !btn) return;
+        const btnRect = btn.getBoundingClientRect();
+        const menuRect = menu.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - btnRect.bottom;
+        const spaceAbove = btnRect.top;
+        const menuHeight = menuRect.height;
+        // Si el menú cabe abajo, mostrar abajo. Si no, mostrar arriba.
+        if (spaceBelow >= menuHeight + 8) {
+          setUp(false);
+        } else if (spaceAbove >= menuHeight + 8) {
           setUp(true);
         } else {
+          // Si no cabe en ninguna dirección, priorizar abajo
           setUp(false);
         }
       }, 0);
