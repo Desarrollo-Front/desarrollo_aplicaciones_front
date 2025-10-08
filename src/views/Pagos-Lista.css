@@ -393,7 +393,13 @@ body {
   background-color: var(--brand-blue) !important;
   color: #fff !important;      
 }
-.pl-kebab{position:relative;display:inline-block}
+.pl-kebab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
 .pl-kebab__btn {
   width: 28px;
   height: 28px;
