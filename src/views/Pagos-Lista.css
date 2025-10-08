@@ -203,12 +203,17 @@ body {
   border-collapse: collapse;
 }
 
+/* Ajuste: última celda (acciones) sin padding extra a la derecha */
 .pl-tbl th,
 .pl-tbl td {
-  padding:12px;
-  text-align:left;
-  color:var(--text);
-  border-bottom: 1px solid var(--line); /* líneas suaves en body */
+  padding: 12px;
+  text-align: left;
+  color: var(--text);
+  border-bottom: 1px solid var(--line);
+}
+.pl-tbl td:last-child {
+  padding-right: 8px;
+  text-align: right;
 }
 
 /* Cabecera fija */
