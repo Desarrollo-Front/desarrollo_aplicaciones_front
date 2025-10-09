@@ -15,13 +15,17 @@ html, body {
 
 .login-container {
   display: grid;
-  place-items: center;
-  height: 100vh; /* Ocupar toda la altura */
+  /* La siguiente línea reemplaza a 'place-items: center;' */
+  align-items: start; /* Alinea verticalmente arriba */
+  justify-items: center; /* Mantiene el centrado horizontal */
+  padding-top: 15vh; /* Ajusta este valor para más o menos espacio arriba */
+  height: 100vh;
   width: 100%;
-  overflow: hidden; /* Evitar scroll */
-  background-color: #ffffff; /* Fondo blanco */
+  overflow: hidden;
+  background-color: #ffffff;
   background-image: radial-gradient(circle at top right, #ffffff, transparent 40%),
     radial-gradient(circle at bottom left, #ffffff, transparent 50%);
+  box-sizing: border-box; /* Añadido para que el padding no afecte el alto total */
 }
 
 .login-box {
