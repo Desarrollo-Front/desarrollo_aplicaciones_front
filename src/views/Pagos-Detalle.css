@@ -480,10 +480,17 @@ body {
 }
 
 .payment-detail-timeline-horizontal-event--info .payment-detail-timeline-horizontal-dot {
-  border-color: var(--payment-warning);
+  border-color: var(--payment-info);
 }
 
 .payment-detail-timeline-horizontal-event--info .payment-detail-timeline-horizontal-dot-inner {
+  background: var(--payment-info);
+}
+.payment-detail-timeline-horizontal-event--warning .payment-detail-timeline-horizontal-dot {
+  border-color: var(--payment-warning);
+}
+
+.payment-detail-timeline-horizontal-event--warning .payment-detail-timeline-horizontal-dot-inner {
   background: var(--payment-warning);
 }
 

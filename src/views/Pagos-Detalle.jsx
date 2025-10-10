@@ -79,6 +79,9 @@ const eventCategory = (type, payload) => {
   if (t === 'PAYMENT_PENDING' && statusInPayload === 'PENDING_BANK_APPROVAL') {
     return 'info'; // Categoría para el color azul
   }
+  if (t === 'PAYMENT_PENDING') {
+    return 'warning';
+  }
   
   // Lógica que ya tenías
   if (t.includes('REFUND')) return 'refund';
