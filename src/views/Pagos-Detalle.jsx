@@ -44,9 +44,16 @@ const getMetodoTag = (method) => {
   return '—';
 };
 
-const mapEventType = (t) => {
-  const x = String(t || '').toUpperCase();
-  if (x === 'PAYMENT_PENDING_APPROVAL') return 'Pago pendiente de Aprobación';
+const mapEventType = (type, payload) => { // Ahora recibe type y payload
+  const x = String(type || '').toUpperCase();
+  const statusInPayload = String(payload?.status || '').toUpperCase();
+
+  // Lógica para el caso específico
+  if (x === 'PAYMENT_PENDING' && statusInPayload === 'PENDING_BANK_APPROVAL') {
+    return 'Pago pendiente de Aprobación';
+  }
+
+  // Lógica que ya tenías
   if (x === 'PAYMENT_PENDING') return 'Pago pendiente';
   if (x === 'PAYMENT_METHOD_UPDATED') return 'Método de pago actualizado';
   if (x === 'PAYMENT_APPROVED') return 'Pago aprobado';
@@ -66,7 +73,14 @@ const mapEventType = (t) => {
 
 const eventCategory = (type, payload) => {
   const t = String(type || '').toUpperCase();
-  if (t.includes('PENDING_APPROVAL')) return 'info'; 
+  const statusInPayload = String(payload?.status || '').toUpperCase();
+
+  // Lógica para el caso específico (debe ir primero)
+  if (t === 'PAYMENT_PENDING' && statusInPayload === 'PENDING_BANK_APPROVAL') {
+    return 'info'; // Categoría para el color azul
+  }
+  
+  // Lógica que ya tenías
   if (t.includes('REFUND')) return 'refund';
   if (
     t.includes('REJECT') ||
@@ -692,7 +706,7 @@ window.onload = function(){window.print();}
                       </div>
                       <div className="payment-detail-timeline-horizontal-content">
                         <div className="payment-detail-timeline-horizontal-event-title">
-                          {mapEventType(ev.type)}
+                          {mapEventType(ev.type, ev.payload)} {/* Le pasamos también el payload */}
                           {ev._count ? ` ×${ev._count}` : ''}
                         </div>
                         <div className="payment-detail-timeline-horizontal-event-date">
