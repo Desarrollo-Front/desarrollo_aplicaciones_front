@@ -1,9 +1,4 @@
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden; /* Asegura que no haya scroll en el cuerpo de la página */
-}
+
 :root {
   --brand-blue: #3BA8E7;
   --brand-blue-dark: #2c7bbd;
