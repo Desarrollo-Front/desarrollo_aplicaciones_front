@@ -202,7 +202,7 @@ body {
   flex-direction: column;
   gap: 0.5rem; /* Mantiene el espacio vertical entre título y valor */
   position: relative; /* Clave para posicionar el ícono adentro */
-  padding-left: 0.3rem; /* Creamos un espacio a la izquierda SOLO para el ícono */
+  padding-left: 1rem; /* Creamos un espacio a la izquierda SOLO para el ícono */
 }
 
 
