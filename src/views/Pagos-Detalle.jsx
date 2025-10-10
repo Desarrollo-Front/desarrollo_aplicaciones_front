@@ -46,6 +46,7 @@ const getMetodoTag = (method) => {
 
 const mapEventType = (t) => {
   const x = String(t || '').toUpperCase();
+  if (x === 'PAYMENT_PENDING_APPROVAL') return 'Pago pendiente de Aprobación';
   if (x === 'PAYMENT_PENDING') return 'Pago pendiente';
   if (x === 'PAYMENT_METHOD_UPDATED') return 'Método de pago actualizado';
   if (x === 'PAYMENT_APPROVED') return 'Pago aprobado';
@@ -65,6 +66,7 @@ const mapEventType = (t) => {
 
 const eventCategory = (type, payload) => {
   const t = String(type || '').toUpperCase();
+  if (t.includes('PENDING_APPROVAL')) return 'info'; 
   if (t.includes('REFUND')) return 'refund';
   if (
     t.includes('REJECT') ||
