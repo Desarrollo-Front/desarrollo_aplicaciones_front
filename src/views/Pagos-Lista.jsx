@@ -77,9 +77,12 @@ const getMetodoTag = (method) => {
   return '—';
 };
 
+
 function KebabMenu({ estado, onVerFactura, onVerPago }) {
   const [open, setOpen] = useState(false);
+  const [up, setUp] = useState(false);
   const ref = useRef(null);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     const onClickAway = (e) => {
@@ -88,6 +91,30 @@ function KebabMenu({ estado, onVerFactura, onVerPago }) {
     document.addEventListener("mousedown", onClickAway);
     return () => document.removeEventListener("mousedown", onClickAway);
   }, []);
+
+  useEffect(() => {
+    if (open && menuRef.current && ref.current) {
+      setTimeout(() => {
+        const menu = menuRef.current;
+        const btn = ref.current.querySelector('.pl-kebab__btn');
+        if (!menu || !btn) return;
+        const btnRect = btn.getBoundingClientRect();
+        const menuRect = menu.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - btnRect.bottom;
+        const spaceAbove = btnRect.top;
+        const menuHeight = menuRect.height;
+        // Si el menú cabe abajo, mostrar abajo. Si no, mostrar arriba.
+        if (spaceBelow >= menuHeight + 8) {
+          setUp(false);
+        } else if (spaceAbove >= menuHeight + 8) {
+          setUp(true);
+        } else {
+          // Si no cabe en ninguna dirección, priorizar abajo
+          setUp(false);
+        }
+      }, 0);
+    }
+  }, [open]);
 
   return (
     <div className="pl-kebab" ref={ref}>
@@ -104,7 +131,11 @@ function KebabMenu({ estado, onVerFactura, onVerPago }) {
         </span>
       </button>
       {open && (
-        <div className="pl-kebab__menu" role="menu">
+        <div
+          className={`pl-kebab__menu${up ? ' is-up' : ''}`}
+          role="menu"
+          ref={menuRef}
+        >
           {estado === "Aprobado" && (
             <button
               className="pl-kebab__item"

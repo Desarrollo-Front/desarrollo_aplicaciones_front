@@ -79,7 +79,7 @@ body {
 /* Header mejorado */
 .gateway-header {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns:auto 1fr auto;
   align-items: center;
   gap: 2rem;
   margin-bottom: 2rem;
@@ -794,6 +794,8 @@ body {
 }
 
 .card-modal-close {
+  font-size: 1.3rem; /* Ajusta este tamaño si es necesario */
+  line-height: 1;
   background: rgba(255, 255, 255, 0.2);
   border: none;
   border-radius: var(--invoice-radius);
@@ -811,8 +813,10 @@ body {
 }
 
 .card-modal-close:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
+  background: var(--gateway-danger); /* Fondo rojo */
+  color: white;                      /* Ícono/texto blanco para contraste */
+  transform: scale(1.1);             /* Mantenemos la animación de escala */
+  opacity: 0.9;
 }
 
 /* Modal body */
@@ -1076,4 +1080,9 @@ body {
     opacity: 0;
     transform: scale(0.9) translateY(20px);
   }
+}
+
+.gateway-header-invisible-spacer {
+  visibility: hidden; /* Oculta el elemento, pero sigue ocupando su espacio */
+  pointer-events: none; /* Asegura que no sea interactivo */
 }

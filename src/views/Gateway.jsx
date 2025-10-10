@@ -234,7 +234,7 @@ export default function Gateway() {
             <p className="gateway-subtitle">Elegí cómo querés pagar tu compra</p>
           </div>
         </div>
-        <div></div>
+        <div className="gateway-back-btn gateway-header-invisible-spacer" aria-hidden="true"></div>
       </div>
 
       {/* Banner de éxito */}
@@ -596,9 +596,7 @@ function CardModal({ onClose, onContinue, onInvalid, currency }) {
             onClick={onClose}
             aria-label="Cerrar modal"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+             &times;
           </button>
         </header>
 
