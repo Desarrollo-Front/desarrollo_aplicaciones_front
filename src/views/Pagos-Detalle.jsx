@@ -18,7 +18,7 @@ function Badge({ kind, children }) {
     .toLowerCase()
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '');
-  return <span className={`pd-badge pd-badge--${key}`}>{children}</span>;
+  return <span className={`payment-detail-badge payment-detail-badge--${key}`}>{children}</span>;
 }
 
 const mapStatus = (s) => {
@@ -62,14 +62,6 @@ const mapEventType = (t) => {
     .toLowerCase()
     .replace(/^\w/, (c) => c.toUpperCase());
 };
-const mapRefundStatus = (s) => {
-  const t = String(s || '').toUpperCase();
-  if (t === 'PENDING') return 'Pendiente';
-  if (t === 'DECLINED') return 'Rechazado';
-  if (t === 'TOTAL_REFUND') return 'Reembolso total';
-  if (t === 'PARTIAL_REFUND') return 'Reembolso parcial';
-  return t;
-};
 
 const eventCategory = (type, payload) => {
   const t = String(type || '').toUpperCase();
@@ -101,12 +93,12 @@ const highlightPairs = (payload, moneda) => {
     src.method || src.method_type || src.payment_method || src.card?.brand || src.issuer;
   if (method) {
     const traduccionesMetodo = {
-      CREDIT_CARD: "Tarjeta de crédito",
-      DEBIT_CARD: "Tarjeta de débito",
-      MERCADO_PAGO: "Mercado Pago",
+      CREDIT_CARD: 'Tarjeta de crédito',
+      DEBIT_CARD: 'Tarjeta de débito',
+      MERCADO_PAGO: 'Mercado Pago',
     };
     const metodoTraducido = traduccionesMetodo[String(method).toUpperCase()] || String(method);
-    tryPush("Método", metodoTraducido);
+    tryPush('Método', metodoTraducido);
   }
   const last4 = src.card?.last4 || src.last4 || src.card_last4;
   if (last4) tryPush('Terminación', `**** ${String(last4)}`);
@@ -125,54 +117,48 @@ const highlightPairs = (payload, moneda) => {
   return entries.slice(0, 3);
 };
 
-const parseJsonSafe = async (res) => {
-  const text = await res.text();
-  if (!text) return null;
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-};
-
-const normalizeRefundResponse = (data) => {
-  if (!data) return null;
-  if (Array.isArray(data)) return data.length ? data[0] : null;
-  return data;
-};
+//const parseJsonSafe = async (res) => {
+//  const text = await res.text();
+//  if (!text) return null;
+//  try {
+//    return JSON.parse(text);
+//  } catch {
+//   return null;
+//  }
+//};
 
 const translatePayloadDeep = (payload) => {
-  if (!payload || typeof payload !== "object") return payload;
+  if (!payload || typeof payload !== 'object') return payload;
 
   const keyTranslations = {
-    status: "Estado",
-    method: "Método",
-    method_type: "Tipo de método",
-    payment_method_type: "Tipo de método de pago",
-    payment_method_id: "ID de método de pago",
-    approval_time: "Fecha de aprobación",
-    amount: "Monto",
-    amount_total: "Monto total",
-    currency: "Moneda",
-    installments: "Cuotas",
-    reason: "Motivo",
-    error: "Error",
-    refund_id: "ID de reembolso",
-    created_at: "Fecha de creación",
-    updated_at: "Fecha de actualización",
+    status: 'Estado',
+    method: 'Método',
+    method_type: 'Tipo de método',
+    payment_method_type: 'Tipo de método de pago',
+    payment_method_id: 'ID de método de pago',
+    approval_time: 'Fecha de aprobación',
+    amount: 'Monto',
+    amount_total: 'Monto total',
+    currency: 'Moneda',
+    installments: 'Cuotas',
+    reason: 'Motivo',
+    error: 'Error',
+    refund_id: 'ID de reembolso',
+    created_at: 'Fecha de creación',
+    updated_at: 'Fecha de actualización',
   };
 
   const valueTranslations = {
-    PENDING_BANK_APPROVAL: "Pendiente de aprobación bancaria",
-    AUTO_APPROVED_BY_BANK: "Aprobado automáticamente por el banco",
-    CREDIT_CARD: "Tarjeta de crédito",
-    DEBIT_CARD: "Tarjeta de débito",
-    CASH: "Efectivo",
-    MERCADO_PAGO: "Mercado Pago",
-    APPROVED: "Aprobado",
-    REJECTED: "Rechazado",
-    PENDING: "Pendiente",
-    REFUND_INITIATED: "Reembolso iniciado",
+    PENDING_BANK_APPROVAL: 'Pendiente de aprobación bancaria',
+    AUTO_APPROVED_BY_BANK: 'Aprobado automáticamente por el banco',
+    CREDIT_CARD: 'Tarjeta de crédito',
+    DEBIT_CARD: 'Tarjeta de débito',
+    CASH: 'Efectivo',
+    MERCADO_PAGO: 'Mercado Pago',
+    APPROVED: 'Aprobado',
+    REJECTED: 'Rechazado',
+    PENDING: 'Pendiente',
+    REFUND_INITIATED: 'Reembolso iniciado',
   };
 
   const nuevo = {};
@@ -180,10 +166,10 @@ const translatePayloadDeep = (payload) => {
     const newKey = keyTranslations[k] || k;
 
     let newValue = v;
-    if (typeof v === "string") {
+    if (typeof v === 'string') {
       const upper = v.toUpperCase();
       newValue = valueTranslations[upper] || v;
-    } else if (typeof v === "object" && v !== null) {
+    } else if (typeof v === 'object' && v !== null) {
       newValue = translatePayloadDeep(v);
     }
 
@@ -204,35 +190,9 @@ export default function PagosDetalle() {
   const [tlFilter] = useState('all');
   const [expanded, setExpanded] = useState({});
 
-  const [showRefund, setShowRefund] = useState(false);
-  const [monto, setMonto] = useState(0);
-  const [motivo, setMotivo] = useState('');
-  const [notas, setNotas] = useState('');
-
-  const [refundInfo, setRefundInfo] = useState(null);
-  const [refundLoading, setRefundLoading] = useState(false);
-  const [refundErr, setRefundErr] = useState('');
-  const [actionLoading, setActionLoading] = useState(false);
-
   const role = String(localStorage.getItem('role') || '').toUpperCase();
   const isUser = role === 'USER';
   const isMerchant = role === 'MERCHANT';
-
-  const hasRefund = useMemo(() => Boolean(refundInfo || pago?.refundId), [refundInfo, pago]);
-  const refundReason = useMemo(
-    () => String(refundInfo?.reason || pago?.refund_reason || '').trim(),
-    [refundInfo, pago]
-  );
-  const isRefundPending = useMemo(
-    () => String(refundInfo?.status || '').toUpperCase() === 'PENDING',
-    [refundInfo]
-  );
-  const [fullRefund, setFullRefund] = useState(false);
-  const [alerta, setAlerta] = useState({ show: false, tipo: 'info', mensaje: '' });
-  const mostrarAlerta = (mensaje, tipo = 'info') => {
-    setAlerta({ show: true, tipo, mensaje });
-    setTimeout(() => setAlerta({ show: false, tipo: 'info', mensaje: '' }), 4000);
-  };
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -314,42 +274,6 @@ export default function PagosDetalle() {
           });
           norm.sort((a, b) => new Date(a.createdISO) - new Date(b.createdISO));
           setTimeline(norm);
-        }
-
-        try {
-          setRefundLoading(true);
-          setRefundErr('');
-          setRefundInfo(null);
-          const resRefund = await fetch(`/api/refunds/payment/${p.id}`, {
-            headers: { 'Content-Type': 'application/json', Authorization: authHeader },
-          });
-          if (resRefund.status === 204 || resRefund.status === 404) {
-            setRefundInfo(null);
-          } else if (resRefund.status === 401) {
-            setRefundErr('No autorizado para consultar reembolsos.');
-          } else if (resRefund.ok) {
-            const raw = await parseJsonSafe(resRefund);
-            const r = normalizeRefundResponse(raw);
-            if (r && Object.keys(r).length > 0) {
-              setRefundInfo({
-                id: r.id ?? null,
-                amount: Number(r.amount ?? r.amount_total ?? 0),
-                status: String(r.status || '').toUpperCase(),
-                reason: r.reason ?? null,
-                createdAt: r.createdAt || r.created_at || null,
-                gatewayRefundId: r.gatewayRefundId || r.gateway_refund_id || null,
-              });
-            } else {
-              setRefundInfo(null);
-            }
-          } else {
-            setRefundErr('No se pudo consultar el reembolso.');
-          }
-        } catch {
-          setRefundErr('No se pudo consultar el reembolso.');
-          setRefundInfo(null);
-        } finally {
-          setRefundLoading(false);
         }
       } catch (e) {
         setErr(e.message || 'Error inesperado.');
@@ -496,158 +420,7 @@ window.onload = function(){window.print();}
     const url = URL.createObjectURL(blob);
     const win = window.open(url, '_blank');
     setTimeout(() => URL.revokeObjectURL(url), 60000);
-    if (!win) mostrarAlerta('No se pudo abrir el comprobante. Verificá el bloqueador de pop-ups.');
-  };
-
-  const getAuthHeader = () =>
-    localStorage.getItem('authHeader') ||
-    `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
-  useEffect(() => {
-    if (showRefund && fullRefund && pago) {
-      setMonto(pago.total);
-    }
-  }, [showRefund, fullRefund, pago]);
-
-  const refreshTimeline = async (paymentId) => {
-    const authHeader = getAuthHeader();
-    const resTl = await fetch(`/api/payments/${paymentId}/timeline`, {
-      headers: { 'Content-Type': 'application/json', Authorization: authHeader },
-    });
-    if (!resTl.ok) {
-      setTlErr('No se pudo obtener el timeline.');
-      setTimeline([]);
-      return;
-    }
-    const tl = await resTl.json();
-    const norm = (Array.isArray(tl) ? tl : []).map((e) => {
-      let payloadObj = null;
-      try {
-        payloadObj = e.payload ? JSON.parse(e.payload) : null;
-      } catch {
-        payloadObj = null;
-      }
-      const created = e.createdAt || e.created_at || null;
-      const cat = eventCategory(e.type, payloadObj);
-      return {
-        id: e.id,
-        type: e.type,
-        actor: e.actor || 'system',
-        source: e.eventSource || e.source || 'SYSTEM',
-        createdISO: created,
-        payload: payloadObj,
-        category: cat,
-      };
-    });
-    norm.sort((a, b) => new Date(a.createdISO) - new Date(b.createdISO));
-    setTimeline(norm);
-    setTlErr('');
-  };
-
-  const confirmarReembolso = async (e) => {
-    e.preventDefault();
-    if (!pago) return;
-    const amountNum = fullRefund ? Number(pago.total) : Number(monto);
-    const reasonStr = String(motivo || '').trim() || 'customer_request';
-    const notasStr = String(notas || '').trim();
-    const motivoRegex = /^[a-zA-ZÀ-ÿ\s.,-]{3,100}$/;
-    if (!motivoRegex.test(reasonStr)) {
-      mostrarAlerta(
-        'El motivo debe ser un texto válido (mínimo 3 caracteres, solo letras y espacios).'
-      );
-      return;
-    }
-    if (!Number.isFinite(amountNum) || amountNum <= 0) {
-      mostrarAlerta('Ingresá un monto válido mayor a 0.');
-      return;
-    }
-    if (amountNum > Number(pago.total)) {
-      mostrarAlerta('El monto no puede exceder el total del pago.');
-      return;
-    }
-    try {
-      const authHeader = getAuthHeader();
-      const body = {
-        paymentId: pago.id,
-        amount: amountNum,
-        reason: reasonStr,
-        metadata: JSON.stringify({
-          notes: notasStr || null,
-          requestedBy: localStorage.getItem('name') || null,
-          fullRefund: !!fullRefund,
-        }),
-      };
-      const res = await fetch('/api/refunds/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: authHeader },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) {
-        if (res.status === 401) throw new Error('No autorizado para crear reembolsos.');
-        throw new Error('No se pudo crear el reembolso.');
-      }
-      const created = await parseJsonSafe(res);
-      const r = normalizeRefundResponse(created);
-      if (r) {
-        setRefundInfo({
-          id: r.id ?? null,
-          amount: Number(r.amount ?? r.amount_total ?? 0),
-          status: String(r.status || '').toUpperCase(),
-          reason: r.reason ?? null,
-          createdAt: r.createdAt || r.created_at || null,
-          gatewayRefundId: r.gatewayRefundId || r.gateway_refund_id || null,
-        });
-      }
-      await refreshTimeline(pago.id);
-      setShowRefund(false);
-      setFullRefund(false);
-      setMonto(0);
-      setMotivo('');
-      setNotas('');
-    } catch (err) {
-      mostrarAlerta(err.message || 'Error al crear el reembolso.');
-    }
-  };
-
-  const doRefundAction = async (action) => {
-    if (!refundInfo?.id) return;
-    const isRefundPending = String(refundInfo?.status || '').toUpperCase() === 'PENDING';
-    if (!isRefundPending) return;
-    try {
-      setActionLoading(true);
-      const authHeader = getAuthHeader();
-      const url = `/api/refunds/${refundInfo.id}/${action}`;
-      let body = null;
-      if (action === 'decline') {
-        body = JSON.stringify({ status: 'PENDING', message: 'Rechazado por el comerciante' });
-      }
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: authHeader },
-        body: body,
-      });
-      if (!res.ok) {
-        if (res.status === 401) throw new Error('No autorizado para operar reembolsos.');
-        throw new Error('No se pudo actualizar el reembolso.');
-      }
-      const upd = await parseJsonSafe(res);
-      const r = normalizeRefundResponse(upd);
-      if (r) {
-        setRefundInfo({
-          id: r.id ?? refundInfo.id,
-          amount: Number(r.amount ?? refundInfo.amount ?? 0),
-          status: String(r.status || '').toUpperCase(),
-          reason: r.reason ?? refundInfo.reason ?? null,
-          createdAt: r.createdAt || r.created_at || refundInfo.createdAt || null,
-          gatewayRefundId:
-            r.gatewayRefundId || r.gateway_refund_id || refundInfo.gatewayRefundId || null,
-        });
-      }
-      await refreshTimeline(pago.id);
-    } catch (e) {
-      mostrarAlerta(e.message || 'Error al actualizar el reembolso.');
-    } finally {
-      setActionLoading(false);
-    }
+    if (!win) alert('No se pudo abrir el comprobante. Verificá el bloqueador de pop-ups.');
   };
 
   const filteredTimeline = useMemo(() => {
@@ -655,399 +428,283 @@ window.onload = function(){window.print();}
     return timeline.filter((e) => e.category === tlFilter);
   }, [timeline, tlFilter]);
 
-  const isRejected = useMemo(
-    () => String(pago?.rawStatus || '').toUpperCase() === 'REJECTED',
-    [pago]
-  );
+  //const isRejected = useMemo(
+  //  () => String(pago?.rawStatus || '').toUpperCase() === 'REJECTED',
+  //  [pago]
+  //);
 
-  const goRetry = () => {
-    if (!pago) return;
-    navigate(`/pago/${pago.id}`, {
-      state: {
-        id: pago.id,
-        currency: pago.moneda,
-        subtotal: pago.subtotal,
-        taxesAndFees: pago.impuestos,
-        total: pago.total,
-        status: pago.rawStatus,
-      },
-    });
-  };
+  //const goRetry = () => {
+  //  if (!pago) return;
+  //  navigate(`/pago/${pago.id}`, {
+  //    state: {
+  //      id: pago.id,
+  //      currency: pago.moneda,
+  //      subtotal: pago.subtotal,
+  //     taxesAndFees: pago.impuestos,
+  //      total: pago.total,
+  //      status: pago.rawStatus,
+  //    },
+  //  });
+  //};
 
   if (loading) {
     return (
-      <div className="pd-wrap">
-        <h1 className="pd-title">Detalle de pago</h1>
-        <p className="pd-sub">Cargando…</p>
+      <div className="payment-detail-container">
+        <div className="payment-detail-loading">
+          <h1>Detalle de pago</h1>
+          <p>Cargando…</p>
+        </div>
       </div>
     );
   }
 
   if (!pago) {
     return (
-      <div className="pd-wrap">
-        <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>
-          ← Volver
-        </button>
-        <h1 className="pd-title">Detalle de pago</h1>
-        <p className="pd-sub">{err || 'No se encontró el pago.'}</p>
+      <div className="payment-detail-container">
+        <div className="payment-detail-header">
+          <button className="payment-detail-back-btn" onClick={() => navigate('/pagos')}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Volver
+          </button>
+          <div className="payment-detail-title-section">
+            <h1 className="payment-detail-title">Detalle de pago</h1>
+            <p className="payment-detail-subtitle">{err || 'No se encontró el pago.'}</p>
+          </div>
+          <div></div>
+        </div>
       </div>
     );
   }
 
-  const isRefundPendingLike = String(refundInfo?.status || '').toUpperCase() === 'PENDING';
-
   return (
-    <div className="pd-wrap">
-      <div className="pd-head">
-        <button className="pd-btn pd-btn--ghost pd-back" onClick={() => navigate('/pagos')}>
-          ← Volver
+    <div className="payment-detail-container">
+      {/* Header mejorado */}
+      <div className="payment-detail-header">
+        <button className="payment-detail-back-btn" onClick={() => navigate('/pagos')}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Volver
         </button>
-        <div className="pd-head-center">
-          <h1 className="pd-title">Detalle de pago #{pago?.id ?? ''}</h1>
-          <p className="pd-sub">
-            Resumen, datos fiscales y referencia, comprobantes, reembolsos y timeline.
-          </p>
+        <div className="payment-detail-title-section">
+          <div className="payment-detail-title-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M16 13H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M16 17H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M10 9H9H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1 className="payment-detail-title">Detalle de pago #{pago?.id ?? ''}</h1>
+            <p className="payment-detail-subtitle">Resumen completo y timeline de eventos</p>
+          </div>
         </div>
-        <div className="pd-head-spacer"></div>
+        <div></div>
       </div>
 
-      <section className="pd-grid">
-        <article className="pd-card">
-          <header className="pd-card-h">Resumen</header>
-          <div className="pd-kv">
-            <div>
-              <b>Cliente</b>
-              <span>{pago.cliente}</span>
-            </div>
-            <div>
-              <b>Prestador</b>
-              <span>{pago.prestador}</span>
-            </div>
-            <div>
-              <b>Método</b>
-              <span>
-                <Badge kind={pago.metodo}>{pago.metodo}</Badge>
-              </span>
-            </div>
-            <div>
-              <b>Estado</b>
-              <span>
-                <Badge kind={pago.estado}>{pago.estado}</Badge>
-              </span>
-            </div>
-            <div>
-              <b>Subtotal</b>
-              <span>{totales.sub}</span>
-            </div>
-            <div>
-              <b>Impuestos</b>
-              <span>{totales.imp}</span>
-            </div>
-            <div className="pd-total">
-              <b>Total</b>
-              <span>{totales.tot}</span>
-            </div>
-            <div>
-              <b>Creado</b>
-              <span>{fechaHora(pago.creadoISO)}</span>
-            </div>
-            <div>
-              <b>Capturado</b>
-              <span>{fechaHora(pago.capturadoISO)}</span>
-            </div>
-          </div>
-        </article>
-
-        <article className="pd-card">
-          <header className="pd-card-h">Datos fiscales y referencia</header>
-          <div className="pd-kv">
-            <div>
-              <b>Moneda</b>
-              <span>{pago.moneda}</span>
-            </div>
-            <div>
-              <b>Fees</b>
-              <span>{money(pago.fees, pago.moneda)}</span>
-            </div>
-            <div>
-              <b>Descripción</b>
-              <span>{pago.descripcion}</span>
-            </div>
-            <div>
-              <b>Categoría</b>
-              <span>{pago.categoria}</span>
-            </div>
-            {hasRefund && refundReason && (
-              <div>
-                <b>Motivo reembolso</b>
-                <span>{refundReason}</span>
+      {/* Layout principal mejorado */}
+      <div className="payment-detail-main-layout">
+        {/* Sección de información del pago */}
+        <section className="payment-detail-info-section">
+          <div className="payment-detail-card">
+            <div className="payment-detail-card-header">
+              <div className="payment-detail-card-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               </div>
-            )}
-          </div>
-        </article>
-
-        <article className="pd-card">
-  <header className="pd-card-h">Comprobantes</header>
-  {puedeDescargarComprobante ? (
-    <div className="pd-comprobante">
-      <p className="pd-muted">
-        Se genera un comprobante de pago no fiscal con los datos reales.
-      </p>
-      <button className="pd-btn pd-btn--pri" onClick={descargarComprobante}>
-        Descargar Factura
-      </button>
-    </div>
-  ) : (
-    <div className="pd-comprobante">
-      <p className="pd-muted">
-        No hay comprobantes disponibles. {pago.rawStatus === 'REJECTED' && 'Reintente el pago.'}
-      </p>
-      {pago.rawStatus === 'REJECTED' && !isMerchant &&  (
-        <button
-          className="pd-btn pd-btn--pri"
-          onClick={() => navigate(`/pago/${pago.id}`, { state: pago })}
-        >
-          Reintentar pago
-        </button>
-      )}
-    </div>
-  )}
-</article>
-
-      </section>
-
-      <section className="pd-card pd-refunds">
-        <header className="pd-card-h pd-card-h--left">Reembolsos</header>
-        {refundLoading && <p className="pd-muted">Consultando reembolso…</p>}
-        {refundErr && <p className="pd-muted">{refundErr}</p>}
-        {!refundLoading && !refundErr && refundInfo && (
-          <div className="pd-kv">
-            <div>
-              <b>ID de reembolso</b>
-              <span>{refundInfo.id ?? '—'}</span>
+              <h2 className="payment-detail-card-title">Información del pago</h2>
             </div>
-            <div>
-              <b>Estado</b>
-              <span>{mapRefundStatus(refundInfo.status)}</span>
-            </div>
-            <div>
-              <b>Monto</b>
-              <span>{money(Number(refundInfo.amount ?? 0), pago.moneda)}</span>
-            </div>
-            {isMerchant && isRefundPending && (
-              <div className="pd-refund-actions" >
-                <button
-                  className="pd-btn pd-btn--pri"
-                  disabled={actionLoading || !isRefundPendingLike}
-                  onClick={() => doRefundAction('approve')}
-                >
-                  Aprobar
-                </button>
-                <button
-                  className="pd-btn"
-                  disabled={actionLoading || !isRefundPendingLike}
-                  onClick={() => doRefundAction('decline')}
-                >
-                  Rechazar
-                </button>
+            <div className="payment-detail-info-grid">
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Descripción
+                </div>
+                <div className="payment-detail-info-value">{pago.descripcion || '—'}</div>
               </div>
-            )}
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 7H17V17H7V7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M7 7L12 12L17 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Categoría
+                </div>
+                <div className="payment-detail-info-value">{pago.categoria || '—'}</div>
+              </div>
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Cliente
+                </div>
+                <div className="payment-detail-info-value">{pago.cliente}</div>
+              </div>
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 21V19C19 17.9391 18.5786 16.9217 17.8284 16.1716C17.0783 15.4214 16.0609 15 15 15H9C7.93913 15 6.92172 15.4214 6.17157 16.1716C5.42143 16.9217 5 17.9391 5 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Prestador
+                </div>
+                <div className="payment-detail-info-value">{pago.prestador}</div>
+              </div>
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
+                    <line x1="1" y1="10" x2="23" y2="10" stroke="currentColor" strokeWidth="2"/>
+                  </svg>
+                  Método de pago
+                </div>
+                <div className="payment-detail-info-value">
+                  <Badge kind={pago.metodo}>{pago.metodo}</Badge>
+                </div>
+              </div>
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                    <path d="M9 12L11 14L15 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Estado
+                </div>
+                <div className="payment-detail-info-value">
+                  <Badge kind={pago.estado}>{pago.estado}</Badge>
+                </div>
+              </div>
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                    <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Creado
+                </div>
+                <div className="payment-detail-info-value">{fechaHora(pago.creadoISO)}</div>
+              </div>
+              <div className="payment-detail-info-item">
+                <div className="payment-detail-info-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                    <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Capturado
+                </div>
+                <div className="payment-detail-info-value">{fechaHora(pago.capturadoISO)}</div>
+              </div>
+            </div>
           </div>
-        )}
-        {!refundLoading && !refundErr && !refundInfo && isMerchant && (
-          <div className="pd-empty">
-            <p className="pd-muted">No se inició un reembolso para este pago.</p>
+        </section>
+
+        {/* Sección de totales mejorada */}
+        <aside className="payment-detail-totals-section">
+          <div className="payment-detail-totals-card">
+            <div className="payment-detail-totals-header">
+              <div className="payment-detail-totals-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M17 5H9.5C8.11929 5 7 6.11929 7 7.5S8.11929 10 9.5 10H14.5C15.8807 10 17 11.1193 17 12.5S15.8807 15 14.5 15H7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3 className="payment-detail-totals-title">Resumen financiero</h3>
+            </div>
+            <div className="payment-detail-totals-content">
+              <div className="payment-detail-total-row">
+                <span className="payment-detail-total-label">Subtotal</span>
+                <span className="payment-detail-total-value">{totales.sub}</span>
+              </div>
+              <div className="payment-detail-total-row">
+                <span className="payment-detail-total-label">Impuestos y cargos</span>
+                <span className="payment-detail-total-value">{totales.imp}</span>
+              </div>
+              <div className="payment-detail-total-divider"></div>
+              <div className="payment-detail-total-row payment-detail-total-row--main">
+                <span className="payment-detail-total-label">Total</span>
+                <span className="payment-detail-total-value payment-detail-total-value--main">{totales.tot}</span>
+              </div>
+            </div>
           </div>
-        )}
-        {!refundLoading && !refundErr && !refundInfo && isUser && (
-          <div className="pd-empty">
-            <p className="pd-muted">Sin reembolsos registrados.</p>
-            <button
-              className="pd-btn pd-btn--pri"
-              onClick={() => {
-                setFullRefund(false);
-                setMonto(0);
-                setMotivo('');
-                setNotas('');
-                setShowRefund(true);
-              }}
-            >
-              Solicitar reembolso
-            </button>
+        </aside>
+      </div>
+
+      {/* Timeline mejorado */}
+      <section className="payment-detail-timeline-section">
+        <div className="payment-detail-timeline-card">
+          <div className="payment-detail-timeline-header">
+            <div className="payment-detail-timeline-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <h3 className="payment-detail-timeline-title">Timeline de eventos</h3>
+            <div className="payment-detail-timeline-count">
+              {filteredTimeline.length} eventos
+            </div>
           </div>
-        )}
-      </section>
 
-      <section className="pd-timeline pd-timeline--alt">
-        <div className="pd-tl-head">
-          <header className="pd-card-h">Timeline</header>
-          <div className="pd-tl-filters"></div>
-        </div>
+          {tlErr && (
+            <div className="payment-detail-timeline-error">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              {tlErr}
+            </div>
+          )}
 
-        {tlErr && <p className="pd-muted">{tlErr}</p>}
-        {!tlErr && filteredTimeline.length === 0 && (
-          <p className="pd-muted">No hay eventos para el filtro seleccionado.</p>
-        )}
+          {!tlErr && filteredTimeline.length === 0 && (
+            <div className="payment-detail-timeline-empty">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                <path d="M9 12L11 14L15 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <p>No hay eventos para mostrar</p>
+            </div>
+          )}
 
-        {!tlErr && filteredTimeline.length > 0 && (
-          <ul className="pd-time-alt">
-            {filteredTimeline.map((ev, i) => {
-              const side = i % 2 === 0 ? 'pd-left' : 'pd-right';
-              const cat = ev.category;
-              const open = !!expanded[ev.id];
-              const hl = highlightPairs(ev.payload, pago.moneda);
-              return (
-                <li key={ev.id} className={`pd-time-alt-item ${side} pd-time-${cat}`}>
-                  <div className="pd-time-head">
-                    <button
-                      className="pd-dot-label"
-                      data-tip={fechaHora(ev.createdISO)}
-                      type="button"
-                    >
-                      <span className="pd-evt-title">
-                        {mapEventType(ev.type)}
-                        {ev._count ? ` ×${ev._count}` : ''}
-                      </span>
-                    </button>
-                    {!open && (
-                      <button
-                        className="pd-btn pd-btn--chip pd-more"
-                        onClick={() => setExpanded((x) => ({ ...x, [ev.id]: true }))}
-                      >
-                        Ver más
-                      </button>
-                    )}
-                  </div>
-
-                  {open && (
-                    <div className="pd-time-card">
-                      <div className="pd-time-card-h">
-                        <div className="pd-time-title">
+          {!tlErr && filteredTimeline.length > 0 && (
+            <div className="payment-detail-timeline-horizontal">
+              <div className="payment-detail-timeline-horizontal-line"></div>
+              <div className="payment-detail-timeline-horizontal-events">
+                {filteredTimeline.map((ev, i) => {
+                  const cat = ev.category;
+                  return (
+                    <div key={ev.id} className={`payment-detail-timeline-horizontal-event payment-detail-timeline-horizontal-event--${cat}`}>
+                      <div className="payment-detail-timeline-horizontal-dot">
+                        <div className="payment-detail-timeline-horizontal-dot-inner"></div>
+                      </div>
+                      <div className="payment-detail-timeline-horizontal-content">
+                        <div className="payment-detail-timeline-horizontal-event-title">
                           {mapEventType(ev.type)}
                           {ev._count ? ` ×${ev._count}` : ''}
                         </div>
-                        <div className="pd-time-date">{fechaHora(ev.createdISO)}</div>
-                      </div>
-                      <div className="pd-time-meta">
-                        Actor: {ev.actor} · Origen: {ev.source}
-                      </div>
-
-                      {hl.length > 0 && (
-                        <div className="pd-tl-highlights">
-                          {hl.map(([k, v]) => (
-                            <div key={k} className="pd-chip-kv">
-                              <span className="pd-chip-k">{k}</span>
-                              <span className="pd-chip-v">{v}</span>
-                            </div>
-                          ))}
+                        <div className="payment-detail-timeline-horizontal-event-date">
+                          {fechaHora(ev.createdISO)}
                         </div>
-                      )}
-
-                      {ev.payload && typeof ev.payload === 'object' && (
-                        <div className="pd-payload">
-                          <pre className="pd-pre">{JSON.stringify(translatePayloadDeep(ev.payload), null, 2)}</pre>
-                        </div>
-                      )}
-
-                      <div className="pd-tl-actions">
-                        <button
-                          className="pd-btn pd-btn--chip"
-                          onClick={() => setExpanded((x) => ({ ...x, [ev.id]: false }))}
-                        >
-                          Ver menos
-                        </button>
                       </div>
                     </div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
       </section>
-
-      {showRefund && (
-        <div className="pd-modal-overlay" role="dialog" aria-modal="true">
-          <form className="pd-modal" onSubmit={confirmarReembolso}>
-            <div className="pd-modal-h">
-              <h3>Reembolso</h3>
-              <button
-                type="button"
-                className="pd-btn pd-btn--chip"
-                onClick={() => setShowRefund(false)}
-              >
-                Cerrar
-              </button>
-            </div>
-
-            <label
-              className="pd-field"
-              style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}
-            >
-              <input
-                type="checkbox"
-                checked={fullRefund}
-                onChange={(e) => setFullRefund(e.target.checked)}
-              />
-              <span>Reembolso total {pago ? `(${money(pago.total, pago.moneda)})` : ''}</span>
-            </label>
-
-            <label className="pd-field">
-              <span>Monto</span>
-              <input
-                type="number"
-                className="pd-input"
-                value={fullRefund && pago ? pago.total : monto}
-                min="0"
-                step="0.01"
-                max={pago ? pago.total : undefined}
-                onChange={(e) => setMonto(e.target.value)}
-                disabled={fullRefund}
-              />
-            </label>
-
-            <label className="pd-field">
-              <span>Motivo</span>
-              <input
-                type="text"
-                className="pd-input"
-                value={motivo}
-                onChange={(e) => setMotivo(e.target.value)}
-                pattern="[a-zA-ZÀ-ÿ\s.,-]{3,100}"
-                title="Solo letras, espacios y signos básicos (mínimo 3 caracteres)"
-                required
-              />
-            </label>
-
-            <label className="pd-field">
-              <span>Notas</span>
-              <textarea
-                className="pd-input pd-textarea"
-                value={notas}
-                onChange={(e) => setNotas(e.target.value)}
-              />
-            </label>
-
-            <div className="pd-modal-actions">
-              <button type="submit" className="pd-btn pd-btn--pri">
-                Confirmar
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-      {alerta.show && (
-        <div className={`pd-alert pd-alert--${alerta.tipo}`}>
-          {alerta.mensaje}
-          <button
-            className="pd-alert-x"
-            onClick={() => setAlerta({ show: false, tipo: 'info', mensaje: '' })}
-          >
-            ×
-          </button>
-        </div>
-      )}
     </div>
   );
 }
