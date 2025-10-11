@@ -201,14 +201,14 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem; /* Mantiene el espacio vertical entre título y valor */
-  position: relative; /* Clave para posicionar el ícono adentro */
-  padding-left: 1rem; /* Creamos un espacio a la izquierda SOLO para el ícono */
-}
+ }
 
 
 .payment-detail-info-label {
   /* Lo restauramos a su estado original simple, sin flex, sin position */
-  display: block; 
+  display: flex;       /* <--- ...CON ESTAS TRES */
+  align-items: center; /* Centra verticalmente el ícono con el texto */
+  gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--payment-text-muted);
@@ -219,9 +219,6 @@ body {
 }
 
 .payment-detail-info-label svg {
-  position: absolute; /* Hacemos que solo el ícono flote */
-  left: 0; /* Lo pegamos a la izquierda del item */
-  top: 0.1em; /* Lo alineamos verticalmente con el texto */
   width: 16px;
   height: 16px;
 }
