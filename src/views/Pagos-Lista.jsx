@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useRef, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Pagos-Lista.css';
 import Select from 'react-select';
+import FacturaPreview from './FacturaPreview';
 
 const METODOS = ['Todos los métodos', 'Tarjeta crédito', 'Tarjeta débito', 'Mercado Pago'];
 const ESTADOS_CHIPS = ['Pendiente', 'Aprobado', 'Rechazado'];
@@ -76,6 +77,196 @@ const getMetodoTag = (method) => {
   return '—';
 };
 
+
+function KebabMenu({ estado, onVerFactura, onVerPago }) {
+  const [open, setOpen] = useState(false);
+  const [up, setUp] = useState(false);
+  const ref = useRef(null);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const onClickAway = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onClickAway);
+    return () => document.removeEventListener("mousedown", onClickAway);
+  }, []);
+
+  useEffect(() => {
+    if (open && menuRef.current && ref.current) {
+      setTimeout(() => {
+        const menu = menuRef.current;
+        const btn = ref.current.querySelector('.pl-kebab__btn');
+        if (!menu || !btn) return;
+        const btnRect = btn.getBoundingClientRect();
+        const menuRect = menu.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - btnRect.bottom;
+        const spaceAbove = btnRect.top;
+        const menuHeight = menuRect.height;
+        // Si el menú cabe abajo, mostrar abajo. Si no, mostrar arriba.
+        if (spaceBelow >= menuHeight + 8) {
+          setUp(false);
+        } else if (spaceAbove >= menuHeight + 8) {
+          setUp(true);
+        } else {
+          // Si no cabe en ninguna dirección, priorizar abajo
+          setUp(false);
+        }
+      }, 0);
+    }
+  }, [open]);
+
+  return (
+    <div className="pl-kebab" ref={ref}>
+      <button
+        className="pl-kebab__btn"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        <span className="pl-kebab__dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      </button>
+      {open && (
+        <div
+          className={`pl-kebab__menu${up ? ' is-up' : ''}`}
+          role="menu"
+          ref={menuRef}
+        >
+          {estado === "Aprobado" && (
+            <button
+              className="pl-kebab__item"
+              onClick={() => {
+                setOpen(false);
+                onVerFactura();
+              }}
+            >
+              <i className="ri-file-text-line" aria-hidden="true" />
+              Ver factura
+            </button>
+          )}
+          <button
+            className="pl-kebab__item"
+            onClick={() => {
+              setOpen(false);
+              onVerPago();
+            }}
+          >
+            <i className="ri-eye-line" aria-hidden="true" />
+            Ver pago
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const fechaHoraUI = (iso, locale = 'es-AR') => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const f = d.toLocaleDateString(locale, { year: 'numeric', month: '2-digit', day: '2-digit' });
+  const h = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+  return `${f} ${h}`;
+};
+
+const buildFacturaHTML = (p) => {
+  const emisor = p.prestador || 'Prestador';
+  const cliente = p.cliente || 'Consumidor Final';
+  const metodo = p.metodo || '—';
+  const fechaEmision = fechaHoraUI(p.fechaISO);
+  const otrosCargos = Number(p.impuestos || 0);
+  const lines = [
+    { cant: 1, det: 'Pago', pu: p.subtotal, imp: p.subtotal },
+    ...(otrosCargos > 0 ? [{ cant: 1, det: 'Cargos e impuestos', pu: otrosCargos, imp: otrosCargos }] : []),
+  ];
+  const rows = lines.map(
+    (l) =>
+      `<tr><td style="padding:6px;border:1px solid #ddd;text-align:center">${l.cant}</td><td style="padding:6px;border:1px solid #ddd">${l.det}</td><td style="padding:6px;border:1px solid #ddd;text-align:right">${money(l.pu, p.moneda)}</td><td style="padding:6px;border:1px solid #ddd;text-align:right">${money(l.imp, p.moneda)}</td></tr>`
+  ).join('');
+  const html = `
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Factura</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="font-family:Arial,Helvetica,sans-serif;color:#111;margin:24px">
+<div style="max-width:820px;margin:0 auto">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+    <div>
+      <div style="font-size:22px;font-weight:700">Factura</div>
+      <div style="font-size:12px;color:#666">No fiscal</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:12px;color:#666">ID de pago</div>
+      <div style="font-size:16px;font-weight:700">#${p.id}</div>
+    </div>
+  </div>
+  <hr style="border:none;border-top:1px solid #e5e5e5;margin:12px 0">
+  <div style="display:flex;gap:24px;margin:12px 0 20px">
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Prestador</div>
+      <div style="font-size:14px;font-weight:600">${emisor}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Cliente</div>
+      <div style="font-size:14px;font-weight:600">${cliente}</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:24px;margin:0 0 16px">
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Fecha de emisión</div>
+      <div style="font-size:14px">${fechaEmision}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Moneda</div>
+      <div style="font-size:14px">${p.moneda}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Método</div>
+      <div style="font-size:14px">${metodo}</div>
+    </div>
+  </div>
+  <table style="width:100%;border-collapse:collapse;margin-top:8px">
+    <thead>
+      <tr>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:center;font-size:12px">Cant.</th>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:left;font-size:12px">Detalle</th>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:right;font-size:12px">P. unitario</th>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:right;font-size:12px">Importe</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+    </tbody>
+  </table>
+  <div style="display:flex;justify-content:flex-end;margin-top:12px">
+    <div style="min-width:280px">
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ddd">
+        <div style="color:#666">Subtotal</div><div>${money(p.subtotal, p.moneda)}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ddd">
+        <div style="color:#666">Otros cargos</div><div>${money(p.impuestos, p.moneda)}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:16px">
+        <div>Total</div><div>${money(p.total, p.moneda)}</div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:18px;padding:12px;background:#f7f7f7;border:1px solid #eee;font-size:12px;color:#444">
+    Este es un comprobante no fiscal emitido a partir de datos reales del pago.
+  </div>
+</div>
+</body>
+</html>
+`;
+  return html;
+};
+
 export default function PagosLista() {
   const navigate = useNavigate();
 
@@ -83,11 +274,12 @@ export default function PagosLista() {
   const [loading, setLoading] = useState(true);
   const [fetchErr, setFetchErr] = useState('');
 
-  const authRole = (
-    JSON.parse(localStorage.getItem('auth') || '{}').role ||
-    localStorage.getItem('role') ||
-    'USER'
-  ).toUpperCase();
+  const [previewHTML, setPreviewHTML] = useState('');
+
+  const authRole =
+    (JSON.parse(localStorage.getItem('auth') || '{}').role ||
+      localStorage.getItem('role') ||
+      'USER').toUpperCase();
 
   const searchBy =
     authRole === 'MERCHANT' ? 'Cliente' : authRole === 'USER' ? 'Prestador' : 'Cliente';
@@ -124,7 +316,6 @@ export default function PagosLista() {
     setChips(new Set());
   };
 
-  // === altura dinámica del masthead ===
   const mastRef = useRef(null);
   useLayoutEffect(() => {
     const el = mastRef.current;
@@ -313,9 +504,13 @@ export default function PagosLista() {
     URL.revokeObjectURL(url);
   };
 
+  const onVerFacturaPreview = (p) => {
+    const html = buildFacturaHTML(p);
+    setPreviewHTML(html);
+  };
+
   return (
     <div className="pl-wrap">
-      {/* Sticky: topbar + filtros + chips */}
       <div className="pl-masthead" ref={mastRef}>
         <div className="pl-topbar">
           <div className="pl-topbar__brand">
@@ -358,11 +553,11 @@ export default function PagosLista() {
                 borderRadius: 8,
                 colors: {
                   ...theme.colors,
-                  primary25: '#f0f4ff', // hover
-                  primary: '#2563eb', // seleccionado
-                  neutral0: '#ffffff', // fondo
-                  neutral80: '#111111', // texto
-                  neutral20: '#e6eaf0', // borde
+                  primary25: '#f0f4ff',
+                  primary: '#2563eb',
+                  neutral0: '#ffffff',
+                  neutral80: '#111111',
+                  neutral20: '#e6eaf0',
                 },
               })}
               styles={{
@@ -469,8 +664,6 @@ export default function PagosLista() {
           >
             Reembolsado
           </Chip>
-
-          {/* Exportar CSV a la derecha */}
           <span className="pl-export" onClick={exportCSV}>
             <i className="ri-download-2-line" /> Exportar CSV
           </span>
@@ -529,12 +722,11 @@ export default function PagosLista() {
                           <i className="ri-wallet-2-line" /> Pagar
                         </button>
                       ) : (
-                        <button
-                          className="pl-btn pl-btn--ghost"
-                          onClick={() => navigate(`/detalle/${p.id}`)}
-                        >
-                          <i className="ri-eye-line" /> Ver
-                        </button>
+                        <KebabMenu
+                          estado={p.estado}
+                          onVerFactura={() => onVerFacturaPreview(p)}
+                          onVerPago={() => navigate(`/detalle/${p.id}`)}
+                        />
                       )}
                     </td>
                   </tr>
@@ -564,6 +756,13 @@ export default function PagosLista() {
           </tbody>
         </table>
       </section>
+
+      {previewHTML && (
+        <FacturaPreview
+          html={previewHTML}
+          onClose={() => setPreviewHTML('')}
+        />
+      )}
     </div>
   );
 }
