@@ -198,15 +198,20 @@ body {
 }
 
 .payment-detail-info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem; /* Mantiene el espacio vertical entre título y valor */
+  display: grid;
+  /* Columna 1 para el ícono (16px), columna 2 para el texto (el resto) */
+  grid-template-columns: 16px 1fr;
+  /* Espacio entre el ícono y el texto */
+  column-gap: 0.5rem;
+  /* Alinea el texto del valor con el texto del título */
+  align-items: baseline;
+  gap: 0.5rem; /* Mantiene tu espacio vertical */
  }
 
 
 .payment-detail-info-label {
   /* Lo restauramos a su estado original simple, sin flex, sin position */
-  display: flex;       /* <--- ...CON ESTAS TRES */
+  display: contents;       /* <--- ...CON ESTAS TRES */
   align-items: center; /* Centra verticalmente el ícono con el texto */
   gap: 0.5rem;
   font-size: 0.875rem;
@@ -225,10 +230,11 @@ body {
 
 
 .payment-detail-info-value {
+   grid-column: 2;
+  padding-left: 0; /* Asegúrate de que no tenga padding */
   font-size: 1rem;
-  color: var(--payment-text);
   font-weight: 500;
-  padding-left: 0; /* Nos aseguramos que no tenga padding propio */
+  color: var(--payment-text);
 }
 
 /* Sección de totales */
