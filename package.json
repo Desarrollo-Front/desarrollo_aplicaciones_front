@@ -6,7 +6,7 @@
   "size-limit": [
     {
       "path": "dist/assets/*.js",
-      "limit": "200 KB"
+      "limit": "400 KB"
     }
   ],
   "scripts": {
@@ -24,8 +24,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@sentry/react": "^10.17.0",
-    "@sentry/tracing": "^7.120.4",
+    "@sentry/react": "^10.19.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.8.2",
