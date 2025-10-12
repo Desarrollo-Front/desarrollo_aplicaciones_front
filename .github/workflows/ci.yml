@@ -61,4 +61,4 @@ jobs:
 
       - name: E2E tests (Playwright)
         if: ${{ hashFiles('package.json') != '' }}
-        run: npx playwright test
+        run: npx playwright test e2e/

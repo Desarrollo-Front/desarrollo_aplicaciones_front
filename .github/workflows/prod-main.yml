@@ -24,13 +24,18 @@ jobs:
         working-directory: ${{ env.APP_PATH }}
         run: npm ci
 
-      # ⚙️ Solo necesitás el token personal de Vercel
+      # ✅ Instalar CLI de Vercel
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      # ⚙️ Pull de configuración del proyecto
       - name: Pull Vercel Project Settings (production)
         working-directory: ${{ env.APP_PATH }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
 
+      # 🧱 Build de la app
       - name: Build (production)
         working-directory: ${{ env.APP_PATH }}
         env:
@@ -39,6 +44,7 @@ jobs:
           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL_PROD }}
         run: vercel build --prod --token "$VERCEL_TOKEN"
 
+      # 🚀 Deploy final a producción
       - name: Deploy (production)
         working-directory: ${{ env.APP_PATH }}
         env:
