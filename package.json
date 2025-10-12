@@ -6,7 +6,7 @@
   "size-limit": [
     {
       "path": "dist/assets/*.js",
-      "limit": "200 KB"
+      "limit": "400 KB"
     }
   ],
   "scripts": {

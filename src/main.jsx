@@ -11,7 +11,18 @@ Sentry.init({
   tracesSampleRate: 1.0, // captura 100% de transacciones, bajalo en prod si querés
   sendDefaultPii: true, // opcional: incluye datos del usuario si los configurás
 });
-window.Sentry = Sentry;
+// 🪛 Captura de errores globales fuera del flujo de React
+window.addEventListener('error', (event) => {
+  Sentry.captureException(event.error);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  Sentry.captureException(event.reason);
+});
+
+if (import.meta.env.DEV) {
+  window.Sentry = Sentry;
+}
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
