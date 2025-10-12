@@ -198,29 +198,43 @@ body {
 }
 
 .payment-detail-info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
+  display: grid;
+  /* Columna 1 para el ícono (16px), columna 2 para el texto (el resto) */
+  grid-template-columns: 16px 1fr;
+  /* Espacio entre el ícono y el texto */
+  column-gap: 0.5rem;
+  /* Alinea el texto del valor con el texto del título */
+  align-items: baseline;
+  gap: 0.5rem; /* Mantiene tu espacio vertical */
+ }
+
 
 .payment-detail-info-label {
-  display: flex;
-  align-items: center;
+  /* Lo restauramos a su estado original simple, sin flex, sin position */
+  display: contents;       /* <--- ...CON ESTAS TRES */
+  align-items: center; /* Centra verticalmente el ícono con el texto */
   gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--payment-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0; 
+  padding-left: 0; /* Nos aseguramos que no tenga padding propio */
 }
 
+.payment-detail-info-label svg {
+  width: 16px;
+  height: 16px;
+}
+
+
 .payment-detail-info-value {
+   grid-column: 2;
+  padding-left: 0; /* Asegúrate de que no tenga padding */
   font-size: 1rem;
-  color: var(--payment-text);
   font-weight: 500;
-  margin-left: 0;
-  padding-left: 0;
+  color: var(--payment-text);
 }
 
 /* Sección de totales */
@@ -469,10 +483,17 @@ body {
 }
 
 .payment-detail-timeline-horizontal-event--info .payment-detail-timeline-horizontal-dot {
-  border-color: var(--payment-warning);
+  border-color: var(--payment-info);
 }
 
 .payment-detail-timeline-horizontal-event--info .payment-detail-timeline-horizontal-dot-inner {
+  background: var(--payment-info);
+}
+.payment-detail-timeline-horizontal-event--warning .payment-detail-timeline-horizontal-dot {
+  border-color: var(--payment-warning);
+}
+
+.payment-detail-timeline-horizontal-event--warning .payment-detail-timeline-horizontal-dot-inner {
   background: var(--payment-warning);
 }
 

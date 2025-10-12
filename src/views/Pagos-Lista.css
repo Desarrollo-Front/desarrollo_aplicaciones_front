@@ -195,7 +195,7 @@ body {
   border:1px solid var(--brand-blue);
   border-radius:16px;              /* redondeo */
   box-shadow:var(--shadow-lg);
-  overflow: hidden;                /* recorta el contenido a los bordes */
+                 /* recorta el contenido a los bordes */
 }
 
 .pl-tbl {
