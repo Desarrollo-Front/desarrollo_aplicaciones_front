@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import PagosLista from './views/Pagos-Lista';
 import PagosDetalle from './views/Pagos-Detalle';

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/21</span>
+                <span class='fraction'>22/22</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/21</span>
+                <span class='fraction'>22/22</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -86,52 +86,55 @@
 <a name='L21'></a><a href='#L21'>21</a>
 <a name='L22'></a><a href='#L22'>22</a>
 <a name='L23'></a><a href='#L23'>23</a>
-<a name='L24'></a><a href='#L24'>24</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
-<span class="cstat-no" title="statement not covered" >import PagosLista from './views/Pagos-Lista';</span>
-<span class="cstat-no" title="statement not covered" >import PagosDetalle from './views/Pagos-Detalle';</span>
-<span class="cstat-no" title="statement not covered" >import Login from './views/Login';</span>
-<span class="cstat-no" title="statement not covered" >import Gateway from './views/Gateway';</span>
-<span class="cstat-no" title="statement not covered" >const Placeholder = ({ title }) =&gt; &lt;div style={{ padding: 24 }}&gt;{title}&lt;/div&gt;;</span>
-<span class="cstat-no" title="statement not covered" >import './App.css';</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import PagosLista from './views/Pagos-Lista';
+import PagosDetalle from './views/Pagos-Detalle';
+import Login from './views/Login';
+import Gateway from './views/Gateway';
+const Placeholder = <span class="fstat-no" title="function not covered" >({ title }) =&gt; &lt;div style={{ padding: 24 }}&gt;{title}&lt;/div&gt;;</span>
+import './App.css';
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export default function App() {</span>
-<span class="cstat-no" title="statement not covered" >  return (</span>
-<span class="cstat-no" title="statement not covered" >    &lt;BrowserRouter&gt;</span>
-<span class="cstat-no" title="statement not covered" >      &lt;main className="app-main"&gt;</span>
-<span class="cstat-no" title="statement not covered" >        &lt;Routes&gt;</span>
-<span class="cstat-no" title="statement not covered" >          &lt;Route path="/" element={&lt;Navigate to="/login" replace /&gt;} /&gt;</span>
-<span class="cstat-no" title="statement not covered" >          &lt;Route path="/login" element={&lt;Login /&gt;} /&gt;</span>
-<span class="cstat-no" title="statement not covered" >          &lt;Route path="/pagos" element={&lt;PagosLista /&gt;} /&gt;</span>
-<span class="cstat-no" title="statement not covered" >          &lt;Route path="/detalle/:id" element={&lt;PagosDetalle /&gt;} /&gt;</span>
-<span class="cstat-no" title="statement not covered" >          &lt;Route path="/pago/:id" element={&lt;Gateway /&gt;} /&gt;</span>
-<span class="cstat-no" title="statement not covered" >        &lt;/Routes&gt;</span>
-<span class="cstat-no" title="statement not covered" >      &lt;/main&gt;</span>
-<span class="cstat-no" title="statement not covered" >    &lt;/BrowserRouter&gt;</span>
+export default function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;main className="app-main"&gt;
+        &lt;Routes&gt;
+          &lt;Route path="/" element={&lt;Navigate to="/login" replace /&gt;} /&gt;
+          &lt;Route path="/login" element={&lt;Login /&gt;} /&gt;
+          &lt;Route path="/pagos" element={&lt;PagosLista /&gt;} /&gt;
+          &lt;Route path="/detalle/:id" element={&lt;PagosDetalle /&gt;} /&gt;
+          &lt;Route path="/pago/:id" element={&lt;Gateway /&gt;} /&gt;
+        &lt;/Routes&gt;
+      &lt;/main&gt;
+    &lt;/BrowserRouter&gt;
   );
-<span class="cstat-no" title="statement not covered" >}</span>
+}
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -139,7 +142,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-12T20:04:48.138Z
+                at 2025-09-29T00:49:21.526Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
