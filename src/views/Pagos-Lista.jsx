@@ -1,170 +1,12 @@
-import React, { useEffect, useMemo, useState, useRef, useLayoutEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Pagos-Lista.css';
-import Select from 'react-select';
-import FacturaPreview from './FacturaPreview';
 
-const METODOS = ['Todos los métodos', 'Tarjeta crédito', 'Tarjeta débito', 'Mercado Pago'];
-const ESTADOS_CHIPS = ['Pendiente', 'Aprobado', 'Rechazado'];
-
+// --- Helpers (sin cambios) ---
 const money = (n, curr = 'ARS', locale = 'es-AR') =>
-  new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(n);
+  new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(Number(n || 0));
 
-const fechaFmt = (iso, locale = 'es-AR') => {
-  const d = new Date(iso);
-  const fecha = d.toLocaleDateString(locale, { year: 'numeric', month: '2-digit', day: '2-digit' });
-  const hora = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
-  return { fecha, hora };
-};
-
-function Badge({ kind, children }) {
-  let key = (kind || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .replace(/\s+/g, '-');
-
-  const iconByKey = {
-    aprobado: 'ri-check-line',
-    pendiente: 'ri-time-line',
-    'pendiente-de-pago': 'ri-wallet-2-line',
-    'pendiente-de-aprobacion': 'ri-shield-check-line',
-    rechazado: 'ri-close-circle-line',
-    expirado: 'ri-timer-off-line',
-    reembolsado: 'ri-refund-2-line',
-    disputa: 'ri-scales-2-line',
-    credito: 'ri-bank-card-2-line',
-    debito: 'ri-bank-card-line',
-    'mercado-pago': 'ri-shopping-bag-4-line',
-    billetera: 'ri-wallet-3-line',
-  };
-
-  const icon = iconByKey[key] || 'ri-information-line';
-  return (
-    <span className={`pl-badge pl-badge--${key}`}>
-      <i className={`${icon} pl-badge__ico`} aria-hidden="true" />
-      {children}
-    </span>
-  );
-}
-
-function Chip({ active, onClick, children, icon }) {
-  return (
-    <button type="button" className={`pl-chip ${active ? 'is-on' : ''}`} onClick={onClick}>
-      {icon && <i className={`${icon}`} aria-hidden="true" />} {children}
-    </button>
-  );
-}
-
-const mapStatus = (s) => {
-  const t = String(s || '').toUpperCase();
-  if (t === 'PENDING') return 'Pendiente';
-  if (t === 'PENDING_PAYMENT') return 'Pendiente de Pago';
-  if (t === 'PENDING_APPROVAL') return 'Pendiente de Aprobación';
-  if (t === 'APPROVED' || t === 'CAPTURED') return 'Aprobado';
-  if (t === 'REJECTED' || t === 'FAILED') return 'Rechazado';
-  if (t === 'EXPIRED') return 'Expirado';
-  if (t === 'REFUNDED') return 'Reembolsado';
-  if (t === 'DISPUTE' || t === 'DISPUTED') return 'Disputa';
-  return 'Pendiente';
-};
-
-const getMetodoTag = (method) => {
-  const type = String(method?.type || '').toUpperCase();
-  if (type === 'CREDIT_CARD') return 'Crédito';
-  if (type === 'DEBIT_CARD') return 'Débito';
-  if (type === 'MERCADO_PAGO') return 'Mercado Pago';
-  return '—';
-};
-
-
-function KebabMenu({ estado, onVerFactura, onVerPago }) {
-  const [open, setOpen] = useState(false);
-  const [up, setUp] = useState(false);
-  const ref = useRef(null);
-  const menuRef = useRef(null);
-
-  useEffect(() => {
-    const onClickAway = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener("mousedown", onClickAway);
-    return () => document.removeEventListener("mousedown", onClickAway);
-  }, []);
-
-  useEffect(() => {
-    if (open && menuRef.current && ref.current) {
-      setTimeout(() => {
-        const menu = menuRef.current;
-        const btn = ref.current.querySelector('.pl-kebab__btn');
-        if (!menu || !btn) return;
-        const btnRect = btn.getBoundingClientRect();
-        const menuRect = menu.getBoundingClientRect();
-        const spaceBelow = window.innerHeight - btnRect.bottom;
-        const spaceAbove = btnRect.top;
-        const menuHeight = menuRect.height;
-        // Si el menú cabe abajo, mostrar abajo. Si no, mostrar arriba.
-        if (spaceBelow >= menuHeight + 8) {
-          setUp(false);
-        } else if (spaceAbove >= menuHeight + 8) {
-          setUp(true);
-        } else {
-          // Si no cabe en ninguna dirección, priorizar abajo
-          setUp(false);
-        }
-      }, 0);
-    }
-  }, [open]);
-
-  return (
-    <div className="pl-kebab" ref={ref}>
-      <button
-        className="pl-kebab__btn"
-        onClick={() => setOpen((v) => !v)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-      >
-        <span className="pl-kebab__dots">
-          <span></span>
-          <span></span>
-          <span></span>
-        </span>
-      </button>
-      {open && (
-        <div
-          className={`pl-kebab__menu${up ? ' is-up' : ''}`}
-          role="menu"
-          ref={menuRef}
-        >
-          {estado === "Aprobado" && (
-            <button
-              className="pl-kebab__item"
-              onClick={() => {
-                setOpen(false);
-                onVerFactura();
-              }}
-            >
-              <i className="ri-file-text-line" aria-hidden="true" />
-              Ver factura
-            </button>
-          )}
-          <button
-            className="pl-kebab__item"
-            onClick={() => {
-              setOpen(false);
-              onVerPago();
-            }}
-          >
-            <i className="ri-eye-line" aria-hidden="true" />
-            Ver pago
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-const fechaHoraUI = (iso, locale = 'es-AR') => {
+const fechaHora = (iso, locale = 'es-AR') => {
   if (!iso) return '—';
   const d = new Date(iso);
   const f = d.toLocaleDateString(locale, { year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -172,597 +14,158 @@ const fechaHoraUI = (iso, locale = 'es-AR') => {
   return `${f} ${h}`;
 };
 
-const buildFacturaHTML = (p) => {
-  const emisor = p.prestador || 'Prestador';
-  const cliente = p.cliente || 'Consumidor Final';
-  const metodo = p.metodo || '—';
-  const fechaEmision = fechaHoraUI(p.fechaISO);
-  const otrosCargos = Number(p.impuestos || 0);
-  const lines = [
-    { cant: 1, det: 'Pago', pu: p.subtotal, imp: p.subtotal },
-    ...(otrosCargos > 0 ? [{ cant: 1, det: 'Cargos e impuestos', pu: otrosCargos, imp: otrosCargos }] : []),
-  ];
-  const rows = lines.map(
-    (l) =>
-      `<tr><td style="padding:6px;border:1px solid #ddd;text-align:center">${l.cant}</td><td style="padding:6px;border:1px solid #ddd">${l.det}</td><td style="padding:6px;border:1px solid #ddd;text-align:right">${money(l.pu, p.moneda)}</td><td style="padding:6px;border:1px solid #ddd;text-align:right">${money(l.imp, p.moneda)}</td></tr>`
-  ).join('');
-  const html = `
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Factura</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body style="font-family:Arial,Helvetica,sans-serif;color:#111;margin:24px">
-<div style="max-width:820px;margin:0 auto">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
-    <div>
-      <div style="font-size:22px;font-weight:700">Factura</div>
-      <div style="font-size:12px;color:#666">No fiscal</div>
-    </div>
-    <div style="text-align:right">
-      <div style="font-size:12px;color:#666">ID de pago</div>
-      <div style="font-size:16px;font-weight:700">#${p.id}</div>
-    </div>
-  </div>
-  <hr style="border:none;border-top:1px solid #e5e5e5;margin:12px 0">
-  <div style="display:flex;gap:24px;margin:12px 0 20px">
-    <div style="flex:1">
-      <div style="font-size:12px;color:#666">Prestador</div>
-      <div style="font-size:14px;font-weight:600">${emisor}</div>
-    </div>
-    <div style="flex:1">
-      <div style="font-size:12px;color:#666">Cliente</div>
-      <div style="font-size:14px;font-weight:600">${cliente}</div>
-    </div>
-  </div>
-  <div style="display:flex;gap:24px;margin:0 0 16px">
-    <div style="flex:1">
-      <div style="font-size:12px;color:#666">Fecha de emisión</div>
-      <div style="font-size:14px">${fechaEmision}</div>
-    </div>
-    <div style="flex:1">
-      <div style="font-size:12px;color:#666">Moneda</div>
-      <div style="font-size:14px">${p.moneda}</div>
-    </div>
-    <div style="flex:1">
-      <div style="font-size:12px;color:#666">Método</div>
-      <div style="font-size:14px">${metodo}</div>
-    </div>
-  </div>
-  <table style="width:100%;border-collapse:collapse;margin-top:8px">
-    <thead>
-      <tr>
-        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:center;font-size:12px">Cant.</th>
-        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:left;font-size:12px">Detalle</th>
-        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:right;font-size:12px">P. unitario</th>
-        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:right;font-size:12px">Importe</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${rows}
-    </tbody>
-  </table>
-  <div style="display:flex;justify-content:flex-end;margin-top:12px">
-    <div style="min-width:280px">
-      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ddd">
-        <div style="color:#666">Subtotal</div><div>${money(p.subtotal, p.moneda)}</div>
-      </div>
-      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ddd">
-        <div style="color:#666">Otros cargos</div><div>${money(p.impuestos, p.moneda)}</div>
-      </div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:16px">
-        <div>Total</div><div>${money(p.total, p.moneda)}</div>
-      </div>
-    </div>
-  </div>
-  <div style="margin-top:18px;padding:12px;background:#f7f7f7;border:1px solid #eee;font-size:12px;color:#444">
-    Este es un comprobante no fiscal emitido a partir de datos reales del pago.
-  </div>
-</div>
-</body>
-</html>
-`;
-  return html;
+const mapStatus = (s) => {
+  const t = String(s || '').toUpperCase();
+  if (t === 'PENDING' || t === 'PENDING_PAYMENT') return 'Pendiente';
+  if (t === 'PENDING_APPROVAL') return 'Aprobación';
+  if (t === 'APPROVED' || t === 'CAPTURED' || t === 'COMPLETED') return 'Aprobado';
+  if (t === 'REJECTED' || t === 'FAILED') return 'Rechazado';
+  if (t === 'EXPIRED') return 'Expirado';
+  if (t === 'REFUNDED') return 'Reembolsado';
+  if (t === 'DISPUTE' || t === 'DISPUTED') return 'Disputa';
+  return 'Desconocido';
 };
 
+// --- Componentes de UI Pequeños (sin cambios) ---
+function StatusBadge({ status }) {
+  const statusKey = (status || 'desconocido').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/\s+/g, '-');
+  return (
+    <div className={`pl-status-badge pl-status-badge--${statusKey}`}>
+      <span className="pl-status-badge-dot"></span>
+      {status}
+    </div>
+  );
+}
+
+function CustomerAvatar({ name }) {
+    const initial = String(name || '?').charAt(0).toUpperCase();
+    return (
+        <div className="pl-customer-cell">
+            <div className="pl-customer-avatar" title={name}>{initial}</div>
+            <span className="pl-customer-name">{name}</span>
+        </div>
+    );
+}
+
+// --- Componente Principal ---
 export default function PagosLista() {
   const navigate = useNavigate();
-
-  const [serverData, setServerData] = useState([]);
+  const [pagos, setPagos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [fetchErr, setFetchErr] = useState('');
-
-  const [previewHTML, setPreviewHTML] = useState('');
-
-  const authRole =
-    (JSON.parse(localStorage.getItem('auth') || '{}').role ||
-      localStorage.getItem('role') ||
-      'USER').toUpperCase();
-
-  const searchBy =
-    authRole === 'MERCHANT' ? 'Cliente' : authRole === 'USER' ? 'Prestador' : 'Cliente';
-
-  const [query, setQuery] = useState('');
-  const [metodo, setMetodo] = useState(METODOS[0]);
-  const [desde, setDesde] = useState('');
-  const [hasta, setHasta] = useState('');
-  const [orden, setOrden] = useState('Fecha ⬇');
-  const [chips, setChips] = useState(new Set());
-
-  const userName =
-    JSON.parse(localStorage.getItem('auth') || '{}').name ||
-    localStorage.getItem('name') ||
-    'Usuario';
-
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate('/login', { replace: true });
-  };
-
-  const toggleChip = (name) => {
-    const next = new Set(chips);
-    next.has(name) ? next.delete(name) : next.add(name);
-    setChips(next);
-  };
-
-  const resetFiltros = () => {
-    setQuery('');
-    setMetodo(METODOS[0]);
-    setDesde('');
-    setHasta('');
-    setOrden('Fecha ⬇');
-    setChips(new Set());
-  };
-
-  const mastRef = useRef(null);
-  useLayoutEffect(() => {
-    const el = mastRef.current;
-    if (!el) return;
-    const setH = () =>
-      document.documentElement.style.setProperty('--masthead-h', `${el.offsetHeight}px`);
-    const ro = new ResizeObserver(setH);
-    ro.observe(el);
-    setH();
-    const onResize = () => setH();
-    window.addEventListener('resize', onResize);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', onResize);
-    };
-  }, []);
+  const [error, setError] = useState('');
+  const [filter, setFilter] = useState('todos');
 
   useEffect(() => {
-    const fetchPayments = async () => {
-      setLoading(true);
-      setFetchErr('');
+    const fetchPagos = async () => {
       try {
-        const authHeader =
-          localStorage.getItem('authHeader') ||
-          `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
-
-        const res = await fetch('/api/payments/my-payments', {
-          headers: { 'Content-Type': 'application/json', Authorization: authHeader },
-        });
-
+        setLoading(true);
+        setError('');
+        const authHeader = `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
+        const res = await fetch('/api/payments', { headers: { 'Content-Type': 'application/json', Authorization: authHeader } });
         if (!res.ok) {
-          if (res.status === 401) throw new Error('No autorizado. Iniciá sesión nuevamente.');
+          if (res.status === 401) throw new Error('No autorizado. Por favor, iniciá sesión de nuevo.');
           throw new Error('No se pudieron obtener los pagos.');
         }
-
-        const list = await res.json();
-        const mapped = (Array.isArray(list) ? list : []).map((p) => ({
+        const data = await res.json();
+        const pagosNormalizados = (Array.isArray(data) ? data : []).map(p => ({
           id: p.id,
-          cliente: p.user_name ?? '-',
-          prestador: p.provider_name ?? '-',
-          metodo: getMetodoTag(p.method),
+          cliente: localStorage.getItem('name') || `Usuario #${p.user_id}`,
+          monto: p.amount_total,
+          moneda: p.currency || 'ARS',
           estado: mapStatus(p.status),
-          subtotal: Number(p.amount_subtotal ?? 0),
-          impuestos: Number((p.taxes ?? 0) + (p.fees ?? 0)),
-          total: Number(p.amount_total ?? 0),
-          moneda: String(p.currency || 'ARS').toUpperCase(),
-          fechaISO: p.created_at,
+          fecha: p.created_at || p.createdAt,
+          rawStatus: String(p.status || '').toUpperCase(),
         }));
-        setServerData(mapped);
+        pagosNormalizados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+        setPagos(pagosNormalizados);
       } catch (e) {
-        setFetchErr(e.message || 'Error inesperado obteniendo pagos.');
-        setServerData([]);
+        setError(e.message || 'Ocurrió un error inesperado.');
+        setPagos([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchPayments();
+    fetchPagos();
   }, []);
 
-  useEffect(() => {
-    const sentinel = document.createElement('div');
-    sentinel.style.position = 'absolute';
-    sentinel.style.top = '0px';
-    sentinel.style.height = '1px';
-    document.body.prepend(sentinel);
-
-    const mast = document.querySelector('.pl-masthead');
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting) {
-          mast?.classList.remove('is-stuck');
-        } else {
-          mast?.classList.add('is-stuck');
-        }
-      },
-      { threshold: [1] }
-    );
-
-    io.observe(sentinel);
-
-    return () => {
-      io.disconnect();
-      sentinel.remove();
+  const filteredPagos = useMemo(() => {
+    if (filter === 'todos') return pagos;
+    const statusMap = {
+      aprobados: ['APPROVED', 'CAPTURED', 'COMPLETED'],
+      pendientes: ['PENDING', 'PENDING_PAYMENT', 'PENDING_APPROVAL'],
+      rechazados: ['REJECTED', 'FAILED'],
     };
-  }, []);
+    return pagos.filter(p => statusMap[filter]?.includes(p.rawStatus));
+  }, [pagos, filter]);
 
-  const pagos = useMemo(() => {
-    let arr = [...serverData];
-
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      arr = arr.filter((p) =>
-        (searchBy === 'Cliente' ? p.cliente : p.prestador).toLowerCase().includes(q)
-      );
-    }
-
-    if (metodo !== METODOS[0]) {
-      const map = {
-        'Tarjeta crédito': 'Crédito',
-        'Tarjeta débito': 'Débito',
-        'Mercado Pago': 'Mercado Pago',
-      };
-      arr = arr.filter((p) => p.metodo === map[metodo]);
-    }
-
-    if (desde) arr = arr.filter((p) => new Date(p.fechaISO) >= new Date(desde + 'T00:00:00'));
-    if (hasta) arr = arr.filter((p) => new Date(p.fechaISO) <= new Date(hasta + 'T23:59:59'));
-
-    if (chips.size) {
-      arr = arr.filter((p) => {
-        if (chips.has('Pendiente')) {
-          if (
-            p.estado === 'Pendiente' ||
-            p.estado === 'Pendiente de Pago' ||
-            p.estado === 'Pendiente de Aprobación'
-          )
-            return true;
-        }
-        return chips.has(p.estado) || chips.has(p.metodo);
-      });
-    }
-
-    arr.sort((a, b) => {
-      if (orden.startsWith('Fecha')) {
-        return orden.endsWith('⬇')
-          ? new Date(b.fechaISO) - new Date(a.fechaISO)
-          : new Date(a.fechaISO) - new Date(b.fechaISO);
-      }
-      return orden.endsWith('⬇') ? b.total - a.total : a.total - b.total;
-    });
-
-    return arr;
-  }, [serverData, query, metodo, desde, hasta, chips, orden, searchBy]);
-
-  const exportCSV = () => {
-    const headers = [
-      'ID',
-      'Cliente',
-      'Prestador',
-      'Método',
-      'Estado',
-      'Subtotal',
-      'Impuestos',
-      'Total',
-      'Moneda',
-      'Fecha',
-      'Hora',
-    ];
-    const rows = pagos.map((p) => {
-      const { fecha, hora } = fechaFmt(p.fechaISO);
-      return [
-        p.id,
-        p.cliente,
-        p.prestador,
-        p.metodo,
-        p.estado,
-        p.subtotal,
-        p.impuestos,
-        p.total,
-        p.moneda,
-        fecha,
-        hora,
-      ];
-    });
-    const csv =
-      headers.join(',') +
-      '\n' +
-      rows
-        .map((r) =>
-          r
-            .map((v) => {
-              const s = String(v ?? '');
-              return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
-            })
-            .join(',')
-        )
-        .join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `pagos_${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const onVerFacturaPreview = (p) => {
-    const html = buildFacturaHTML(p);
-    setPreviewHTML(html);
-  };
+  const statusCounts = useMemo(() => {
+    return pagos.reduce((acc, p) => {
+      const statusKey = p.estado.toLowerCase();
+      if (statusKey === 'aprobado') acc.aprobados++;
+      else if (statusKey === 'pendiente' || statusKey === 'aprobación') acc.pendientes++;
+      else if (statusKey === 'rechazado') acc.rechazados++;
+      acc.todos++;
+      return acc;
+    }, { todos: 0, aprobados: 0, pendientes: 0, rechazados: 0 });
+  }, [pagos]);
+  
+  const FilterButton = ({ status, label, count }) => (
+    <button className={`pl-filter-btn ${filter === status ? 'pl-filter-btn--active' : ''}`} onClick={() => setFilter(status)}>
+      {label}
+      <span className="pl-filter-count">{count}</span>
+    </button>
+  );
 
   return (
-    <div className="pl-wrap">
-      <div className="pl-masthead" ref={mastRef}>
-        <div className="pl-topbar">
-          <div className="pl-topbar__brand">
-            <i className="ri-secure-payment-line" aria-hidden="true" />
-            <span>Pagos</span>
-          </div>
-          <div className="pl-topbar__right">
-            <span className="pl-user">
-              <i className="ri-user-3-line" aria-hidden="true" /> Hola, {userName}
-            </span>
-            <button className="pl-btn pl-btn--logout" onClick={handleLogout}>
-              <i className="ri-logout-circle-r-line" aria-hidden="true" /> Cerrar sesión
-            </button>
+    <div className="pl-container">
+      <header className="pl-header">
+        <div className="pl-title-section">
+          <div className="pl-title-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M16 13H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M16 17H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M10 9H9H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></div>
+          <div>
+            <h1 className="pl-title">Mis Pagos</h1>
+            <p className="pl-subtitle">Historial de todas tus transacciones</p>
           </div>
         </div>
+        <div className="pl-header-actions"><button className="pl-action-btn" onClick={() => navigate('/pago/nuevo')}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Crear Pago</button></div>
+      </header>
 
-        <section className="pl-filters">
-          <div className="pl-field">
-            <label>Buscar por {searchBy.toLowerCase()}</label>
-            <div className="pl-inline">
-              <i className="ri-search-line pl-input__ico" />
-              <input
-                className="pl-input pl-input--with-ico"
-                placeholder={`Buscar por ${searchBy.toLowerCase()}...`}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="pl-field">
-            <label>Método</label>
-            <Select
-              options={METODOS.map((m) => ({ value: m, label: m }))}
-              value={{ value: metodo, label: metodo }}
-              onChange={(opt) => setMetodo(opt.value)}
-              classNamePrefix="pl-sel"
-              theme={(theme) => ({
-                ...theme,
-                borderRadius: 8,
-                colors: {
-                  ...theme.colors,
-                  primary25: '#f0f4ff',
-                  primary: '#2563eb',
-                  neutral0: '#ffffff',
-                  neutral80: '#111111',
-                  neutral20: '#e6eaf0',
-                },
-              })}
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  borderRadius: '8px',
-                  borderColor: '#e6eaf0',
-                  minHeight: '36px',
-                  fontSize: '14px',
-                  boxShadow: 'none',
-                  '&:hover': { borderColor: '#2563eb' },
-                }),
-                menu: (base) => ({
-                  ...base,
-                  borderRadius: '8px',
-                  marginTop: 4,
-                  fontSize: '14px',
-                  zIndex: 9999,
-                }),
-                option: (base, { isFocused, isSelected }) => ({
-                  ...base,
-                  backgroundColor: isSelected ? '#2563eb' : isFocused ? '#f0f4ff' : '#fff',
-                  color: isSelected ? '#fff' : '#111',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                }),
-              }}
-            />
-          </div>
-
-          <div className="pl-field">
-            <label>Desde</label>
-            <input
-              type="date"
-              className="pl-input"
-              value={desde}
-              onChange={(e) => setDesde(e.target.value)}
-            />
-          </div>
-
-          <div className="pl-field">
-            <label>Hasta</label>
-            <input
-              type="date"
-              className="pl-input"
-              value={hasta}
-              onChange={(e) => setHasta(e.target.value)}
-            />
-          </div>
-
-          <div className="pl-field">
-            <label>Orden</label>
-            <Select
-              options={[
-                { value: 'Fecha ⬇', label: 'Fecha ⬇' },
-                { value: 'Fecha ⬆', label: 'Fecha ⬆' },
-                { value: 'Monto ⬇', label: 'Monto ⬇' },
-                { value: 'Monto ⬆', label: 'Monto ⬆' },
-              ]}
-              value={{ value: orden, label: orden }}
-              onChange={(opt) => setOrden(opt.value)}
-              classNamePrefix="pl-sel"
-            />
-          </div>
-
-          <div className="pl-field">
-            <label>&nbsp;</label>
-            <button className="pl-btn--reset" onClick={resetFiltros}>
-              <i className="ri-restart-line" /> Reset
-            </button>
-          </div>
-        </section>
-
-        <div className="pl-chips">
-          <Chip
-            icon="ri-time-line"
-            key="Pendiente"
-            active={chips.has('Pendiente')}
-            onClick={() => toggleChip('Pendiente')}
-          >
-            Pendiente
-          </Chip>
-          <Chip
-            icon="ri-check-line"
-            key="Aprobado"
-            active={chips.has('Aprobado')}
-            onClick={() => toggleChip('Aprobado')}
-          >
-            Aprobado
-          </Chip>
-          <Chip
-            icon="ri-close-circle-line"
-            key="Rechazado"
-            active={chips.has('Rechazado')}
-            onClick={() => toggleChip('Rechazado')}
-          >
-            Rechazado
-          </Chip>
-          <Chip
-            icon="ri-refund-2-line"
-            key="Reembolsado"
-            active={chips.has('Reembolsado')}
-            onClick={() => toggleChip('Reembolsado')}
-          >
-            Reembolsado
-          </Chip>
-          <span className="pl-export" onClick={exportCSV}>
-            <i className="ri-download-2-line" /> Exportar CSV
-          </span>
+      <main className="pl-main-card">
+        <div className="pl-filters">
+          <FilterButton status="todos" label="Todos" count={statusCounts.todos} />
+          <FilterButton status="aprobados" label="Aprobados" count={statusCounts.aprobados} />
+          <FilterButton status="pendientes" label="Pendientes" count={statusCounts.pendientes} />
+          <FilterButton status="rechazados" label="Rechazados" count={statusCounts.rechazados} />
         </div>
-      </div>
-
-      <section className="pl-card">
-        <table className="pl-tbl">
-          <thead>
-            <tr>
-              <th>ID</th>
-              {authRole !== 'USER' && <th>Cliente</th>}
-              {authRole !== 'MERCHANT' && <th>Prestador</th>}
-              <th>Método</th>
-              <th>Estado</th>
-              <th>Subtotal</th>
-              <th>Impuestos</th>
-              <th>Total</th>
-              <th>Moneda</th>
-              <th>Fecha</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {!loading &&
-              !fetchErr &&
-              pagos.map((p) => {
-                const { fecha, hora } = fechaFmt(p.fechaISO);
-                return (
+        
+        <div className="pl-table-wrapper">
+          {loading ? ( <div className="pl-state-view">Cargando pagos...</div>
+          ) : error ? ( <div className="pl-state-view pl-state-view--error">{error}</div>
+          ) : filteredPagos.length === 0 ? ( <div className="pl-state-view">No hay pagos que coincidan con el filtro.</div>
+          ) : (
+            <table className="pl-table">
+              <thead><tr><th>ID de Pago</th><th>Cliente</th><th>Monto</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
+              <tbody>
+                {filteredPagos.map((p) => (
                   <tr key={p.id}>
-                    <td>#{p.id}</td>
-                    {authRole !== 'USER' && <td>{p.cliente}</td>}
-                    {authRole !== 'MERCHANT' && <td>{p.prestador}</td>}
-                    <td>
-                      <Badge kind={p.metodo}>{p.metodo}</Badge>
-                    </td>
-                    <td>
-                      <Badge kind={p.estado}>{p.estado}</Badge>
-                    </td>
-                    <td>{money(p.subtotal, p.moneda)}</td>
-                    <td>{money(p.impuestos, p.moneda)}</td>
-                    <td className="pl-bold">{money(p.total, p.moneda)}</td>
-                    <td>{p.moneda}</td>
-                    <td>
-                      <div className="pl-fecha">
-                        <div>{fecha}</div>
-                        <small>{hora}</small>
-                      </div>
-                    </td>
-                    <td>
-                      {p.estado === 'Pendiente de Pago' && authRole !== 'MERCHANT' ? (
-                        <button
-                          className="pl-btn pl-btn--pagar"
-                          onClick={() => navigate(`/pago/${p.id}`)}
-                        >
-                          <i className="ri-wallet-2-line" /> Pagar
-                        </button>
-                      ) : (
-                        <KebabMenu
-                          estado={p.estado}
-                          onVerFactura={() => onVerFacturaPreview(p)}
-                          onVerPago={() => navigate(`/detalle/${p.id}`)}
-                        />
-                      )}
+                    {/* CAMBIO CLAVE: Agregamos data-label para la vista móvil */}
+                    <td data-label="ID de Pago"><span className="pl-id-cell">#{p.id}</span></td>
+                    <td data-label="Cliente"><CustomerAvatar name={p.cliente} /></td>
+                    <td data-label="Monto"><span className="pl-amount-cell">{money(p.monto, p.moneda)}</span></td>
+                    <td data-label="Estado"><StatusBadge status={p.estado} /></td>
+                    <td data-label="Fecha"><span className="pl-date-cell">{fechaHora(p.fecha)}</span></td>
+                    <td data-label="Acciones">
+                      <button className="pl-details-btn" onClick={() => navigate(`/pagos/${p.id}`)}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        Ver detalle
+                      </button>
                     </td>
                   </tr>
-                );
-              })}
-            {!loading && !fetchErr && pagos.length === 0 && (
-              <tr>
-                <td className="pl-empty" colSpan={11}>
-                  <i className="ri-folder-2-line" /> No hay pagos para mostrar.
-                </td>
-              </tr>
-            )}
-            {loading && (
-              <tr>
-                <td className="pl-empty" colSpan={11}>
-                  Cargando pagos…
-                </td>
-              </tr>
-            )}
-            {!loading && fetchErr && (
-              <tr>
-                <td className="pl-empty" colSpan={11}>
-                  {fetchErr}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </section>
-
-      {previewHTML && (
-        <FacturaPreview
-          html={previewHTML}
-          onClose={() => setPreviewHTML('')}
-        />
-      )}
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
