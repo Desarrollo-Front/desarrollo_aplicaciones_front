@@ -261,13 +261,15 @@ body {
 .pl-tbl thead th {
   position: sticky;
   z-index: 150;
+.pl-tbl thead th {
+  position: sticky;
+  top: var(--masthead-h, 0px);
+  z-index: 300;
   background: #fff;
   font-weight: 600;
   border-bottom: 2px solid var(--brand-blue);
-}
-
-.pl-tbl tbody tr:nth-child(even) {
-  background: #fff;
+  box-shadow: 0 2px 6px -2px rgba(59,168,231,0.08);
+  transition: top 0.2s;
 }
 
 .pl-tbl tbody tr:hover {
@@ -298,6 +300,7 @@ body {
 
 .pl-tbl tbody tr:last-child td:last-child {
   border-bottom-right-radius: 16px;
+  overflow-x: auto;
 }
 
 /* === Botones === */
