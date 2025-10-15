@@ -103,13 +103,11 @@ function KebabMenu({ estado, onVerFactura, onVerPago }) {
         const spaceBelow = window.innerHeight - btnRect.bottom;
         const spaceAbove = btnRect.top;
         const menuHeight = menuRect.height;
-        // Si el menú cabe abajo, mostrar abajo. Si no, mostrar arriba.
         if (spaceBelow >= menuHeight + 8) {
           setUp(false);
         } else if (spaceAbove >= menuHeight + 8) {
           setUp(true);
         } else {
-          // Si no cabe en ninguna dirección, priorizar abajo
           setUp(false);
         }
       }, 0);
@@ -266,6 +264,60 @@ const buildFacturaHTML = (p) => {
 `;
   return html;
 };
+
+function CustomSelect({ label, options, value, onChange }) {
+  return (
+    <div className="pl-field">
+      <label>{label}</label>
+      <Select
+        options={options}
+        value={value}
+        onChange={onChange}
+        classNamePrefix="pl-sel"
+        styles={{
+          control: (base, state) => ({
+            ...base,
+            borderRadius: '12px',
+            borderColor: state.isFocused ? '#2563eb' : '#e6eaf0',
+            minHeight: '34px',
+            fontSize: '13px',
+            boxShadow: 'none',
+            '&:hover': {
+              borderColor: state.isFocused ? '#2563eb' : '#e6eaf0',
+            },
+          }),
+          valueContainer: (base) => ({
+            ...base,
+            padding: '0 16px',
+          }),
+          menu: (base) => ({
+            ...base,
+            borderRadius: '12px',
+            marginTop: 4,
+            fontSize: '13px',
+            zIndex: 9999,
+          }),
+          option: (base, { isFocused, isSelected }) => ({
+            ...base,
+            backgroundColor: isSelected ? '#2563eb' : isFocused ? '#f0f4ff' : '#fff',
+            color: isSelected ? '#fff' : '#111',
+            cursor: 'pointer',
+            fontSize: '13px',
+          }),
+          indicatorSeparator: () => ({ display: 'none' }),
+          dropdownIndicator: (base) => ({
+            ...base,
+            color: '#7b8794',
+            padding: '0 8px',
+            '&:hover': {
+              color: '#2563eb',
+            },
+          }),
+        }}
+      />
+    </div>
+  );
+}
 
 export default function PagosLista() {
   const navigate = useNavigate();
@@ -530,7 +582,7 @@ export default function PagosLista() {
         <section className="pl-filters">
           <div className="pl-field">
             <label>Buscar por {searchBy.toLowerCase()}</label>
-            <div className="pl-inline">
+            <div className="pl-input-wrapper">
               <i className="ri-search-line pl-input__ico" />
               <input
                 className="pl-input pl-input--with-ico"
@@ -541,52 +593,12 @@ export default function PagosLista() {
             </div>
           </div>
 
-          <div className="pl-field">
-            <label>Método</label>
-            <Select
-              options={METODOS.map((m) => ({ value: m, label: m }))}
-              value={{ value: metodo, label: metodo }}
-              onChange={(opt) => setMetodo(opt.value)}
-              classNamePrefix="pl-sel"
-              theme={(theme) => ({
-                ...theme,
-                borderRadius: 8,
-                colors: {
-                  ...theme.colors,
-                  primary25: '#f0f4ff',
-                  primary: '#2563eb',
-                  neutral0: '#ffffff',
-                  neutral80: '#111111',
-                  neutral20: '#e6eaf0',
-                },
-              })}
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  borderRadius: '8px',
-                  borderColor: '#e6eaf0',
-                  minHeight: '36px',
-                  fontSize: '14px',
-                  boxShadow: 'none',
-                  '&:hover': { borderColor: '#2563eb' },
-                }),
-                menu: (base) => ({
-                  ...base,
-                  borderRadius: '8px',
-                  marginTop: 4,
-                  fontSize: '14px',
-                  zIndex: 9999,
-                }),
-                option: (base, { isFocused, isSelected }) => ({
-                  ...base,
-                  backgroundColor: isSelected ? '#2563eb' : isFocused ? '#f0f4ff' : '#fff',
-                  color: isSelected ? '#fff' : '#111',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                }),
-              }}
-            />
-          </div>
+          <CustomSelect
+            label="Método"
+            options={METODOS.map((m) => ({ value: m, label: m }))}
+            value={{ value: metodo, label: metodo }}
+            onChange={(opt) => setMetodo(opt.value)}
+          />
 
           <div className="pl-field">
             <label>Desde</label>
@@ -608,21 +620,18 @@ export default function PagosLista() {
             />
           </div>
 
-          <div className="pl-field">
-            <label>Orden</label>
-            <Select
-              options={[
-                { value: 'Fecha ⬇', label: 'Fecha ⬇' },
-                { value: 'Fecha ⬆', label: 'Fecha ⬆' },
-                { value: 'Monto ⬇', label: 'Monto ⬇' },
-                { value: 'Monto ⬆', label: 'Monto ⬆' },
-              ]}
-              value={{ value: orden, label: orden }}
-              onChange={(opt) => setOrden(opt.value)}
-              classNamePrefix="pl-sel"
-            />
-          </div>
-
+          <CustomSelect
+            label="Orden"
+            options={[
+              { value: 'Fecha ⬇', label: 'Fecha ⬇' },
+              { value: 'Fecha ⬆', label: 'Fecha ⬆' },
+              { value: 'Monto ⬇', label: 'Monto ⬇' },
+              { value: 'Monto ⬆', label: 'Monto ⬆' },
+            ]}
+            value={{ value: orden, label: orden }}
+            onChange={(opt) => setOrden(opt.value)}
+          />
+          
           <div className="pl-field">
             <label>&nbsp;</label>
             <button className="pl-btn--reset" onClick={resetFiltros}>
