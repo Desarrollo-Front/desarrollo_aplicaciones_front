@@ -25,6 +25,7 @@
   --payment-border: #e2e8f0;
   --payment-info-light: #cffafe;
   --payment-background: #ffffff;
+  --payment-surface: #f8fafc;
 }
 
 body {
@@ -260,8 +261,9 @@ body {
 
 .pl-tbl thead th {
   position: sticky;
+  top: var(--masthead-h, 0px);
   z-index: 150;
-  background: #fff;
+  background: linear-gradient(135deg, var(--payment-surface) 0%, var(--payment-background) 100%);
   font-weight: 600;
   border-bottom: 2px solid var(--brand-blue);
 }
