@@ -268,8 +268,13 @@ body {
   border-bottom: 2px solid var(--brand-blue);
 }
 
+/* Estilo para las filas pares (fondo blanco) */
 .pl-tbl tbody tr:nth-child(even) {
   background: #fff;
+}
+/* Estilo para las filas impares (fondo gris) */
+.pl-tbl tbody tr:nth-child(odd) {
+  background-color: #f8f8f8;
 }
 
 .pl-tbl tbody tr:hover {
