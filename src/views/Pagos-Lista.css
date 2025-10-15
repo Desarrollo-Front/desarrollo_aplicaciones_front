@@ -53,7 +53,7 @@ body {
 
 /* === Topbar === */
 .pl-topbar {
-  background: var(--panel);
+  background: linear-gradient(90deg, #3BA8E7 0%, #6DD5FA 100%);
   border:1px solid var(--brand-blue);
   border-radius:16px;
   padding:10px 14px;
@@ -71,10 +71,17 @@ body {
   align-items:center;
   color: var(--brand-blue);
 }
-.pl-topbar__brand i {      
-  color: var(--brand-blue);
+.pl-topbar__brand i {
+  background: #3BA8E7;
+  color: #fff;
   padding: 6px;
   font-size: 25px;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .pl-topbar__right {
   display:flex;
