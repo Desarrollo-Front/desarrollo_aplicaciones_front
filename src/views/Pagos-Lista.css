@@ -53,13 +53,13 @@ body {
 
 /* === Topbar === */
 .pl-topbar {
-  background: linear-gradient(90deg, #3BA8E7 0%, #6DD5FA 100%);
-  border:1px solid var(--brand-blue);
-  border-radius:16px;
-  padding:10px 14px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  background: linear-gradient(90deg, #E0F2FE 0%, #B9E6FC 100%);
+  border: 1px solid var(--brand-blue);
+  border-radius: 16px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 8px;
   box-shadow: var(--shadow-sm);
 }
