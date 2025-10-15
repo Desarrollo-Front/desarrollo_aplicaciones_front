@@ -263,7 +263,7 @@ body {
   position: sticky;
   top: var(--masthead-h, 0px);
   z-index: 150;
-  background: linear-gradient(135deg, var(--payment-surface) 0%, var(--payment-background) 100%);
+  background: var(--payment-surface);
   font-weight: 600;
   border-bottom: 2px solid var(--brand-blue);
 }
