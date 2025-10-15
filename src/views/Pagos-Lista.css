@@ -260,6 +260,7 @@ body {
 
 .pl-tbl thead th {
   position: sticky;
+  top: var(--masthead-h, 0px);
   z-index: 150;
   background: #fff;
   font-weight: 600;
