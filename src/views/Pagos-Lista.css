@@ -20,7 +20,8 @@
   --brand-green: #2ecc71;
   --brand-green-dark: #27ae60;
   --payment-border: #e2e8f0;
-}
+  --payment-info-light: #cffafe;
+  --payment-background: #ffffff;
 
 body {
   margin: 0;
@@ -54,7 +55,7 @@ body {
 
 /* === Topbar === */
 .pl-topbar {
-  background: linear-gradient(90deg, #B9E6FC 100%, #E0F2FE 0%);
+    background: linear-gradient(135deg, var(--payment-info-light) 0%, var(--payment-background) 100%);
   border: 1px solid var(--payment-border);
   border-radius: 16px;
   padding: 10px 14px;
@@ -585,4 +586,5 @@ body {
   .pl-btn--xl {
     width: 100%;
   }
+}
 }
