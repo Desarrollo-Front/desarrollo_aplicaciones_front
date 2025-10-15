@@ -541,7 +541,7 @@ body {
 
 .pl-sel__dropdown-indicator {
   color: #7b8794 !important;
-  padding-right: 12px !important;
+  padding-right: 8px !important;
 }
 
 .pl-sel__dropdown-indicator:hover {
