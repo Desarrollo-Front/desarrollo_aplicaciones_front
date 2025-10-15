@@ -77,7 +77,6 @@ const getMetodoTag = (method) => {
   return '—';
 };
 
-
 function KebabMenu({ estado, onVerFactura, onVerPago }) {
   const [open, setOpen] = useState(false);
   const [up, setUp] = useState(false);
@@ -265,10 +264,6 @@ const buildFacturaHTML = (p) => {
   return html;
 };
 
-// Pagos-Lista.js
-
-// Pagos-Lista.js
-
 function CustomSelect({ label, options, value, onChange }) {
   return (
     <div className="pl-field">
@@ -372,28 +367,22 @@ function CustomSelect({ label, options, value, onChange }) {
 
 export default function PagosLista() {
   const navigate = useNavigate();
-
   const [serverData, setServerData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchErr, setFetchErr] = useState('');
-
   const [previewHTML, setPreviewHTML] = useState('');
-
   const authRole =
     (JSON.parse(localStorage.getItem('auth') || '{}').role ||
       localStorage.getItem('role') ||
       'USER').toUpperCase();
-
   const searchBy =
     authRole === 'MERCHANT' ? 'Cliente' : authRole === 'USER' ? 'Prestador' : 'Cliente';
-
   const [query, setQuery] = useState('');
-  const [metodo, setMetodo] = useState(METODOS[0]);
+  const [metodo, setMetodo] = useState({ value: METODOS[0], label: METODOS[0] });
   const [desde, setDesde] = useState('');
   const [hasta, setHasta] = useState('');
-  const [orden, setOrden] = useState('Fecha ⬇');
+  const [orden, setOrden] = useState({ value: 'Fecha ⬇', label: 'Fecha ⬇' });
   const [chips, setChips] = useState(new Set());
-
   const userName =
     JSON.parse(localStorage.getItem('auth') || '{}').name ||
     localStorage.getItem('name') ||
@@ -412,10 +401,10 @@ export default function PagosLista() {
 
   const resetFiltros = () => {
     setQuery('');
-    setMetodo(METODOS[0]);
+    setMetodo({ value: METODOS[0], label: METODOS[0] });
     setDesde('');
     setHasta('');
-    setOrden('Fecha ⬇');
+    setOrden({ value: 'Fecha ⬇', label: 'Fecha ⬇' });
     setChips(new Set());
   };
 
@@ -517,13 +506,13 @@ export default function PagosLista() {
       );
     }
 
-    if (metodo !== METODOS[0]) {
+    if (metodo.value !== METODOS[0]) {
       const map = {
         'Tarjeta crédito': 'Crédito',
         'Tarjeta débito': 'Débito',
         'Mercado Pago': 'Mercado Pago',
       };
-      arr = arr.filter((p) => p.metodo === map[metodo]);
+      arr = arr.filter((p) => p.metodo === map[metodo.value]);
     }
 
     if (desde) arr = arr.filter((p) => new Date(p.fechaISO) >= new Date(desde + 'T00:00:00'));
@@ -539,17 +528,17 @@ export default function PagosLista() {
           )
             return true;
         }
-        return chips.has(p.estado) || chips.has(p.metodo);
+        return chips.has(p.estado);
       });
     }
 
     arr.sort((a, b) => {
-      if (orden.startsWith('Fecha')) {
-        return orden.endsWith('⬇')
+      if (orden.value.startsWith('Fecha')) {
+        return orden.value.endsWith('⬇')
           ? new Date(b.fechaISO) - new Date(a.fechaISO)
           : new Date(a.fechaISO) - new Date(b.fechaISO);
       }
-      return orden.endsWith('⬇') ? b.total - a.total : a.total - b.total;
+      return orden.value.endsWith('⬇') ? b.total - a.total : a.total - b.total;
     });
 
     return arr;
@@ -647,8 +636,8 @@ export default function PagosLista() {
           <CustomSelect
             label="Método"
             options={METODOS.map((m) => ({ value: m, label: m }))}
-            value={{ value: metodo, label: metodo }}
-            onChange={(opt) => setMetodo(opt.value)}
+            value={metodo}
+            onChange={(opt) => setMetodo(opt)}
           />
 
           <div className="pl-field">
@@ -679,8 +668,8 @@ export default function PagosLista() {
               { value: 'Monto ⬇', label: 'Monto ⬇' },
               { value: 'Monto ⬆', label: 'Monto ⬆' },
             ]}
-            value={{ value: orden, label: orden }}
-            onChange={(opt) => setOrden(opt.value)}
+            value={orden}
+            onChange={(opt) => setOrden(opt)}
           />
           
           <div className="pl-field">
