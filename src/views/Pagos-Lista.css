@@ -54,7 +54,7 @@ body {
 
 /* === Topbar === */
 .pl-topbar {
-  background: linear-gradient(90deg, #E0F2FE 0%, #B9E6FC 100%);
+  background: linear-gradient(90deg, #B9E6FC 100%, #E0F2FE 0%);
   border: 1px solid var(--payment-border);
   border-radius: 16px;
   padding: 10px 14px;
