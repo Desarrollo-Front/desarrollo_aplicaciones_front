@@ -19,8 +19,8 @@
   --masthead-h: 0px;
   --brand-green: #2ecc71;
   --brand-green-dark: #27ae60;
-  --card-gradient: linear-gradient(135deg, #e6f4fb 0%, #fafdff 100%);
-  --card-gradient-strong: linear-gradient(135deg, #b6e6fa 0%, #e6f4fb 100%);
+  --card-gradient: linear-gradient(135deg, #b6e6fa 0%, #e6f4fb 100%);
+  --card-gradient-strong: linear-gradient(135deg, #e6f4fb 0%, #fafdff 100%);
   --card-shadow: 0 4px 16px 0 rgba(59, 130, 246, 0.08), 0 1.5px 4px 0 rgba(0,0,0,0.04);
   --card-border: #e5e7eb;
   --icon-bg: linear-gradient(135deg, #3ba8e7 0%, #2c7bbd 100%);
