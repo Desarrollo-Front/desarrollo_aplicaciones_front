@@ -109,7 +109,7 @@ body {
 /* === Filtros === */
 .pl-filters {
   display: grid;
-  grid-template-columns: 2fr 1.2fr 1.2fr 0.8fr 0.8fr auto;
+  grid-template-columns: 2fr 1.5fr 1.2fr 0.8fr 1.1fr auto;
   gap: 14px;
   align-items: end;
   padding: 12px 16px;
@@ -136,11 +136,13 @@ body {
 .pl-input-wrapper .pl-input__ico {
   position: absolute;
   left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   color: #7b8794;
 }
 
 /* Inputs */
-.pl-input {
+.pl-wrap .pl-input {
   width: 100%;
   height: 34px;
   border-radius: 12px;
@@ -152,11 +154,15 @@ body {
   box-sizing: border-box;
 }
 
-.pl-input--with-ico {
+.pl-wrap .pl-input--with-ico {
   padding-left: 32px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  display: flex;
+  align-items: center;
 }
 
-.pl-input:focus {
+.pl-wrap .pl-input:focus {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
@@ -436,7 +442,7 @@ body {
 }
 
 /* === Selects === */
-.pl-sel__control {
+.pl-wrap .pl-sel__control {
   width: 100%;
   height: 34px !important;
   min-height: 34px !important;
@@ -450,13 +456,58 @@ body {
   box-sizing: border-box !important;
 }
 
-.pl-sel__control--is-focused {
+.pl-wrap .pl-sel__control--is-focused {
   border-color: #2563eb !important;
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
 }
 
 .pl-sel__value-container {
   padding: 0 16px !important;
+  height: 34px !important;
+  display: flex !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
+.pl-sel__single-value {
+  margin: 0 !important;
+  color: var(--text) !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  transform: none !important;
+  top: auto !important;
+  position: static !important;
+}
+
+.pl-sel__placeholder {
+  margin: 0 !important;
+  color: #999 !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  transform: none !important;
+  top: auto !important;
+  position: static !important;
+}
+
+.pl-sel__input {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--text) !important;
+  font-size: 13px !important;
+}
+
+/* Forzar alineación vertical perfecta */
+.pl-wrap .pl-sel__control > div {
+  height: 34px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.pl-wrap .pl-sel__control > div > div {
+  height: 34px !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 .pl-sel__menu {

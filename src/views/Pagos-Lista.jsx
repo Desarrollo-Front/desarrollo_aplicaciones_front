@@ -265,6 +265,10 @@ const buildFacturaHTML = (p) => {
   return html;
 };
 
+// Pagos-Lista.js
+
+// Pagos-Lista.js
+
 function CustomSelect({ label, options, value, onChange }) {
   return (
     <div className="pl-field">
@@ -277,38 +281,85 @@ function CustomSelect({ label, options, value, onChange }) {
         styles={{
           control: (base, state) => ({
             ...base,
-            borderRadius: '12px',
-            borderColor: state.isFocused ? '#2563eb' : '#e6eaf0',
+            width: '100%',
+            height: '34px',
             minHeight: '34px',
+            borderRadius: '12px',
+            border: '1px solid var(--payment-border)',
+            padding: '0',
             fontSize: '13px',
+            color: 'var(--text)',
+            backgroundColor: 'var(--panel)',
+            boxSizing: 'border-box',
             boxShadow: 'none',
+            display: 'flex',
+            alignItems: 'center',
             '&:hover': {
-              borderColor: state.isFocused ? '#2563eb' : '#e6eaf0',
+              borderColor: 'var(--payment-border)',
             },
+            ...(state.isFocused && {
+              outline: 'none',
+              borderColor: '#2563eb',
+              boxShadow: '0 0 0 2px rgba(37, 99, 235, 0.2)',
+            }),
           }),
           valueContainer: (base) => ({
             ...base,
+            height: '34px',
             padding: '0 16px',
+            display: 'flex',
+            alignItems: 'center',
+            boxSizing: 'border-box',
+          }),
+          singleValue: (base) => ({
+            ...base,
+            margin: 0,
+            lineHeight: '1',
+            transform: 'none',
+            top: 'auto',
+            position: 'static',
+            color: 'var(--text)',
+            fontSize: '13px',
+          }),
+          input: (base) => ({
+            ...base,
+            margin: 0,
+            padding: 0,
+            color: 'var(--text)',
+            fontSize: '13px',
+          }),
+          placeholder: (base) => ({
+            ...base,
+            margin: 0,
+            lineHeight: '1',
+            transform: 'none',
+            top: 'auto',
+            position: 'static',
+            color: '#999',
+            fontSize: '13px',
           }),
           menu: (base) => ({
             ...base,
             borderRadius: '12px',
-            marginTop: 4,
+            marginTop: '4px',
             fontSize: '13px',
             zIndex: 9999,
+            boxShadow: '0 4px 18px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.06)',
+            border: '1px solid var(--payment-border)',
           }),
           option: (base, { isFocused, isSelected }) => ({
             ...base,
             backgroundColor: isSelected ? '#2563eb' : isFocused ? '#f0f4ff' : '#fff',
-            color: isSelected ? '#fff' : '#111',
+            color: isSelected ? '#fff' : 'var(--text)',
             cursor: 'pointer',
             fontSize: '13px',
+            padding: '8px 16px',
           }),
           indicatorSeparator: () => ({ display: 'none' }),
           dropdownIndicator: (base) => ({
             ...base,
             color: '#7b8794',
-            padding: '0 8px',
+            paddingRight: '12px',
             '&:hover': {
               color: '#2563eb',
             },
