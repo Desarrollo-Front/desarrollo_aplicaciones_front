@@ -19,6 +19,12 @@
   --masthead-h: 0px;
   --brand-green: #2ecc71;
   --brand-green-dark: #27ae60;
+  --card-gradient: linear-gradient(135deg, #e6f4fb 0%, #fafdff 100%);
+  --card-gradient-strong: linear-gradient(135deg, #b6e6fa 0%, #e6f4fb 100%);
+  --card-shadow: 0 4px 16px 0 rgba(59, 130, 246, 0.08), 0 1.5px 4px 0 rgba(0,0,0,0.04);
+  --card-border: #e5e7eb;
+  --icon-bg: linear-gradient(135deg, #3ba8e7 0%, #2c7bbd 100%);
+  --icon-shadow: 0 4px 12px rgba(59, 130, 246, 0.18);
 }
 
 body {
@@ -53,28 +59,35 @@ body {
 
 /* === Topbar === */
 .pl-topbar {
-  background: var(--panel);
-  border:1px solid var(--brand-blue);
-  border-radius:16px;
-  padding:10px 14px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  background: var(--card-gradient);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 18px 22px 14px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 8px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--card-shadow);
 }
 .pl-topbar__brand {
-  font-weight:800;
-  font-size:22px;
-  display:flex;
-  gap:10px;
-  align-items:center;
-  color: var(--brand-blue);
+  font-weight: 800;
+  font-size: 22px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  color: var(--brand-blue-dark);
 }
-.pl-topbar__brand i {      
-  color: var(--brand-blue);
-  padding: 6px;
-  font-size: 25px;
+.pl-topbar__brand-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--icon-bg);
+  border-radius: 12px;
+  box-shadow: var(--icon-shadow);
+  color: #fff;
+  font-size: 28px;
 }
 .pl-topbar__right {
   display:flex;
@@ -95,11 +108,11 @@ body {
   grid-template-columns: 2fr 1.2fr 1.2fr 0.8fr 0.8fr auto;
   gap: 14px;
   align-items: end;
-  padding: 12px 16px;
-  background: var(--panel);
-  border: 1px solid var(--brand-blue);
-  border-radius: 12px;
-  box-shadow: var(--shadow-sm);
+  padding: 18px 18px 12px 18px;
+  background: var(--card-gradient-strong);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  box-shadow: var(--card-shadow);
 }
 .pl-field label {
   display: block;
@@ -221,9 +234,9 @@ body {
   position: sticky;
   z-index: 150;
   background: #fff;
-  font-weight: 600;
-  border-bottom: 2px solid var(--brand-blue); /* línea celeste */
-}
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
 
 /* Rayado + hover */
 .pl-tbl tbody tr:nth-child(even) {
@@ -577,4 +590,4 @@ body {
     width: 100%;
   }
 }
-
+}

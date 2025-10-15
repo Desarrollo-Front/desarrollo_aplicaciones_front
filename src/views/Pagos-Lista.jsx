@@ -514,7 +514,9 @@ export default function PagosLista() {
       <div className="pl-masthead" ref={mastRef}>
         <div className="pl-topbar">
           <div className="pl-topbar__brand">
-            <i className="ri-secure-payment-line" aria-hidden="true" />
+            <span className="pl-topbar__brand-icon">
+              <i className="ri-secure-payment-line" aria-hidden="true" />
+            </span>
             <span>Pagos</span>
           </div>
           <div className="pl-topbar__right">
