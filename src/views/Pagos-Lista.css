@@ -22,6 +22,7 @@
   --payment-border: #e2e8f0;
   --payment-info-light: #cffafe;
   --payment-background: #ffffff;
+}
 
 body {
   margin: 0;
@@ -586,5 +587,4 @@ body {
   .pl-btn--xl {
     width: 100%;
   }
-}
 }
