@@ -370,7 +370,6 @@ function CustomSelect({ label, options, value, onChange }) {
   );
 }
 
-
 export default function PagosLista() {
   const navigate = useNavigate();
 
@@ -395,10 +394,6 @@ export default function PagosLista() {
   const [orden, setOrden] = useState('Fecha ⬇');
   const [chips, setChips] = useState(new Set());
 
-  // Paginación
-  const [currentPage, setCurrentPage] = useState(1);
-  const pagosPorPagina = 5;
-
   const userName =
     JSON.parse(localStorage.getItem('auth') || '{}').name ||
     localStorage.getItem('name') ||
@@ -422,7 +417,6 @@ export default function PagosLista() {
     setHasta('');
     setOrden('Fecha ⬇');
     setChips(new Set());
-    setCurrentPage(1);
   };
 
   const mastRef = useRef(null);
@@ -513,8 +507,7 @@ export default function PagosLista() {
     };
   }, []);
 
-  // Filtrado y paginación
-  const pagosFiltrados = useMemo(() => {
+  const pagos = useMemo(() => {
     let arr = [...serverData];
 
     if (query.trim()) {
@@ -561,13 +554,6 @@ export default function PagosLista() {
 
     return arr;
   }, [serverData, query, metodo, desde, hasta, chips, orden, searchBy]);
-
-  // Calcular páginas
-  const totalPaginas = Math.ceil(pagosFiltrados.length / pagosPorPagina) || 1;
-  const pagosPagina = pagosFiltrados.slice((currentPage - 1) * pagosPorPagina, currentPage * pagosPorPagina);
-
-  // Si cambian los filtros, volver a la página 1
-  React.useEffect(() => { setCurrentPage(1); }, [query, metodo, desde, hasta, chips, orden]);
 
   const exportCSV = () => {
     const headers = [
@@ -757,7 +743,7 @@ export default function PagosLista() {
           <tbody>
             {!loading &&
               !fetchErr &&
-              pagosPagina.map((p) => {
+              pagos.map((p) => {
                 const { fecha, hora } = fechaFmt(p.fechaISO);
                 return (
                   <tr key={p.id}>
@@ -822,64 +808,6 @@ export default function PagosLista() {
             )}
           </tbody>
         </table>
-
-      {/* Paginación */}
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '24px 0 0 0' }}>
-        {pagosFiltrados.length > 0 && (
-          <nav className="pl-pagination" aria-label="Paginación">
-            <button
-              className="pl-btn"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              aria-label="Anterior"
-              style={{ minWidth: 32 }}
-            >
-              &lt;
-            </button>
-            {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((n) => {
-              // Mostrar siempre la primera, la última, la actual y las cercanas
-              if (
-                n === 1 ||
-                n === totalPaginas ||
-                Math.abs(n - currentPage) <= 1 ||
-                (currentPage <= 3 && n <= 4) ||
-                (currentPage >= totalPaginas - 2 && n >= totalPaginas - 3)
-              ) {
-                return (
-                  <button
-                    key={n}
-                    className={
-                      'pl-btn' + (n === currentPage ? ' pl-btn--primary' : '')
-                    }
-                    onClick={() => setCurrentPage(n)}
-                    aria-current={n === currentPage ? 'page' : undefined}
-                    style={{ minWidth: 32, margin: '0 2px' }}
-                  >
-                    {n}
-                  </button>
-                );
-              } else if (
-                (n === currentPage - 2 && n > 1) ||
-                (n === currentPage + 2 && n < totalPaginas)
-              ) {
-                return (
-                  <span key={n} style={{ margin: '0 6px', color: '#bbb' }}>…</span>
-                );
-              }
-              return null;
-            })}
-            <button
-              className="pl-btn"
-              onClick={() => setCurrentPage((p) => Math.min(totalPaginas, p + 1))}
-              disabled={currentPage === totalPaginas}
-              aria-label="Siguiente"
-              style={{ minWidth: 32 }}
-            >
-              &gt;
-            </button>
-          </nav>
-        )}
-      </div>
       </section>
 
       {previewHTML && (
