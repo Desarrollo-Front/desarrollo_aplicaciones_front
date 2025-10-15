@@ -514,9 +514,7 @@ export default function PagosLista() {
       <div className="pl-masthead" ref={mastRef}>
         <div className="pl-topbar">
           <div className="pl-topbar__brand">
-            <span className="pl-topbar__brand-icon">
-              <i className="ri-secure-payment-line" aria-hidden="true" />
-            </span>
+            <i className="ri-secure-payment-line" aria-hidden="true" />
             <span>Pagos</span>
           </div>
           <div className="pl-topbar__right">
@@ -658,14 +656,7 @@ export default function PagosLista() {
           >
             Rechazado
           </Chip>
-          <Chip
-            icon="ri-refund-2-line"
-            key="Reembolsado"
-            active={chips.has('Reembolsado')}
-            onClick={() => toggleChip('Reembolsado')}
-          >
-            Reembolsado
-          </Chip>
+          
           <span className="pl-export" onClick={exportCSV}>
             <i className="ri-download-2-line" /> Exportar CSV
           </span>
