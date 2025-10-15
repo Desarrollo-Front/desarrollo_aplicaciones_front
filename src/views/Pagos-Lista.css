@@ -52,6 +52,17 @@ body {
 }
 
 /* === Topbar === */
+.pl-topbar {
+  background: linear-gradient(90deg, #E0F2FE 0%, #B9E6FC 100%);
+  border: 1px solid var(--brand-blue);
+  border-radius: 16px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow-sm);
+}
 .pl-topbar__brand {
   font-weight:800;
   font-size:22px;
@@ -187,11 +198,11 @@ body {
 
 /* === Tabla === */
 .pl-card {
-  background: #fff;
-  border: 1px solid #B0BEC5;
-  border-radius: 16px;
-  box-shadow: 0 4px 18px 0 rgba(59, 130, 246, 0.10), 0 1.5px 6px 0 rgba(0,0,0,0.06);
-  /* recorta el contenido a los bordes */
+  background:#fff;
+  border:1px solid var(--brand-blue);
+  border-radius:16px;              /* redondeo */
+  box-shadow:var(--shadow-lg);
+                 /* recorta el contenido a los bordes */
 }
 
 .pl-tbl {
