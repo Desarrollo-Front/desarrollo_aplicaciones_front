@@ -239,13 +239,13 @@ body {
   border: 1px solid #e5e7eb;
   border-radius: 16px;
   box-shadow: 0 4px 18px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.06);
-  max-height: 500px; /* Puedes ajustar esta altura */
-  overflow-y: auto;
 }
 
 .pl-tbl {
   width: 100%;
   border-collapse: collapse;
+  display: grid;
+  grid-template-columns: repeat(10, minmax(100px, 1fr));
 }
 
 .pl-tbl th,
@@ -254,25 +254,32 @@ body {
   color: var(--text);
   border-bottom: 1px solid var(--line);
   text-align: left;
+  display: flex; /* Añadido: Para centrar el contenido verticalmente */
+  align-items: center; /* Añadido: Centra verticalmente el contenido */
+  word-break: break-word;
 }
 
 .pl-tbl td.pl-td--center {
   text-align: center;
+  justify-content: center;
 }
 
 /* Centrado para los títulos de la tabla */
 .pl-tbl th {
   text-align: center;
+  justify-content: center;
 }
 
 .pl-tbl td:last-child {
   padding-right: 8px;
   text-align: right;
+  justify-content: flex-end;
 }
 .pl-tbl thead {
   position: sticky;
-  top: 0;
+  top: var(--masthead-h, 0px);
   z-index: 150;
+  display: contents;
 }
 
 .pl-tbl thead th {
