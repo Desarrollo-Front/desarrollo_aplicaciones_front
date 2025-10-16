@@ -254,6 +254,11 @@ body {
   border-bottom: 1px solid var(--line);
 }
 
+/* Centrado para los títulos de la tabla */
+.pl-tbl th {
+  text-align: center;
+}
+
 .pl-tbl td:last-child {
   padding-right: 8px;
   text-align: right;
