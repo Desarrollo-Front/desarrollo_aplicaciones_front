@@ -107,11 +107,11 @@ const generarHtmlFactura = (pago) => {
     </header>
     <section class="party-details">
       <div>
-        <h3>EMISOR</h3>
+        <h3>PRESTADOR</h3>
         <p><strong>${emisor}</strong></p>
       </div>
       <div>
-        <h3>RECEPTOR</h3>
+        <h3>USUARIO</h3>
         <p><strong>${cliente}</strong></p>
       </div>
     </section>
