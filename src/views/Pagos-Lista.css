@@ -267,12 +267,14 @@ body {
   padding-right: 8px;
   text-align: right;
 }
-
-.pl-tbl thead th {
+.pl-tbl thead {
   position: sticky;
   top: var(--masthead-h, 0px);
   z-index: 150;
-  background: var(--payment-surface);
+}
+
+.pl-tbl thead th {
+ background: var(--payment-surface);
   font-weight: 600;
   border-bottom: 2px solid var(--brand-blue);
 }
