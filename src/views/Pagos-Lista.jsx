@@ -40,17 +40,13 @@ const generarHtmlFactura = (pago) => {
   const fechaEmision = fechaHoraUI(pago.creadoISO);
   const fechaCobro = fechaHoraUI(pago.capturadoISO);
 
+  // Desglose de ítems (modificado para mostrar solo la línea principal)
   const items = [
     {
       descripcion: descripcion,
       cantidad: 1,
       precioUnitario: pago.subtotal,
     },
-    ...(pago.impuestos > 0 ? [{
-      descripcion: 'Impuestos y Otros Cargos',
-      cantidad: 1,
-      precioUnitario: pago.impuestos,
-    }] : []),
   ];
 
   const itemRows = items.map(item => `
