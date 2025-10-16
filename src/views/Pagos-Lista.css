@@ -244,29 +244,14 @@ body {
   box-shadow: 0 4px 18px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.06);
   overflow-y: auto;
   flex-grow: 1; /* Crece para llenar el espacio disponible */
+  scrollbar-width: none; /* Oculta la barra en Firefox */
 }
 
-/* --- ESTILOS PARA LA NUEVA BARRA DE SCROLL --- */
-/* Para navegadores Webkit (Chrome, Safari, Edge) */
+/* Oculta la barra en navegadores Webkit (Chrome, Safari, etc.) */
 .pl-card::-webkit-scrollbar {
-  width: 8px; /* Ancho de la barra */
+  width: 0;
+  height: 0;
 }
-
-.pl-card::-webkit-scrollbar-track {
-  background: transparent; /* Hacemos el fondo invisible */
-  margin: 16px 0; /* Margen para que no toque los bordes */
-}
-
-.pl-card::-webkit-scrollbar-thumb {
-  background-color: #d1d5db; /* Color gris claro para la barra */
-  border-radius: 10px; /* Bordes redondeados */
-  border: 2px solid #fff; /* Un pequeño borde para que no se pegue al contenido */
-}
-
-.pl-card::-webkit-scrollbar-thumb:hover {
-  background-color: #9ca3af; /* Un gris más oscuro al pasar el mouse */
-}
-
 
 .pl-tbl {
   width: 100%;
