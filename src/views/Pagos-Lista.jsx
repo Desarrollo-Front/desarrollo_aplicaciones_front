@@ -736,42 +736,42 @@ export default function PagosLista() {
                 const { fecha, hora } = fechaFmt(p.fechaISO);
                 return (
                   <tr key={p.id}>
-                    <td>#{p.id}</td>
-                    {authRole !== 'USER' && <td>{p.cliente}</td>}
-                    {authRole !== 'MERCHANT' && <td>{p.prestador}</td>}
-                    <td>
-                      <Badge kind={p.metodo}>{p.metodo}</Badge>
-                    </td>
-                    <td>
-                      <Badge kind={p.estado}>{p.estado}</Badge>
-                    </td>
-                    <td>{money(p.subtotal, p.moneda)}</td>
-                    <td>{money(p.impuestos, p.moneda)}</td>
-                    <td className="pl-bold">{money(p.total, p.moneda)}</td>
-                    <td>{p.moneda}</td>
-                    <td>
-                      <div className="pl-fecha">
-                        <div>{fecha}</div>
-                        <small>{hora}</small>
-                      </div>
-                    </td>
-                    <td>
-                      {p.estado === 'Pendiente de Pago' && authRole !== 'MERCHANT' ? (
-                        <button
-                          className="pl-btn pl-btn--pagar"
-                          onClick={() => navigate(`/pago/${p.id}`)}
-                        >
-                          <i className="ri-wallet-2-line" /> Pagar
-                        </button>
-                      ) : (
-                        <KebabMenu
-                          estado={p.estado}
-                          onVerFactura={() => onVerFacturaPreview(p)}
-                          onVerPago={() => navigate(`/detalle/${p.id}`)}
-                        />
-                      )}
-                    </td>
-                  </tr>
+  <td className="pl-td--center">#{p.id}</td>
+  {authRole !== 'USER' && <td className="pl-td--center">{p.cliente}</td>}
+  {authRole !== 'MERCHANT' && <td className="pl-td--center">{p.prestador}</td>}
+  <td className="pl-td--center">
+    <Badge kind={p.metodo}>{p.metodo}</Badge>
+  </td>
+  <td className="pl-td--center">
+    <Badge kind={p.estado}>{p.estado}</Badge>
+  </td>
+  <td>{money(p.subtotal, p.moneda)}</td>
+  <td>{money(p.impuestos, p.moneda)}</td>
+  <td className="pl-bold">{money(p.total, p.moneda)}</td>
+  <td className="pl-td--center">{p.moneda}</td>
+  <td className="pl-td--center">
+    <div className="pl-fecha">
+      <div>{fecha}</div>
+      <small>{hora}</small>
+    </div>
+  </td>
+  <td className="pl-td--center">
+    {p.estado === 'Pendiente de Pago' && authRole !== 'MERCHANT' ? (
+      <button
+        className="pl-btn pl-btn--pagar"
+        onClick={() => navigate(`/pago/${p.id}`)}
+      >
+        <i className="ri-wallet-2-line" /> Pagar
+      </button>
+    ) : (
+      <KebabMenu
+        estado={p.estado}
+        onVerFactura={() => onVerFacturaPreview(p)}
+        onVerPago={() => navigate(`/detalle/${p.id}`)}
+      />
+    )}
+  </td>
+</tr>
                 );
               })}
             {!loading && !fetchErr && pagos.length === 0 && (

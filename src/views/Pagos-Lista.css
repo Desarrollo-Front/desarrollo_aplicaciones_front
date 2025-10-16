@@ -249,9 +249,13 @@ body {
 .pl-tbl th,
 .pl-tbl td {
   padding: 12px;
-  text-align: left;
   color: var(--text);
   border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.pl-tbl td.pl-td--center {
+  text-align: center;
 }
 
 /* Centrado para los títulos de la tabla */
