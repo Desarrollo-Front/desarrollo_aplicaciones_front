@@ -286,9 +286,10 @@ body {
 }
 
 .pl-tbl thead th {
- background: var(--payment-surface);
+  background: var(--payment-surface);
   font-weight: 600;
-  border-bottom: 2px solid var(--brand-blue);
+  border-bottom: none; /* Eliminamos el borde inferior original */
+  box-shadow: inset 0 -2px 0 var(--brand-blue); /* Lo reemplazamos con una sombra interna */
 }
 
 /* Estilo para las filas pares (fondo blanco) */
