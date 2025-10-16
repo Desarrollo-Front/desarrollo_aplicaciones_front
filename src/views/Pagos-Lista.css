@@ -239,8 +239,6 @@ body {
   border: 1px solid #e5e7eb;
   border-radius: 16px;
   box-shadow: 0 4px 18px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.06);
-  max-height: 500px; /* Puedes ajustar esta altura */
-  overflow-y: auto;
 }
 
 .pl-tbl {
