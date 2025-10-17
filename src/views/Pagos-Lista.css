@@ -14,8 +14,8 @@
   --brand-yellow: #2ecc71;
   --success-50:#e8f6ef;
   --success-700:#15803d;
-  --warn-50:#fff7e6;
-  --warn-700:#b45309;
+  --warn-50:#ca1b43;
+  --warn-700:#7e112a;
   --danger-50:#fdecec;
   --danger-700:#b71c1c;
   --radius: 16px;
@@ -372,7 +372,7 @@ body {
   background: linear-gradient(90deg, var(--brand-blue), var(--brand-blue-dark));
   color: #fff;
   height: 36px;
-  padding: 0 16px;
+  padding: 0 10px;
   border-radius: 11px;
   font-weight: 800;
   font-size: 15px;
@@ -832,7 +832,7 @@ body {
   background: var(--warn-700);
   color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(180, 83, 9, 0.2);
+  box-shadow: 0 4px 12px rgb(201, 28, 68, 0.2);
 }
 
 .pl-btn--retry:active:not(:disabled) {
