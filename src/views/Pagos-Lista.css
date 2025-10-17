@@ -372,7 +372,7 @@ body {
   background: linear-gradient(90deg, var(--brand-blue), var(--brand-blue-dark));
   color: #fff;
   height: 36px;
-  padding: 0 18px;
+  padding: 0 16px;
   border-radius: 11px;
   font-weight: 800;
   font-size: 15px;
@@ -766,7 +766,7 @@ body {
 /* Botón para ver factura */
 .pl-btn--factura {
   border: 1px solid #cdd5e0;
-  background: #f8fafc;
+  background: linear-gradient(135deg, var(--payment-surface) 0%, var(--payment-background) 100%);
   color: #374151;
   height: 36px;
   padding: 0 16px;
@@ -810,7 +810,7 @@ body {
 /* --- ESTILOS PARA EL NUEVO BOTÓN DE REINTENTO --- */
 .pl-btn--retry {
   height: 36px;
-  padding: 0 18px;
+  padding: 0 16px;
   border-radius: 11px;
   font-weight: 800;
   font-size: 14px;
