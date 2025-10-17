@@ -15,7 +15,7 @@
   --success-50:#e8f6ef;
   --success-700:#15803d;
   --warn-50:#fdecec;
-  --warn-700:#ff2356;
+  --warn-700:#e21948;
   --danger-50:#fdecec;
   --danger-700:#b71c1c;
   --radius: 16px;
@@ -372,17 +372,17 @@ body {
   background: linear-gradient(90deg, var(--brand-blue), var(--brand-blue-dark));
   color: #fff;
   height: 36px;
-  padding: 0 25px;
+  padding: 0 16px;
   border-radius: 11px;
   font-weight: 800;
-  font-size: 15px;
+  font-size: 14px;
   letter-spacing: 0.01em;
   box-shadow: 0 2px 8px rgba(59,130,246,0.10);
   transition: background 0.15s, box-shadow 0.15s, transform 0.13s;
 }
 
 .pl-btn--pagar i {
-  font-size: 17px;
+  font-size: 16px; /* Igual que .pl-btn--factura i */
 }
 
 .pl-btn--pagar:hover {
