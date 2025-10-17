@@ -714,6 +714,7 @@ export default function PagosLista() {
                     <small>{hora}</small>
                   </td>
                   <td className="pl-td--center">
+                    {/* --- INICIO DE LA LÓGICA MODIFICADA --- */}
                     {p.estado === 'Pendiente de Pago' && authRole !== 'MERCHANT' ? (
                       <button className="pl-btn pl-btn--pagar" onClick={() => navigate(`/pago/${p.id}`)}>
                         <i className="ri-wallet-2-line" /> Pagar
@@ -722,9 +723,14 @@ export default function PagosLista() {
                       <button className="pl-btn pl-btn--factura" onClick={() => onVerFacturaPreview(p)} disabled={loadingDetail}>
                          <i className="ri-file-text-line" /> {loadingDetail ? 'Cargando...' : 'Ver Factura'}
                       </button>
+                    ) : p.estado === 'Rechazado' && authRole !== 'MERCHANT' ? (
+                      <button className="pl-btn pl-btn--retry" onClick={() => navigate(`/pago/${p.id}`)}>
+                        <i className="ri-refresh-line" /> Reintentar
+                      </button>
                     ) : (
                       <span className="pl-no-action">—</span>
                     )}
+                    {/* --- FIN DE LA LÓGICA MODIFICADA --- */}
                   </td>
                 </tr>
               );

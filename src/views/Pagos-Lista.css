@@ -804,3 +804,43 @@ body {
   font-size: 1.2rem;
   padding: 0 16px; /* Para alinear con los botones */
 }
+
+/* ... (todo tu css existente, incluyendo el de .pl-btn--factura) ... */
+
+/* --- ESTILOS PARA EL NUEVO BOTÓN DE REINTENTO --- */
+.pl-btn--retry {
+  height: 36px;
+  padding: 0 18px;
+  border-radius: 11px;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+
+  /* Paleta de colores "Warning" */
+  background: var(--warn-50);
+  border: 1px solid var(--warn-700);
+  color: var(--warn-700);
+  
+  transition: all 0.15s ease-out;
+}
+
+.pl-btn--retry i {
+  font-size: 16px;
+}
+
+.pl-btn--retry:hover:not(:disabled) {
+  background: var(--warn-700);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(180, 83, 9, 0.2);
+}
+
+.pl-btn--retry:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.pl-btn--retry:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
