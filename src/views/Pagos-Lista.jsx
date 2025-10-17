@@ -224,87 +224,6 @@ const getMetodoTag = (method) => {
   return '—';
 };
 
-function KebabMenu({ estado, onVerFactura, isLoading }) {
-  const [open, setOpen] = useState(false);
-  const [up, setUp] = useState(false);
-  const ref = useRef(null);
-  const menuRef = useRef(null);
-
-  useEffect(() => {
-    const onClickAway = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener("mousedown", onClickAway);
-    return () => document.removeEventListener("mousedown", onClickAway);
-  }, []);
-
-  useEffect(() => {
-    if (open && menuRef.current && ref.current) {
-      setTimeout(() => {
-        const menu = menuRef.current;
-        const btn = ref.current.querySelector('.pl-kebab__btn');
-        if (!menu || !btn) return;
-        const btnRect = btn.getBoundingClientRect();
-        const menuRect = menu.getBoundingClientRect();
-        const spaceBelow = window.innerHeight - btnRect.bottom;
-        const spaceAbove = btnRect.top;
-        const menuHeight = menuRect.height;
-        if (spaceBelow >= menuHeight + 8) {
-          setUp(false);
-        } else if (spaceAbove >= menuHeight + 8) {
-          setUp(true);
-        } else {
-          setUp(false);
-        }
-      }, 0);
-    }
-  }, [open]);
-
-  const hasActions = estado === "Aprobado";
-  if (!hasActions) {
-    return null;
-  }
-
-  return (
-    <div className="pl-kebab" ref={ref}>
-      <button
-        className="pl-kebab__btn"
-        onClick={() => setOpen((v) => !v)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        disabled={isLoading}
-      >
-        <span className="pl-kebab__dots">
-          <span></span>
-          <span></span>
-          <span></span>
-        </span>
-      </button>
-      {open && (
-        <div
-          className={`pl-kebab__menu${up ? ' is-up' : ''}`}
-          role="menu"
-          ref={menuRef}
-        >
-          {estado === "Aprobado" && (
-            <button
-              className="pl-kebab__item"
-              onClick={() => {
-                setOpen(false);
-                onVerFactura();
-              }}
-              disabled={isLoading}
-            >
-              <i className="ri-file-text-line" aria-hidden="true" />
-              {isLoading ? 'Cargando...' : 'Ver factura'}
-            </button>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function CustomSelect({ label, options, value, onChange }) {
   return (
     <div className="pl-field">
@@ -773,13 +692,14 @@ export default function PagosLista() {
             {!loading && !fetchErr && pagos.map((p) => {
               const { fecha, hora } = fechaFmt(p.fechaISO);
               const handleRowClick = (e) => {
-                if (e.target.closest('button, .pl-kebab')) {
+                // Evita la navegación si el clic fue en un botón
+                if (e.target.closest('button')) {
                   return;
                 }
                 navigate(`/detalle/${p.id}`);
               };
               return (
-                <tr key={p.id} onClick={handleRowClick} style={{ cursor: 'pointer' }}>
+                <tr key={p.id} onClick={handleRowClick} className="pl-tr--clickable">
                   <td className="pl-td--center">#{p.id}</td>
                   {authRole !== 'USER' && <td className="pl-td--center">{p.cliente}</td>}
                   {authRole !== 'MERCHANT' && <td className="pl-td--center">{p.prestador}</td>}
@@ -798,12 +718,12 @@ export default function PagosLista() {
                       <button className="pl-btn pl-btn--pagar" onClick={() => navigate(`/pago/${p.id}`)}>
                         <i className="ri-wallet-2-line" /> Pagar
                       </button>
+                    ) : p.estado === 'Aprobado' ? (
+                      <button className="pl-btn pl-btn--factura" onClick={() => onVerFacturaPreview(p)} disabled={loadingDetail}>
+                         <i className="ri-file-text-line" /> {loadingDetail ? 'Cargando...' : 'Ver Factura'}
+                      </button>
                     ) : (
-                      <KebabMenu
-                        estado={p.estado}
-                        onVerFactura={() => onVerFacturaPreview(p)}
-                        isLoading={loadingDetail}
-                      />
+                      <span className="pl-no-action">—</span>
                     )}
                   </td>
                 </tr>
