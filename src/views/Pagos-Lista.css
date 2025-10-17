@@ -756,3 +756,51 @@ body {
     width: 100%;
   }
 }
+/* ... (todo tu css existente) ... */
+
+/* Estilos para la fila clickeable */
+.pl-tr--clickable {
+  cursor: pointer;
+}
+
+/* Botón para ver factura */
+.pl-btn--factura {
+  border: 1px solid #cdd5e0;
+  background: #f8fafc;
+  color: #374151;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 11px;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: all 0.15s ease-out;
+}
+
+.pl-btn--factura i {
+  font-size: 16px;
+}
+
+.pl-btn--factura:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.07);
+}
+
+.pl-btn--factura:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.pl-btn--factura:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Placeholder para cuando no hay acciones */
+.pl-no-action {
+  color: var(--muted);
+  font-size: 1.2rem;
+  padding: 0 16px; /* Para alinear con los botones */
+}
