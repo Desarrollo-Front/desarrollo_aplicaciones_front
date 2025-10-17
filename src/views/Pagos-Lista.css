@@ -15,7 +15,7 @@
   --success-50:#e8f6ef;
   --success-700:#15803d;
   --warn-50:#fdecec;
-  --warn-700:#7e112a;
+  --warn-700:#ff2356;
   --danger-50:#fdecec;
   --danger-700:#b71c1c;
   --radius: 16px;
@@ -372,7 +372,7 @@ body {
   background: linear-gradient(90deg, var(--brand-blue), var(--brand-blue-dark));
   color: #fff;
   height: 36px;
-  padding: 0 18px;
+  padding: 0 25px;
   border-radius: 11px;
   font-weight: 800;
   font-size: 15px;
