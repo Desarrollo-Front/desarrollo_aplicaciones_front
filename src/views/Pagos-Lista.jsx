@@ -224,7 +224,7 @@ const getMetodoTag = (method) => {
   return '—';
 };
 
-function KebabMenu({ estado, onVerFactura, onVerPago, isLoading }) {
+function KebabMenu({ estado, onVerFactura, isLoading }) {
   const [open, setOpen] = useState(false);
   const [up, setUp] = useState(false);
   const ref = useRef(null);
@@ -260,6 +260,11 @@ function KebabMenu({ estado, onVerFactura, onVerPago, isLoading }) {
     }
   }, [open]);
 
+  const hasActions = estado === "Aprobado";
+  if (!hasActions) {
+    return null;
+  }
+
   return (
     <div className="pl-kebab" ref={ref}>
       <button
@@ -294,16 +299,6 @@ function KebabMenu({ estado, onVerFactura, onVerPago, isLoading }) {
               {isLoading ? 'Cargando...' : 'Ver factura'}
             </button>
           )}
-          <button
-            className="pl-kebab__item"
-            onClick={() => {
-              setOpen(false);
-              onVerPago();
-            }}
-          >
-            <i className="ri-eye-line" aria-hidden="true" />
-            Ver pago
-          </button>
         </div>
       )}
     </div>
@@ -777,8 +772,14 @@ export default function PagosLista() {
           <tbody>
             {!loading && !fetchErr && pagos.map((p) => {
               const { fecha, hora } = fechaFmt(p.fechaISO);
+              const handleRowClick = (e) => {
+                if (e.target.closest('button, .pl-kebab')) {
+                  return;
+                }
+                navigate(`/detalle/${p.id}`);
+              };
               return (
-                <tr key={p.id}>
+                <tr key={p.id} onClick={handleRowClick} style={{ cursor: 'pointer' }}>
                   <td className="pl-td--center">#{p.id}</td>
                   {authRole !== 'USER' && <td className="pl-td--center">{p.cliente}</td>}
                   {authRole !== 'MERCHANT' && <td className="pl-td--center">{p.prestador}</td>}
@@ -801,7 +802,6 @@ export default function PagosLista() {
                       <KebabMenu
                         estado={p.estado}
                         onVerFactura={() => onVerFacturaPreview(p)}
-                        onVerPago={() => navigate(`/detalle/${p.id}`)}
                         isLoading={loadingDetail}
                       />
                     )}
