@@ -14,8 +14,8 @@
   --brand-yellow: #2ecc71;
   --success-50:#e8f6ef;
   --success-700:#15803d;
-  --warn-50:#fff7e6;
-  --warn-700:#b45309;
+  --warn-50:#fdecec;
+  --warn-700:#e21948;
   --danger-50:#fdecec;
   --danger-700:#b71c1c;
   --radius: 16px;
@@ -372,17 +372,17 @@ body {
   background: linear-gradient(90deg, var(--brand-blue), var(--brand-blue-dark));
   color: #fff;
   height: 36px;
-  padding: 0 18px;
+  padding: 0 16px;
   border-radius: 11px;
   font-weight: 800;
-  font-size: 15px;
+  font-size: 14px;
   letter-spacing: 0.01em;
   box-shadow: 0 2px 8px rgba(59,130,246,0.10);
   transition: background 0.15s, box-shadow 0.15s, transform 0.13s;
 }
 
 .pl-btn--pagar i {
-  font-size: 17px;
+  font-size: 16px; /* Igual que .pl-btn--factura i */
 }
 
 .pl-btn--pagar:hover {
@@ -755,4 +755,92 @@ body {
   .pl-btn--xl {
     width: 100%;
   }
+}
+/* ... (todo tu css existente) ... */
+
+/* Estilos para la fila clickeable */
+.pl-tr--clickable {
+  cursor: pointer;
+}
+
+/* Botón para ver factura */
+.pl-btn--factura {
+  border: 1px solid #cdd5e0;
+  background: linear-gradient(135deg, var(--payment-surface) 0%, var(--payment-background) 100%);
+  color: #374151;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 11px;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: all 0.15s ease-out;
+}
+
+.pl-btn--factura i {
+  font-size: 16px;
+}
+
+.pl-btn--factura:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.07);
+}
+
+.pl-btn--factura:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.pl-btn--factura:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Placeholder para cuando no hay acciones */
+.pl-no-action {
+  color: var(--muted);
+  font-size: 1.2rem;
+  padding: 0 16px; /* Para alinear con los botones */
+}
+
+/* ... (todo tu css existente, incluyendo el de .pl-btn--factura) ... */
+
+/* --- ESTILOS PARA EL NUEVO BOTÓN DE REINTENTO --- */
+.pl-btn--retry {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 11px;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+
+  /* Paleta de colores "Warning" */
+  background: var(--warn-50);
+  border: 1px solid var(--warn-700);
+  color: var(--warn-700);
+  
+  transition: all 0.15s ease-out;
+}
+
+.pl-btn--retry i {
+  font-size: 16px;
+}
+
+.pl-btn--retry:hover:not(:disabled) {
+  background: var(--warn-700);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgb(201, 28, 68, 0.2);
+}
+
+.pl-btn--retry:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.pl-btn--retry:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
