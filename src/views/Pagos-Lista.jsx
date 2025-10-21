@@ -716,15 +716,15 @@ export default function PagosLista() {
                   <td className="pl-td--center">
                     {/* --- INICIO DE LA LÓGICA MODIFICADA --- */}
                     {p.estado === 'Pendiente de Pago' && authRole !== 'MERCHANT' ? (
-                      <button className="pl-btn pl-btn--pagar" onClick={() => navigate(`/pago/${p.id}`)}>
+                      <button className="pl-action-btn pl-action-btn--pagar" onClick={() => navigate(`/pago/${p.id}`)}>
                         <i className="ri-wallet-2-line" /> Pagar
                       </button>
                     ) : p.estado === 'Aprobado' ? (
-                      <button className="pl-btn pl-btn--factura" onClick={() => onVerFacturaPreview(p)} disabled={loadingDetail}>
+                      <button className="pl-action-btn pl-action-btn--factura" onClick={() => onVerFacturaPreview(p)} disabled={loadingDetail}>
                          <i className="ri-file-text-line" /> {loadingDetail ? 'Cargando...' : 'Ver Factura'}
                       </button>
                     ) : p.estado === 'Rechazado' && authRole !== 'MERCHANT' ? (
-                      <button className="pl-btn pl-btn--retry" onClick={() => navigate(`/pago/${p.id}`)}>
+                      <button className="pl-action-btn pl-action-btn--retry" onClick={() => navigate(`/pago/${p.id}`)}>
                         <i className="ri-refresh-line" /> Reintentar
                       </button>
                     ) : (
