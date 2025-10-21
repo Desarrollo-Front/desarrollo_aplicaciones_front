@@ -781,7 +781,7 @@ body {
 }
 
 /* Variante Pagar (Acción Primaria - Azul) */
-.pl-action-btn--pagar {
+button.pl-action-btn--pagar {
   background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-blue-dark) 100%);
   color: #fff;
   border-color: var(--brand-blue-dark);
@@ -789,7 +789,7 @@ body {
   box-shadow: 0 4px 12px rgba(59, 168, 231, 0.25);
 }
 
-.pl-action-btn--pagar:hover:not(:disabled) {
+button.pl-action-btn--pagar:hover:not(:disabled) {
   background: linear-gradient(135deg, var(--brand-blue-dark) 0%, var(--brand-blue) 100%);
   box-shadow: 0 6px 16px rgba(59, 168, 231, 0.35);
   /* Animación de "glow" sutil en hover */
@@ -797,14 +797,14 @@ body {
 }
 
 /* Variante Factura (Acción de Éxito - Verde) */
-.pl-action-btn--factura {
+button.pl-action-btn--factura {
   background: var(--success-50); /* Fondo verde muy claro */
   color: var(--success-700); /* Texto verde oscuro */
   border-color: #bbf7d0; /* Borde verde claro */
   box-shadow: none; /* Sombra base más sutil */
 }
 
-.pl-action-btn--factura:hover:not(:disabled) {
+button.pl-action-btn--factura:hover:not(:disabled) {
   background: var(--success-700); /* Inversión de colores en hover */
   color: #fff;
   border-color: var(--success-700);
@@ -812,14 +812,14 @@ body {
 }
 
 /* Variante Reintentar (Acción de Peligro - Rojo) */
-.pl-action-btn--retry {
+button.pl-action-btn--retry {
   background: var(--danger-50); /* Fondo rojo muy claro */
   color: var(--danger-700); /* Texto rojo oscuro */
   border-color: #fecaca; /* Borde rojo claro */
   box-shadow: none;
 }
 
-.pl-action-btn--retry:hover:not(:disabled) {
+button.pl-action-btn--retry:hover:not(:disabled) {
   background: var(--danger-700); /* Inversión de colores en hover */
   color: #fff;
   border-color: var(--danger-700);
