@@ -116,7 +116,7 @@ export default function Login() {
           )}
 
           <div className="login-actions">
-            <button className="pl-btn pl-btn--primary pl-btn--xl" type="submit" disabled={loading}>
+            <button className="pl-btn login-btn pl-btn--xl" type="submit" disabled={loading}>
               {loading ? 'Ingresando...' : 'Ingresar'}
             </button>
           </div>
