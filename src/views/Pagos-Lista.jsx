@@ -650,7 +650,7 @@ export default function PagosLista() {
           <div className="pl-field">
             <label>&nbsp;</label>
             <button className="pl-btn--reset" onClick={resetFiltros}>
-              <i className="ri-restart-line" /> Reset
+              <i className="ri-restart-line" /> Reiniciar
             </button>
           </div>
         </section>

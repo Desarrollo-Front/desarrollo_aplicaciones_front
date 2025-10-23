@@ -577,7 +577,7 @@ window.onload = function(){window.print();}
                     <rect x="1" y="4" width="22" height="16" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
                     <line x1="1" y1="10" x2="23" y2="10" stroke="currentColor" strokeWidth="2"/>
                   </svg>
-                  Método de pago
+                  Método
                 </div>
                 <div className="payment-detail-info-value">
                   <Badge kind={pago.metodo}>{pago.metodo}</Badge>
