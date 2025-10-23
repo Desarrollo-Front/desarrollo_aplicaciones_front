@@ -188,7 +188,7 @@ body {
 .payment-detail-info-item {
   display: grid;
   /* Columna 1 para el ícono (16px), columna 2 para el texto (el resto) */
-  grid-template-columns: 16px 1fr;
+  grid-template-columns: auto 1fr;
   /* Espacio entre el ícono y el texto */
   column-gap: 0.5rem;
   /* Alinea el texto del valor con el texto del título */
@@ -196,25 +196,27 @@ body {
   gap: 0.5rem; /* Mantiene tu espacio vertical */
  }
 
+ .payment-detail-info-label-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--payment-text-muted);
+  /* Centra el ícono verticalmente con el texto del label */
+  margin-top: 0.25rem;
+}
 
 .payment-detail-info-label {
-  /* Lo restauramos a su estado original simple, sin flex, sin position */
-  display: contents;       /* <--- ...CON ESTAS TRES */
-  align-items: center; /* Centra verticalmente el ícono con el texto */
-  gap: 0.5rem;
+  /* Ya NO usamos 'display: contents' */
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--payment-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 0; 
-  padding-left: 0; /* Nos aseguramos que no tenga padding propio */
+  padding-left: 0;
+  /* Nos aseguramos que alinee bien */
+  grid-column: 2;
 }
 
-.payment-detail-info-label svg {
-  width: 16px;
-  height: 16px;
-}
 
 
 .payment-detail-info-value {
