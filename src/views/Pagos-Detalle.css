@@ -217,7 +217,7 @@ body {
 }
 .payment-detail-info-label svg {
   width: 16px;          /* Asegúrate de que tenga tamaño */
-  height: 16px;         /* Asegúrate de que tenga tamaño */
+  height: 15px;         /* Asegúrate de que tenga tamaño */
   flex-shrink: 0;       /* Evita que el ícono se achique si el texto es largo */
   margin-right: 0.35rem; /* <-- Ajusta este valor (ej: 0.25rem, 0.4rem) */
 }
