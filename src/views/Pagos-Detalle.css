@@ -204,16 +204,16 @@ body {
 }
 
 .payment-detail-info-label {
-  display: flex;       /* <-- Habilita Flexbox */
-  align-items: center; /* <-- Centra verticalmente el ícono con el texto */
-  gap: 0.35rem;        /* <-- ¡ESTA LÍNEA CONTROLA EL ESPACIO! */
+  /* Ya NO usamos 'display: contents' */
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--payment-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 0;
+  margin-bottom: 0; 
   padding-left: 0;
+  /* Nos aseguramos que alinee bien */
+  grid-column: 2;
 }
 
 
