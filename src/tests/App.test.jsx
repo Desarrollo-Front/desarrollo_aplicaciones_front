@@ -12,6 +12,7 @@ describe('App', () => {
 
   test('renderiza rutas principales', () => {
     render(<App />);
-    expect(screen.getByText(/Accedé con tu cuenta para continuar/i)).toBeInTheDocument();
+    // App text changed to use "Ingresá a tu cuenta para continuar" in UI
+    expect(screen.getByText(/Ingresá a tu cuenta para continuar|Accedé con tu cuenta para continuar/i)).toBeInTheDocument();
   });
 });
