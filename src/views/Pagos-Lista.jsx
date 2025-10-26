@@ -765,3 +765,6 @@ export default function PagosLista() {
     </div>
   );
 }
+
+// Export helpers for unit testing
+// (exports removed — helpers are internal to the module)
