@@ -335,9 +335,11 @@ export default function PagosDetalle() {
   const [tlFilter] = useState('all');
   const [expanded, setExpanded] = useState({});
 
+  // Obtenemos el ROL y el NOMBRE del usuario logueado
   const role = String(localStorage.getItem('role') || '').toUpperCase();
-  const isUser = role === 'USER';
+  const localUserName = localStorage.getItem('name') || '—';
   const isMerchant = role === 'MERCHANT';
+  // (isUser ya no es necesario para esta lógica)
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -370,10 +372,33 @@ export default function PagosDetalle() {
             return {};
           }
         })();
+        
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Aplicamos la lógica condicional basada en el ROL
+        
+        let clienteFinal;
+        let prestadorFinal;
+
+        if (isMerchant) {
+          // Si soy MERCHANT:
+          // El 'cliente' es el p.user_name que viene del API.
+          // El 'prestador' soy yo (mi nombre del localStorage).
+          clienteFinal = p.user_name || 'Cliente';
+          prestadorFinal = localUserName;
+        } else {
+          // Si soy USER (o cualquier otro rol):
+          // El 'cliente' soy yo (mi nombre del localStorage).
+          // El 'prestador' es el p.provider_name que viene del API.
+          clienteFinal = localUserName;
+          prestadorFinal = p.provider_name || (p.provider_id ? `ID: ${p.provider_id}` : '—');
+        }
+
         const pagoNorm = {
           id: p.id,
-          cliente: localStorage.getItem('name') || '—',
-          prestador: p.provider_name || (p.provider_id ? `ID: ${p.provider_id}` : '—'),
+          cliente: clienteFinal,
+          prestador: prestadorFinal,
+          // --- FIN DE LA CORRECCIÓN ---
+          
           solicitud: p.solicitud_id ? `RCOT-${p.solicitud_id}` : '—',
           metodo: getMetodoTag(p.method),
           estado: mapStatus(p.status),
@@ -429,7 +454,7 @@ export default function PagosDetalle() {
       }
     };
     fetchAll();
-  }, [id, isUser]);
+  }, [id, isMerchant, localUserName]); // Agregamos dependencias
 
   const totales = useMemo(() => {
     if (!pago) return { sub: '-', imp: '-', tot: '-' };
@@ -449,6 +474,7 @@ export default function PagosDetalle() {
 
   const buildComprobanteHTML = (pagoArg) => {
     const pagoLocal = pagoArg || pago;
+    // Usamos los datos ya procesados en el estado 'pago'
     const emisor = pagoLocal?.prestador || 'Prestador';
     const cliente = pagoLocal?.cliente || 'Consumidor Final';
     const metodo = pagoLocal?.metodo || '—';
