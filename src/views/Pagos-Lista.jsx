@@ -48,6 +48,7 @@ const generarHtmlFactura = (pago) => {
       precioUnitario: pago.subtotal,
     },
   ];
+  
 
   const itemRows = items.map(item => `
     <tr>
