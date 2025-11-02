@@ -1,28 +1,38 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import PagosDetalle from '../views/Pagos-Detalle';
 
-describe('PagosDetalle refund error', () => {
+describe('PagosDetalle timeline error', () => {
   beforeEach(() => {
     window.localStorage.setItem('role', 'USER');
     window.localStorage.setItem('authHeader', 'Bearer testtoken');
   });
 
-  test('muestra mensaje de error si la consulta de refund falla', async () => {
-    global.fetch = vi.fn()
-      .mockImplementationOnce(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 1, amount_total: 1000, currency: 'ARS', status: 'APPROVED' }) }))
-      .mockImplementationOnce(() => Promise.resolve({ ok: true, json: () => Promise.resolve([]) }))
-      .mockImplementationOnce(() => Promise.resolve({ ok: false, status: 500 }));
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
+  test('muestra mensaje de error si la consulta de timeline falla', async () => {
+    global.fetch = vi.fn((url) => {
+      if (url.endsWith('/timeline')) return Promise.resolve({ ok: false, status: 500 });
+      if (url.includes('/api/payments/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ id: '1', amount_total: 100, currency: 'ARS', status: 'APPROVED' }) });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+    });
 
     render(
-      <MemoryRouter>
-        <PagosDetalle />
+      <MemoryRouter initialEntries={["/detalle/1"]}>
+        <Routes>
+          <Route path="/detalle/:id" element={<PagosDetalle />} />
+        </Routes>
       </MemoryRouter>
     );
+
     await waitFor(() => {
-      expect(screen.getByText(/No se pudo consultar el reembolso/i)).toBeInTheDocument();
+      expect(screen.getByText(/No se pudo obtener el timeline/i)).toBeInTheDocument();
     });
   });
 });

@@ -2,19 +2,167 @@ import React, { useEffect, useMemo, useState, useRef, useLayoutEffect } from 're
 import { useNavigate } from 'react-router-dom';
 import './Pagos-Lista.css';
 import Select from 'react-select';
-import FacturaPreview from './FacturaPreview';
+import FacturaPreview from './FacturaPreview'; // Tu componente de previsualización
 
 const METODOS = ['Todos los métodos', 'Tarjeta crédito', 'Tarjeta débito', 'Mercado Pago'];
 const ESTADOS_CHIPS = ['Pendiente', 'Aprobado', 'Rechazado'];
 
 const money = (n, curr = 'ARS', locale = 'es-AR') =>
-  new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(n);
+  new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(Number(n || 0));
 
 const fechaFmt = (iso, locale = 'es-AR') => {
+  if (!iso) return { fecha: '—', hora: '' };
   const d = new Date(iso);
   const fecha = d.toLocaleDateString(locale, { year: 'numeric', month: '2-digit', day: '2-digit' });
   const hora = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
   return { fecha, hora };
+};
+
+const fechaHoraUI = (iso, locale = 'es-AR') => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const f = d.toLocaleDateString(locale, { year: 'numeric', month: '2-digit', day: '2-digit' });
+  const h = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+  return `${f} ${h}`;
+};
+
+/**
+ * Genera el HTML de la factura a partir de los datos detallados de un pago.
+ * @param {object} pago - El objeto con los detalles del pago.
+ * @returns {string} - El string HTML de la factura.
+ */
+const generarHtmlFactura = (pago) => {
+  const emisor = pago.prestador || 'N/A';
+  const cliente = pago.cliente || 'Consumidor Final';
+  const metodo = pago.metodo || '—';
+  const descripcion = pago.descripcion || 'Cargo por servicio';
+  const categoria = pago.categoria || 'General';
+  const fechaEmision = fechaHoraUI(pago.creadoISO);
+  const fechaCobro = fechaHoraUI(pago.capturadoISO);
+
+  // Desglose de ítems (modificado para mostrar solo la línea principal)
+  const items = [
+    {
+      descripcion: descripcion,
+      cantidad: 1,
+      precioUnitario: pago.subtotal,
+    },
+  ];
+  
+
+  const itemRows = items.map(item => `
+    <tr>
+      <td>${item.cantidad}</td>
+      <td>${item.descripcion}</td>
+      <td class="text-right">${money(item.precioUnitario, pago.moneda)}</td>
+      <td class="text-right">${money(item.precioUnitario * item.cantidad, pago.moneda)}</td>
+    </tr>
+  `).join('');
+
+  return `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Factura de Pago #${pago.id}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 2rem; background-color: #f8fafc; color: #1e293b; }
+    .invoice-container { max-width: 800px; margin: auto; background: white; border-radius: 12px; padding: 2.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 1.5rem; border-bottom: 3px solid #3b82f6; }
+    .header .title { font-size: 2.5rem; font-weight: 800; color: #1e293b; margin: 0; }
+    .header .subtitle { font-size: 1rem; color: #64748b; margin: 0; }
+    .header .invoice-info { text-align: right; }
+    .header .invoice-info strong { font-size: 1.25rem; color: #3b82f6; }
+    .party-details { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0; }
+    .party-details h3 { font-size: 0.875rem; color: #64748b; font-weight: 600; margin-bottom: 0.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; }
+    .party-details p { margin: 0.25rem 0; font-size: 1rem; }
+    .payment-details { background-color: #f1f5f9; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; }
+    .payment-details h2 { font-size: 1.25rem; margin-top: 0; margin-bottom: 1rem; color: #1e293b; }
+    .payment-details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .payment-details-grid div { font-size: 0.875rem; }
+    .payment-details-grid strong { color: #334155; display: block; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    th { background-color: #f8fafc; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; color: #64748b; }
+    .totals { display: flex; justify-content: flex-end; }
+    .totals-table { width: 100%; max-width: 300px; }
+    .totals-table td { border: none; padding: 0.5rem 0; }
+    .totals-table .label { color: #64748b; }
+    .totals-table .total-row td { font-size: 1.25rem; font-weight: 700; padding-top: 1rem; border-top: 2px solid #3b82f6; }
+    .footer { text-align: center; margin-top: 2rem; font-size: 0.875rem; color: #64748b; }
+    .text-right { text-align: right; }
+  </style>
+</head>
+<body>
+  <div class="invoice-container">
+    <header class="header">
+      <div>
+        <h1 class="title">Factura</h1>
+        <p class="subtitle">Comprobante de pago no fiscal</p>
+      </div>
+      <div class="invoice-info">
+        <p>ID de Pago</p>
+        <strong>#${pago.id}</strong>
+      </div>
+    </header>
+    <section class="party-details">
+      <div>
+        <h3>PRESTADOR</h3>
+        <p><strong>${emisor}</strong></p>
+      </div>
+      <div>
+        <h3>USUARIO</h3>
+        <p><strong>${cliente}</strong></p>
+      </div>
+    </section>
+    <section class="payment-details">
+        <h2>Detalles de la Transacción</h2>
+        <div class="payment-details-grid">
+            <div><strong>Fecha de Emisión:</strong> ${fechaEmision}</div>
+            <div><strong>Fecha de Cobro:</strong> ${fechaCobro}</div>
+            <div><strong>Método de Pago:</strong> ${metodo}</div>
+            <div><strong>Categoría:</strong> ${categoria}</div>
+        </div>
+    </section>
+    <table>
+      <thead>
+        <tr>
+          <th>Cant.</th>
+          <th>Descripción</th>
+          <th class="text-right">P. Unitario</th>
+          <th class="text-right">Importe</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemRows}
+      </tbody>
+    </table>
+    <section class="totals">
+      <table class="totals-table">
+        <tbody>
+          <tr>
+            <td class="label">Subtotal</td>
+            <td class="text-right">${money(pago.subtotal, pago.moneda)}</td>
+          </tr>
+          <tr>
+            <td class="label">Impuestos y Cargos</td>
+            <td class="text-right">${money(pago.impuestos, pago.moneda)}</td>
+          </tr>
+          <tr class="total-row">
+            <td><strong>Total</strong></td>
+            <td class="text-right"><strong>${money(pago.total, pago.moneda)}</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <footer class="footer">
+      <p>Este es un comprobante de pago generado automáticamente. Para cualquier consulta, contacte a soporte.</p>
+    </footer>
+  </div>
+</body>
+</html>
+  `;
 };
 
 function Badge({ kind, children }) {
@@ -77,224 +225,132 @@ const getMetodoTag = (method) => {
   return '—';
 };
 
-
-function KebabMenu({ estado, onVerFactura, onVerPago }) {
-  const [open, setOpen] = useState(false);
-  const [up, setUp] = useState(false);
-  const ref = useRef(null);
-  const menuRef = useRef(null);
-
-  useEffect(() => {
-    const onClickAway = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener("mousedown", onClickAway);
-    return () => document.removeEventListener("mousedown", onClickAway);
-  }, []);
-
-  useEffect(() => {
-    if (open && menuRef.current && ref.current) {
-      setTimeout(() => {
-        const menu = menuRef.current;
-        const btn = ref.current.querySelector('.pl-kebab__btn');
-        if (!menu || !btn) return;
-        const btnRect = btn.getBoundingClientRect();
-        const menuRect = menu.getBoundingClientRect();
-        const spaceBelow = window.innerHeight - btnRect.bottom;
-        const spaceAbove = btnRect.top;
-        const menuHeight = menuRect.height;
-        // Si el menú cabe abajo, mostrar abajo. Si no, mostrar arriba.
-        if (spaceBelow >= menuHeight + 8) {
-          setUp(false);
-        } else if (spaceAbove >= menuHeight + 8) {
-          setUp(true);
-        } else {
-          // Si no cabe en ninguna dirección, priorizar abajo
-          setUp(false);
-        }
-      }, 0);
-    }
-  }, [open]);
-
+function CustomSelect({ label, options, value, onChange }) {
   return (
-    <div className="pl-kebab" ref={ref}>
-      <button
-        className="pl-kebab__btn"
-        onClick={() => setOpen((v) => !v)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-      >
-        <span className="pl-kebab__dots">
-          <span></span>
-          <span></span>
-          <span></span>
-        </span>
-      </button>
-      {open && (
-        <div
-          className={`pl-kebab__menu${up ? ' is-up' : ''}`}
-          role="menu"
-          ref={menuRef}
-        >
-          {estado === "Aprobado" && (
-            <button
-              className="pl-kebab__item"
-              onClick={() => {
-                setOpen(false);
-                onVerFactura();
-              }}
-            >
-              <i className="ri-file-text-line" aria-hidden="true" />
-              Ver factura
-            </button>
-          )}
-          <button
-            className="pl-kebab__item"
-            onClick={() => {
-              setOpen(false);
-              onVerPago();
-            }}
-          >
-            <i className="ri-eye-line" aria-hidden="true" />
-            Ver pago
-          </button>
-        </div>
-      )}
+    <div className="pl-field">
+      <label>{label}</label>
+      <Select
+        options={options}
+        value={value}
+        onChange={onChange}
+        classNamePrefix="pl-sel"
+        styles={{
+          control: (base, state) => ({
+            ...base,
+            width: '100%',
+            height: '34px',
+            minHeight: '34px',
+            borderRadius: '12px',
+            border: '1px solid var(--payment-border)',
+            padding: '0',
+            fontSize: '13px',
+            color: 'var(--text)',
+            backgroundColor: 'var(--panel)',
+            boxSizing: 'border-box',
+            boxShadow: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            '&:hover': {
+              borderColor: 'var(--payment-border)',
+            },
+            ...(state.isFocused && {
+              outline: 'none',
+              borderColor: '#2563eb',
+              boxShadow: '0 0 0 2px rgba(37, 99, 235, 0.2)',
+            }),
+          }),
+          valueContainer: (base) => ({
+            ...base,
+            height: '34px',
+            padding: '0 16px',
+            display: 'flex',
+            alignItems: 'center',
+            boxSizing: 'border-box',
+          }),
+          singleValue: (base) => ({
+            ...base,
+            margin: 0,
+            lineHeight: '1',
+            transform: 'none',
+            top: 'auto',
+            position: 'static',
+            color: 'var(--text)',
+            fontSize: '13px',
+          }),
+          input: (base) => ({
+            ...base,
+            margin: 0,
+            padding: 0,
+            color: 'var(--text)',
+            fontSize: '13px',
+          }),
+          placeholder: (base) => ({
+            ...base,
+            margin: 0,
+            lineHeight: '1',
+            transform: 'none',
+            top: 'auto',
+            position: 'static',
+            color: '#999',
+            fontSize: '13px',
+          }),
+          menu: (base) => ({
+            ...base,
+            borderRadius: '12px',
+            marginTop: '4px',
+            fontSize: '13px',
+            zIndex: 9999,
+            boxShadow: '0 4px 18px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.06)',
+            border: '1px solid var(--payment-border)',
+          }),
+          option: (base, { isFocused, isSelected }) => ({
+            ...base,
+            backgroundColor: isSelected ? '#2563eb' : isFocused ? '#f0f4ff' : '#fff',
+            color: isSelected ? '#fff' : 'var(--text)',
+            cursor: 'pointer',
+            fontSize: '13px',
+            padding: '8px 16px',
+          }),
+          indicatorSeparator: () => ({ display: 'none' }),
+          dropdownIndicator: (base) => ({
+            ...base,
+            color: '#7b8794',
+            paddingRight: '12px',
+            '&:hover': {
+              color: '#2563eb',
+            },
+          }),
+        }}
+      />
     </div>
   );
 }
 
-const fechaHoraUI = (iso, locale = 'es-AR') => {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  const f = d.toLocaleDateString(locale, { year: 'numeric', month: '2-digit', day: '2-digit' });
-  const h = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
-  return `${f} ${h}`;
-};
-
-const buildFacturaHTML = (p) => {
-  const emisor = p.prestador || 'Prestador';
-  const cliente = p.cliente || 'Consumidor Final';
-  const metodo = p.metodo || '—';
-  const fechaEmision = fechaHoraUI(p.fechaISO);
-  const otrosCargos = Number(p.impuestos || 0);
-  const lines = [
-    { cant: 1, det: 'Pago', pu: p.subtotal, imp: p.subtotal },
-    ...(otrosCargos > 0 ? [{ cant: 1, det: 'Cargos e impuestos', pu: otrosCargos, imp: otrosCargos }] : []),
-  ];
-  const rows = lines.map(
-    (l) =>
-      `<tr><td style="padding:6px;border:1px solid #ddd;text-align:center">${l.cant}</td><td style="padding:6px;border:1px solid #ddd">${l.det}</td><td style="padding:6px;border:1px solid #ddd;text-align:right">${money(l.pu, p.moneda)}</td><td style="padding:6px;border:1px solid #ddd;text-align:right">${money(l.imp, p.moneda)}</td></tr>`
-  ).join('');
-  const html = `
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Factura</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body style="font-family:Arial,Helvetica,sans-serif;color:#111;margin:24px">
-<div style="max-width:820px;margin:0 auto">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
-    <div>
-      <div style="font-size:22px;font-weight:700">Factura</div>
-      <div style="font-size:12px;color:#666">No fiscal</div>
-    </div>
-    <div style="text-align:right">
-      <div style="font-size:12px;color:#666">ID de pago</div>
-      <div style="font-size:16px;font-weight:700">#${p.id}</div>
-    </div>
-  </div>
-  <hr style="border:none;border-top:1px solid #e5e5e5;margin:12px 0">
-  <div style="display:flex;gap:24px;margin:12px 0 20px">
-    <div style="flex:1">
-      <div style="font-size:12px;color:#666">Prestador</div>
-      <div style="font-size:14px;font-weight:600">${emisor}</div>
-    </div>
-    <div style="flex:1">
-      <div style="font-size:12px;color:#666">Cliente</div>
-      <div style="font-size:14px;font-weight:600">${cliente}</div>
-    </div>
-  </div>
-  <div style="display:flex;gap:24px;margin:0 0 16px">
-    <div style="flex:1">
-      <div style="font-size:12px;color:#666">Fecha de emisión</div>
-      <div style="font-size:14px">${fechaEmision}</div>
-    </div>
-    <div style="flex:1">
-      <div style="font-size:12px;color:#666">Moneda</div>
-      <div style="font-size:14px">${p.moneda}</div>
-    </div>
-    <div style="flex:1">
-      <div style="font-size:12px;color:#666">Método</div>
-      <div style="font-size:14px">${metodo}</div>
-    </div>
-  </div>
-  <table style="width:100%;border-collapse:collapse;margin-top:8px">
-    <thead>
-      <tr>
-        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:center;font-size:12px">Cant.</th>
-        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:left;font-size:12px">Detalle</th>
-        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:right;font-size:12px">P. unitario</th>
-        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:right;font-size:12px">Importe</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${rows}
-    </tbody>
-  </table>
-  <div style="display:flex;justify-content:flex-end;margin-top:12px">
-    <div style="min-width:280px">
-      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ddd">
-        <div style="color:#666">Subtotal</div><div>${money(p.subtotal, p.moneda)}</div>
-      </div>
-      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ddd">
-        <div style="color:#666">Otros cargos</div><div>${money(p.impuestos, p.moneda)}</div>
-      </div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:16px">
-        <div>Total</div><div>${money(p.total, p.moneda)}</div>
-      </div>
-    </div>
-  </div>
-  <div style="margin-top:18px;padding:12px;background:#f7f7f7;border:1px solid #eee;font-size:12px;color:#444">
-    Este es un comprobante no fiscal emitido a partir de datos reales del pago.
-  </div>
-</div>
-</body>
-</html>
-`;
-  return html;
-};
-
 export default function PagosLista() {
   const navigate = useNavigate();
-
   const [serverData, setServerData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingDetail, setLoadingDetail] = useState(false);
   const [fetchErr, setFetchErr] = useState('');
-
   const [previewHTML, setPreviewHTML] = useState('');
-
   const authRole =
     (JSON.parse(localStorage.getItem('auth') || '{}').role ||
       localStorage.getItem('role') ||
       'USER').toUpperCase();
-
   const searchBy =
     authRole === 'MERCHANT' ? 'Cliente' : authRole === 'USER' ? 'Prestador' : 'Cliente';
-
   const [query, setQuery] = useState('');
-  const [metodo, setMetodo] = useState(METODOS[0]);
+  const [metodo, setMetodo] = useState({ value: METODOS[0], label: METODOS[0] });
   const [desde, setDesde] = useState('');
   const [hasta, setHasta] = useState('');
-  const [orden, setOrden] = useState('Fecha ⬇');
+  const [orden, setOrden] = useState({ value: 'Fecha ⬇', label: 'Fecha ⬇' });
   const [chips, setChips] = useState(new Set());
-
   const userName =
     JSON.parse(localStorage.getItem('auth') || '{}').name ||
     localStorage.getItem('name') ||
     'Usuario';
+
+  const mastRef = useRef(null);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -309,14 +365,13 @@ export default function PagosLista() {
 
   const resetFiltros = () => {
     setQuery('');
-    setMetodo(METODOS[0]);
+    setMetodo({ value: METODOS[0], label: METODOS[0] });
     setDesde('');
     setHasta('');
-    setOrden('Fecha ⬇');
+    setOrden({ value: 'Fecha ⬇', label: 'Fecha ⬇' });
     setChips(new Set());
   };
 
-  const mastRef = useRef(null);
   useLayoutEffect(() => {
     const el = mastRef.current;
     if (!el) return;
@@ -414,13 +469,13 @@ export default function PagosLista() {
       );
     }
 
-    if (metodo !== METODOS[0]) {
+    if (metodo.value !== METODOS[0]) {
       const map = {
         'Tarjeta crédito': 'Crédito',
         'Tarjeta débito': 'Débito',
         'Mercado Pago': 'Mercado Pago',
       };
-      arr = arr.filter((p) => p.metodo === map[metodo]);
+      arr = arr.filter((p) => p.metodo === map[metodo.value]);
     }
 
     if (desde) arr = arr.filter((p) => new Date(p.fechaISO) >= new Date(desde + 'T00:00:00'));
@@ -436,17 +491,17 @@ export default function PagosLista() {
           )
             return true;
         }
-        return chips.has(p.estado) || chips.has(p.metodo);
+        return chips.has(p.estado);
       });
     }
 
     arr.sort((a, b) => {
-      if (orden.startsWith('Fecha')) {
-        return orden.endsWith('⬇')
+      if (orden.value.startsWith('Fecha')) {
+        return orden.value.endsWith('⬇')
           ? new Date(b.fechaISO) - new Date(a.fechaISO)
           : new Date(a.fechaISO) - new Date(b.fechaISO);
       }
-      return orden.endsWith('⬇') ? b.total - a.total : a.total - b.total;
+      return orden.value.endsWith('⬇') ? b.total - a.total : a.total - b.total;
     });
 
     return arr;
@@ -454,47 +509,23 @@ export default function PagosLista() {
 
   const exportCSV = () => {
     const headers = [
-      'ID',
-      'Cliente',
-      'Prestador',
-      'Método',
-      'Estado',
-      'Subtotal',
-      'Impuestos',
-      'Total',
-      'Moneda',
-      'Fecha',
-      'Hora',
+      'ID', 'Cliente', 'Prestador', 'Método', 'Estado',
+      'Subtotal', 'Impuestos', 'Total', 'Moneda', 'Fecha', 'Hora',
     ];
     const rows = pagos.map((p) => {
       const { fecha, hora } = fechaFmt(p.fechaISO);
       return [
-        p.id,
-        p.cliente,
-        p.prestador,
-        p.metodo,
-        p.estado,
-        p.subtotal,
-        p.impuestos,
-        p.total,
-        p.moneda,
-        fecha,
-        hora,
+        p.id, p.cliente, p.prestador, p.metodo, p.estado,
+        p.subtotal, p.impuestos, p.total, p.moneda, fecha, hora,
       ];
     });
-    const csv =
-      headers.join(',') +
-      '\n' +
-      rows
-        .map((r) =>
-          r
-            .map((v) => {
-              const s = String(v ?? '');
-              return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
-            })
-            .join(',')
-        )
-        .join('\n');
+    const csv = [
+      headers.join(','),
+      ...rows.map(r => r.map(v => {
+        const s = String(v ?? '');
+        return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
+      }).join(','))
+    ].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -504,9 +535,46 @@ export default function PagosLista() {
     URL.revokeObjectURL(url);
   };
 
-  const onVerFacturaPreview = (p) => {
-    const html = buildFacturaHTML(p);
-    setPreviewHTML(html);
+  const onVerFacturaPreview = async (pagoDeLista) => {
+    setLoadingDetail(true);
+    try {
+      const authHeader =
+        localStorage.getItem('authHeader') ||
+        `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
+      
+      const res = await fetch(`/api/payments/${pagoDeLista.id}`, {
+        headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+      });
+
+      if (!res.ok) throw new Error('No se pudieron obtener los detalles para la factura.');
+
+      const p = await res.json();
+      const meta = p.metadata ? JSON.parse(p.metadata) : {};
+
+      const pagoDetallado = {
+        id: p.id,
+        cliente: localStorage.getItem('name') || '—',
+        prestador: p.provider_name || '—',
+        metodo: getMetodoTag(p.method),
+        subtotal: Number(p.amount_subtotal ?? 0),
+        impuestos: Number((p.taxes ?? 0) + (p.fees ?? 0)),
+        total: Number(p.amount_total ?? 0),
+        moneda: String(p.currency || 'ARS').toUpperCase(),
+        creadoISO: p.created_at || p.createdAt || null,
+        capturadoISO: p.captured_at || p.capturedAt || null,
+        descripcion: meta.description || 'Cargo por servicio',
+        categoria: meta.category || 'General',
+      };
+
+      const html = generarHtmlFactura(pagoDetallado);
+      setPreviewHTML(html);
+
+    } catch (error) {
+      console.error("Error al generar factura:", error);
+      alert(error.message || 'Ocurrió un error al generar la factura.');
+    } finally {
+      setLoadingDetail(false);
+    }
   };
 
   return (
@@ -530,7 +598,7 @@ export default function PagosLista() {
         <section className="pl-filters">
           <div className="pl-field">
             <label>Buscar por {searchBy.toLowerCase()}</label>
-            <div className="pl-inline">
+            <div className="pl-input-wrapper">
               <i className="ri-search-line pl-input__ico" />
               <input
                 className="pl-input pl-input--with-ico"
@@ -541,52 +609,12 @@ export default function PagosLista() {
             </div>
           </div>
 
-          <div className="pl-field">
-            <label>Método</label>
-            <Select
-              options={METODOS.map((m) => ({ value: m, label: m }))}
-              value={{ value: metodo, label: metodo }}
-              onChange={(opt) => setMetodo(opt.value)}
-              classNamePrefix="pl-sel"
-              theme={(theme) => ({
-                ...theme,
-                borderRadius: 8,
-                colors: {
-                  ...theme.colors,
-                  primary25: '#f0f4ff',
-                  primary: '#2563eb',
-                  neutral0: '#ffffff',
-                  neutral80: '#111111',
-                  neutral20: '#e6eaf0',
-                },
-              })}
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  borderRadius: '8px',
-                  borderColor: '#e6eaf0',
-                  minHeight: '36px',
-                  fontSize: '14px',
-                  boxShadow: 'none',
-                  '&:hover': { borderColor: '#2563eb' },
-                }),
-                menu: (base) => ({
-                  ...base,
-                  borderRadius: '8px',
-                  marginTop: 4,
-                  fontSize: '14px',
-                  zIndex: 9999,
-                }),
-                option: (base, { isFocused, isSelected }) => ({
-                  ...base,
-                  backgroundColor: isSelected ? '#2563eb' : isFocused ? '#f0f4ff' : '#fff',
-                  color: isSelected ? '#fff' : '#111',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                }),
-              }}
-            />
-          </div>
+          <CustomSelect
+            label="Método"
+            options={METODOS.map((m) => ({ value: m, label: m }))}
+            value={metodo}
+            onChange={(opt) => setMetodo(opt)}
+          />
 
           <div className="pl-field">
             <label>Desde</label>
@@ -608,62 +636,36 @@ export default function PagosLista() {
             />
           </div>
 
-          <div className="pl-field">
-            <label>Orden</label>
-            <Select
-              options={[
-                { value: 'Fecha ⬇', label: 'Fecha ⬇' },
-                { value: 'Fecha ⬆', label: 'Fecha ⬆' },
-                { value: 'Monto ⬇', label: 'Monto ⬇' },
-                { value: 'Monto ⬆', label: 'Monto ⬆' },
-              ]}
-              value={{ value: orden, label: orden }}
-              onChange={(opt) => setOrden(opt.value)}
-              classNamePrefix="pl-sel"
-            />
-          </div>
-
+          <CustomSelect
+            label="Orden"
+            options={[
+              { value: 'Fecha ⬇', label: 'Fecha ⬇' },
+              { value: 'Fecha ⬆', label: 'Fecha ⬆' },
+              { value: 'Monto ⬇', label: 'Monto ⬇' },
+              { value: 'Monto ⬆', label: 'Monto ⬆' },
+            ]}
+            value={orden}
+            onChange={(opt) => setOrden(opt)}
+          />
+          
           <div className="pl-field">
             <label>&nbsp;</label>
             <button className="pl-btn--reset" onClick={resetFiltros}>
-              <i className="ri-restart-line" /> Reset
+              <i className="ri-restart-line" /> Reiniciar
             </button>
           </div>
         </section>
 
         <div className="pl-chips">
-          <Chip
-            icon="ri-time-line"
-            key="Pendiente"
-            active={chips.has('Pendiente')}
-            onClick={() => toggleChip('Pendiente')}
-          >
-            Pendiente
-          </Chip>
-          <Chip
-            icon="ri-check-line"
-            key="Aprobado"
-            active={chips.has('Aprobado')}
-            onClick={() => toggleChip('Aprobado')}
-          >
-            Aprobado
-          </Chip>
-          <Chip
-            icon="ri-close-circle-line"
-            key="Rechazado"
-            active={chips.has('Rechazado')}
-            onClick={() => toggleChip('Rechazado')}
-          >
-            Rechazado
-          </Chip>
-          <Chip
-            icon="ri-refund-2-line"
-            key="Reembolsado"
-            active={chips.has('Reembolsado')}
-            onClick={() => toggleChip('Reembolsado')}
-          >
-            Reembolsado
-          </Chip>
+          {ESTADOS_CHIPS.map(chipName => (
+            <Chip
+              key={chipName}
+              active={chips.has(chipName)}
+              onClick={() => toggleChip(chipName)}
+            >
+              {chipName}
+            </Chip>
+          ))}
           <span className="pl-export" onClick={exportCSV}>
             <i className="ri-download-2-line" /> Exportar CSV
           </span>
@@ -688,50 +690,52 @@ export default function PagosLista() {
             </tr>
           </thead>
           <tbody>
-            {!loading &&
-              !fetchErr &&
-              pagos.map((p) => {
-                const { fecha, hora } = fechaFmt(p.fechaISO);
-                return (
-                  <tr key={p.id}>
-                    <td>#{p.id}</td>
-                    {authRole !== 'USER' && <td>{p.cliente}</td>}
-                    {authRole !== 'MERCHANT' && <td>{p.prestador}</td>}
-                    <td>
-                      <Badge kind={p.metodo}>{p.metodo}</Badge>
-                    </td>
-                    <td>
-                      <Badge kind={p.estado}>{p.estado}</Badge>
-                    </td>
-                    <td>{money(p.subtotal, p.moneda)}</td>
-                    <td>{money(p.impuestos, p.moneda)}</td>
-                    <td className="pl-bold">{money(p.total, p.moneda)}</td>
-                    <td>{p.moneda}</td>
-                    <td>
-                      <div className="pl-fecha">
-                        <div>{fecha}</div>
-                        <small>{hora}</small>
-                      </div>
-                    </td>
-                    <td>
-                      {p.estado === 'Pendiente de Pago' && authRole !== 'MERCHANT' ? (
-                        <button
-                          className="pl-btn pl-btn--pagar"
-                          onClick={() => navigate(`/pago/${p.id}`)}
-                        >
-                          <i className="ri-wallet-2-line" /> Pagar
-                        </button>
-                      ) : (
-                        <KebabMenu
-                          estado={p.estado}
-                          onVerFactura={() => onVerFacturaPreview(p)}
-                          onVerPago={() => navigate(`/detalle/${p.id}`)}
-                        />
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
+            {!loading && !fetchErr && pagos.map((p) => {
+              const { fecha, hora } = fechaFmt(p.fechaISO);
+              const handleRowClick = (e) => {
+                // Evita la navegación si el clic fue en un botón
+                if (e.target.closest('button')) {
+                  return;
+                }
+                navigate(`/detalle/${p.id}`);
+              };
+              return (
+                <tr key={p.id} onClick={handleRowClick} className="pl-tr--clickable">
+                  <td className="pl-td--center">#{p.id}</td>
+                  {authRole !== 'USER' && <td className="pl-td--center">{p.cliente}</td>}
+                  {authRole !== 'MERCHANT' && <td className="pl-td--center">{p.prestador}</td>}
+                  <td className="pl-td--center"><Badge kind={p.metodo}>{p.metodo}</Badge></td>
+                  <td className="pl-td--center"><Badge kind={p.estado}>{p.estado}</Badge></td>
+                  <td>{money(p.subtotal, p.moneda)}</td>
+                  <td>{money(p.impuestos, p.moneda)}</td>
+                  <td className="pl-bold">{money(p.total, p.moneda)}</td>
+                  <td className="pl-td--center">{p.moneda}</td>
+                  <td className="pl-td--center">
+                    <div>{fecha}</div>
+                    <small>{hora}</small>
+                  </td>
+                  <td className="pl-td--center">
+                    {/* --- INICIO DE LA LÓGICA MODIFICADA --- */}
+                    {p.estado === 'Pendiente de Pago' && authRole !== 'MERCHANT' ? (
+                      <button className="pl-action-btn pl-action-btn--pagar" onClick={() => navigate(`/pago/${p.id}`)}>
+                        <i className="ri-wallet-2-line" /> Pagar
+                      </button>
+                    ) : p.estado === 'Aprobado' ? (
+                      <button className="pl-action-btn pl-action-btn--factura" onClick={() => onVerFacturaPreview(p)} disabled={loadingDetail}>
+                         <i className="ri-file-text-line" /> {loadingDetail ? 'Cargando...' : 'Ver Factura'}
+                      </button>
+                    ) : p.estado === 'Rechazado' && authRole !== 'MERCHANT' ? (
+                      <button className="pl-action-btn pl-action-btn--retry" onClick={() => navigate(`/pago/${p.id}`)}>
+                        <i className="ri-refresh-line" /> Reintentar
+                      </button>
+                    ) : (
+                      <span className="pl-no-action">—</span>
+                    )}
+                    {/* --- FIN DE LA LÓGICA MODIFICADA --- */}
+                  </td>
+                </tr>
+              );
+            })}
             {!loading && !fetchErr && pagos.length === 0 && (
               <tr>
                 <td className="pl-empty" colSpan={11}>
@@ -741,16 +745,12 @@ export default function PagosLista() {
             )}
             {loading && (
               <tr>
-                <td className="pl-empty" colSpan={11}>
-                  Cargando pagos…
-                </td>
+                <td className="pl-empty" colSpan={11}>Cargando pagos…</td>
               </tr>
             )}
             {!loading && fetchErr && (
               <tr>
-                <td className="pl-empty" colSpan={11}>
-                  {fetchErr}
-                </td>
+                <td className="pl-empty" colSpan={11}>{fetchErr}</td>
               </tr>
             )}
           </tbody>

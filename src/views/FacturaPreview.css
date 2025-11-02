@@ -138,6 +138,10 @@
   color: var(--invoice-text-muted);
   transition: var(--invoice-transition);
   border: 1px solid var(--invoice-border);
+  /* Estilos para la "X" */
+  font-size: 1.75rem;
+  line-height: 1;
+  padding: 0;
 }
 
 .invoice-modal-close:hover {

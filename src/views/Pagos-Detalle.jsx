@@ -44,8 +44,16 @@ const getMetodoTag = (method) => {
   return '—';
 };
 
-const mapEventType = (t) => {
-  const x = String(t || '').toUpperCase();
+const mapEventType = (type, payload) => { // Ahora recibe type y payload
+  const x = String(type || '').toUpperCase();
+  const statusInPayload = String(payload?.status || '').toUpperCase();
+
+  // Lógica para el caso específico
+  if (x === 'PAYMENT_PENDING' && statusInPayload === 'PENDING_BANK_APPROVAL') {
+    return 'Pago pendiente de Aprobación';
+  }
+
+  // Lógica que ya tenías
   if (x === 'PAYMENT_PENDING') return 'Pago pendiente';
   if (x === 'PAYMENT_METHOD_UPDATED') return 'Método de pago actualizado';
   if (x === 'PAYMENT_APPROVED') return 'Pago aprobado';
@@ -65,6 +73,17 @@ const mapEventType = (t) => {
 
 const eventCategory = (type, payload) => {
   const t = String(type || '').toUpperCase();
+  const statusInPayload = String(payload?.status || '').toUpperCase();
+
+  // Lógica para el caso específico (debe ir primero)
+  if (t === 'PAYMENT_PENDING' && statusInPayload === 'PENDING_BANK_APPROVAL') {
+    return 'info'; // Categoría para el color azul
+  }
+  if (t === 'PAYMENT_PENDING') {
+    return 'warning';
+  }
+  
+  // Lógica que ya tenías
   if (t.includes('REFUND')) return 'refund';
   if (
     t.includes('REJECT') ||
@@ -178,6 +197,132 @@ const translatePayloadDeep = (payload) => {
   return nuevo;
 };
 
+// Build comprobante HTML from a pago-like object (module-level helper)
+const buildComprobanteHTML = (pagoArg) => {
+  const pagoLocal = pagoArg || {};
+  const emisor = pagoLocal?.prestador || 'Prestador';
+  const cliente = pagoLocal?.cliente || 'Consumidor Final';
+  const metodo = pagoLocal?.metodo || '—';
+  const desc = pagoLocal?.descripcion || 'Pago';
+  const fechaEmision = fechaHora(pagoLocal?.creadoISO);
+  const fechaCobro = fechaHora(pagoLocal?.capturadoISO);
+  const otrosCargos = pagoLocal?.impuestos || 0;
+  const lines = [
+    { cant: 1, det: desc, pu: pagoLocal?.subtotal, imp: pagoLocal?.subtotal },
+    ...(otrosCargos > 0 ? [{ cant: 1, det: 'Cargos e impuestos', pu: otrosCargos, imp: otrosCargos }] : []),
+  ];
+  const rows = lines
+    .map(
+      (l) =>
+        `<tr><td style="padding:6px;border:1px solid #ddd;text-align:center">${l.cant}</td><td style="padding:6px;border:1px solid #ddd">${l.det}</td><td style="padding:6px;border:1px solid #ddd;text-align:right">${money(
+          l.pu,
+          pagoLocal?.moneda
+        )}</td><td style="padding:6px;border:1px solid #ddd;text-align:right">${money(l.imp, pagoLocal?.moneda)}</td></tr>`
+    )
+    .join('');
+  const html = `
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Factura</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="font-family:Arial,Helvetica,sans-serif;color:#111;margin:24px">
+<div style="max-width:820px;margin:0 auto">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+    <div>
+      <div style="font-size:22px;font-weight:700">Factura</div>
+      <div style="font-size:12px;color:#666">No fiscal</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:12px;color:#666">ID de pago</div>
+      <div style="font-size:16px;font-weight:700">#${pagoLocal.id}</div>
+    </div>
+  </div>
+  <hr style="border:none;border-top:1px solid #e5e5e5;margin:12px 0">
+  <div style="display:flex;gap:24px;margin:12px 0 20px">
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Prestador</div>
+      <div style="font-size:14px;font-weight:600">${emisor}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Cliente</div>
+      <div style="font-size:14px;font-weight:600">${cliente}</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:24px;margin:0 0 16px">
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Fecha de emisión</div>
+      <div style="font-size:14px">${fechaEmision}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Fecha de cobro</div>
+      <div style="font-size:14px">${fechaCobro}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Moneda</div>
+      <div style="font-size:14px">${pagoLocal?.moneda}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:#666">Método</div>
+      <div style="font-size:14px">${metodo}</div>
+    </div>
+  </div>
+  <table style="width:100%;border-collapse:collapse;margin-top:8px">
+    <thead>
+      <tr>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:center;font-size:12px">Cant.</th>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:left;font-size:12px">Detalle</th>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:right;font-size:12px">P. unitario</th>
+        <th style="padding:8px;border:1px solid #ddd;background:#fafafa;text-align:right;font-size:12px">Importe</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+    </tbody>
+  </table>
+  <div style="display:flex;justify-content:flex-end;margin-top:12px">
+    <div style="min-width:280px">
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ddd">
+        <div style="color:#666">Subtotal</div><div>${money(pagoLocal?.subtotal, pagoLocal?.moneda)}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ddd">
+        <div style="color:#666">Otros cargos</div><div>${money(pagoLocal?.impuestos, pagoLocal?.moneda)}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:16px">
+        <div>Total</div><div>${money(pagoLocal?.total, pagoLocal?.moneda)}</div>
+      </div>
+    </div>
+  </div>
+        <div style="margin-top:18px;font-size:12px;color:#666">
+    Operación: ${pagoLocal.solicitud || '—'}
+  </div>
+  <div style="margin-top:18px;padding:12px;background:#f7f7f7;border:1px solid #eee;font-size:12px;color:#444">
+    Este es un comprobante no fiscal emitido a partir de datos reales del pago. No reemplaza la factura fiscal correspondiente.
+  </div>
+</div>
+<script>
+window.onload = function(){window.print();}
+</script>
+</body>
+</html>
+    `;
+  return html;
+};
+
+// descargarComprobante as module helper (accepts pago object)
+const descargarComprobante = (pagoArg) => {
+  const pagoLocal = pagoArg || null;
+  if (!pagoLocal) return;
+  const html = buildComprobanteHTML(pagoLocal);
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, '_blank');
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  if (!win) alert('No se pudo abrir el comprobante. Verificá el bloqueador de pop-ups.');
+};
+
 export default function PagosDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -190,9 +335,11 @@ export default function PagosDetalle() {
   const [tlFilter] = useState('all');
   const [expanded, setExpanded] = useState({});
 
+  // Obtenemos el ROL y el NOMBRE del usuario logueado
   const role = String(localStorage.getItem('role') || '').toUpperCase();
-  const isUser = role === 'USER';
+  const localUserName = localStorage.getItem('name') || '—';
   const isMerchant = role === 'MERCHANT';
+  // (isUser ya no es necesario para esta lógica)
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -225,10 +372,33 @@ export default function PagosDetalle() {
             return {};
           }
         })();
+        
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Aplicamos la lógica condicional basada en el ROL
+        
+        let clienteFinal;
+        let prestadorFinal;
+
+        if (isMerchant) {
+          // Si soy MERCHANT:
+          // El 'cliente' es el p.user_name que viene del API.
+          // El 'prestador' soy yo (mi nombre del localStorage).
+          clienteFinal = p.user_name || 'Cliente';
+          prestadorFinal = localUserName;
+        } else {
+          // Si soy USER (o cualquier otro rol):
+          // El 'cliente' soy yo (mi nombre del localStorage).
+          // El 'prestador' es el p.provider_name que viene del API.
+          clienteFinal = localUserName;
+          prestadorFinal = p.provider_name || (p.provider_id ? `ID: ${p.provider_id}` : '—');
+        }
+
         const pagoNorm = {
           id: p.id,
-          cliente: localStorage.getItem('name') || '—',
-          prestador: p.provider_name || (p.provider_id ? `ID: ${p.provider_id}` : '—'),
+          cliente: clienteFinal,
+          prestador: prestadorFinal,
+          // --- FIN DE LA CORRECCIÓN ---
+          
           solicitud: p.solicitud_id ? `RCOT-${p.solicitud_id}` : '—',
           metodo: getMetodoTag(p.method),
           estado: mapStatus(p.status),
@@ -284,7 +454,7 @@ export default function PagosDetalle() {
       }
     };
     fetchAll();
-  }, [id, isUser]);
+  }, [id, isMerchant, localUserName]); // Agregamos dependencias
 
   const totales = useMemo(() => {
     if (!pago) return { sub: '-', imp: '-', tot: '-' };
@@ -302,16 +472,18 @@ export default function PagosDetalle() {
     return okStatus && Number.isFinite(pago.total) && pago.total > 0;
   }, [pago]);
 
-  const buildComprobanteHTML = () => {
-    const emisor = pago.prestador || 'Prestador';
-    const cliente = pago.cliente || 'Consumidor Final';
-    const metodo = pago.metodo || '—';
-    const desc = pago.descripcion || 'Pago';
-    const fechaEmision = fechaHora(pago.creadoISO);
-    const fechaCobro = fechaHora(pago.capturadoISO);
-    const otrosCargos = pago.impuestos || 0;
+  const buildComprobanteHTML = (pagoArg) => {
+    const pagoLocal = pagoArg || pago;
+    // Usamos los datos ya procesados en el estado 'pago'
+    const emisor = pagoLocal?.prestador || 'Prestador';
+    const cliente = pagoLocal?.cliente || 'Consumidor Final';
+    const metodo = pagoLocal?.metodo || '—';
+    const desc = pagoLocal?.descripcion || 'Pago';
+    const fechaEmision = fechaHora(pagoLocal?.creadoISO);
+    const fechaCobro = fechaHora(pagoLocal?.capturadoISO);
+    const otrosCargos = pagoLocal?.impuestos || 0;
     const lines = [
-      { cant: 1, det: desc, pu: pago.subtotal, imp: pago.subtotal },
+      { cant: 1, det: desc, pu: pagoLocal?.subtotal, imp: pagoLocal?.subtotal },
       ...(otrosCargos > 0
         ? [{ cant: 1, det: 'Cargos e impuestos', pu: otrosCargos, imp: otrosCargos }]
         : []),
@@ -397,8 +569,8 @@ export default function PagosDetalle() {
       </div>
     </div>
   </div>
-  <div style="margin-top:18px;font-size:12px;color:#666">
-    Operación: ${pago.solicitud || '—'}
+        <div style="margin-top:18px;font-size:12px;color:#666">
+    Operación: ${pagoLocal.solicitud || '—'}
   </div>
   <div style="margin-top:18px;padding:12px;background:#f7f7f7;border:1px solid #eee;font-size:12px;color:#444">
     Este es un comprobante no fiscal emitido a partir de datos reales del pago. No reemplaza la factura fiscal correspondiente.
@@ -413,9 +585,10 @@ window.onload = function(){window.print();}
     return html;
   };
 
-  const descargarComprobante = () => {
-    if (!pago) return;
-    const html = buildComprobanteHTML();
+  const descargarComprobante = (pagoArg) => {
+    const pagoLocal = pagoArg || pago;
+    if (!pagoLocal) return;
+    const html = buildComprobanteHTML(pagoLocal);
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const win = window.open(url, '_blank');
@@ -489,15 +662,6 @@ window.onload = function(){window.print();}
           Volver
         </button>
         <div className="payment-detail-title-section">
-          <div className="payment-detail-title-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M16 13H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M16 17H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M10 9H9H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
           <div>
             <h1 className="payment-detail-title">Detalle de pago #{pago?.id ?? ''}</h1>
             <p className="payment-detail-subtitle">Resumen completo y timeline de eventos</p>
@@ -567,7 +731,7 @@ window.onload = function(){window.print();}
                     <rect x="1" y="4" width="22" height="16" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
                     <line x1="1" y1="10" x2="23" y2="10" stroke="currentColor" strokeWidth="2"/>
                   </svg>
-                  Método de pago
+                  Método
                 </div>
                 <div className="payment-detail-info-value">
                   <Badge kind={pago.metodo}>{pago.metodo}</Badge>
@@ -690,7 +854,7 @@ window.onload = function(){window.print();}
                       </div>
                       <div className="payment-detail-timeline-horizontal-content">
                         <div className="payment-detail-timeline-horizontal-event-title">
-                          {mapEventType(ev.type)}
+                          {mapEventType(ev.type, ev.payload)} {/* Le pasamos también el payload */}
                           {ev._count ? ` ×${ev._count}` : ''}
                         </div>
                         <div className="payment-detail-timeline-horizontal-event-date">
@@ -708,3 +872,17 @@ window.onload = function(){window.print();}
     </div>
   );
 }
+
+// Export helpers for unit testing
+export {
+  money,
+  fechaHora,
+  mapStatus,
+  getMetodoTag,
+  mapEventType,
+  eventCategory,
+  highlightPairs,
+  translatePayloadDeep,
+  buildComprobanteHTML,
+  descargarComprobante,
+};
