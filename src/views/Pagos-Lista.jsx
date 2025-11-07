@@ -551,6 +551,8 @@ export default function PagosLista() {
       const p = await res.json();
       const meta = p.metadata ? JSON.parse(p.metadata) : {};
 
+      // --- INICIO DE LA LÓGICA MODIFICADA (PARA ADMIN) ---
+      const isAdmin = authRole === 'ADMIN';
       const isMerchant = authRole === 'MERCHANT';
       
       let clienteFinal;
@@ -559,6 +561,7 @@ export default function PagosLista() {
       if (isAdmin) {
         // ADMIN: ambos nombres vienen del API
         clienteFinal = p.user_name || 'Cliente';
+        prestadorFinal = p.provider_name || 'Prestador';
       } else if (isMerchant) {
         // MERCHANT: cliente del API, prestador soy yo
         clienteFinal = p.user_name || 'Cliente';
