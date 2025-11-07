@@ -23,6 +23,7 @@ export default function Login() {
       return;
     }
     setLoading(true);
+
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -30,11 +31,35 @@ export default function Login() {
         body: JSON.stringify({ email: form.email.trim(), password: form.password }),
       });
 
+      // --- INICIO DE LA LÓGICA CORREGIDA ---
       if (!res.ok) {
-        if (res.status === 401) throw new Error('Credenciales inválidas.');
-        throw new Error('No se pudo iniciar sesión.');
-      }
+        // Si la respuesta no es 2xx, preparamos un mensaje de error.
+        let errorMessage = 'No se pudo iniciar sesión. Verificá tus datos.'; // Mensaje por defecto
 
+        try {
+          // Intentamos leer el cuerpo del error como JSON
+          const errorData = await res.json();
+          // Si el JSON tiene un campo 'message', usamos ese.
+          if (errorData && errorData.message) {
+            errorMessage = errorData.message;
+          } else if (res.status === 401) {
+            // Si no hay mensaje pero es 401, es credencial inválida.
+            errorMessage = 'Credenciales inválidas.';
+          }
+        } catch (parseError) {
+          // El cuerpo del error no era JSON.
+          // Usamos el status code para un mensaje genérico.
+          if (res.status === 401) {
+            errorMessage = 'Credenciales inválidas.';
+          }
+        }
+        
+        // Lanzamos el error con el mensaje determinado (ya sea el del back o el genérico)
+        throw new Error(errorMessage);
+      }
+      // --- FIN DE LA LÓGICA CORREGIDA ---
+
+      // Si llegamos aquí, res.ok es true (login exitoso)
       const data = await res.json(); // { token, userId, email, name, role, type }
       localStorage.setItem('auth', JSON.stringify(data));
       localStorage.setItem('token', data.token);
@@ -46,7 +71,9 @@ export default function Login() {
       localStorage.setItem('authHeader', `${data.type} ${data.token}`);
 
       navigate('/pagos');
+
     } catch (e2) {
+      // Este CATCH ahora recibirá el error con el mensaje correcto.
       setErr(e2.message || 'Error inesperado.');
     } finally {
       setLoading(false);

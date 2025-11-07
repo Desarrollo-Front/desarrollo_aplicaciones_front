@@ -339,7 +339,10 @@ export default function PagosDetalle() {
   const role = String(localStorage.getItem('role') || '').toUpperCase();
   const localUserName = localStorage.getItem('name') || '—';
   const isMerchant = role === 'MERCHANT';
-  // (isUser ya no es necesario para esta lógica)
+  // --- INICIO DE LA CORRECCIÓN ---
+  // Agregamos la variable para ADMIN
+  const isAdmin = role === 'ADMIN';
+  // --- FIN DE LA CORRECCIÓN ---
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -373,32 +376,31 @@ export default function PagosDetalle() {
           }
         })();
         
-        // --- INICIO DE LA CORRECCIÓN ---
-        // Aplicamos la lógica condicional basada en el ROL
-        
+        // --- INICIO DE LA CORRECCIÓN (LÓGICA DE ROLES) ---
         let clienteFinal;
         let prestadorFinal;
 
-        if (isMerchant) {
-          // Si soy MERCHANT:
-          // El 'cliente' es el p.user_name que viene del API.
-          // El 'prestador' soy yo (mi nombre del localStorage).
+        if (isAdmin) {
+          // ADMIN: ambos nombres vienen del API
+          clienteFinal = p.user_name || 'Cliente';
+          prestadorFinal = p.provider_name || (p.provider_id ? `ID: ${p.provider_id}` : '—');
+        
+        } else if (isMerchant) {
+          // MERCHANT: cliente del API, prestador soy yo
           clienteFinal = p.user_name || 'Cliente';
           prestadorFinal = localUserName;
+        
         } else {
-          // Si soy USER (o cualquier otro rol):
-          // El 'cliente' soy yo (mi nombre del localStorage).
-          // El 'prestador' es el p.provider_name que viene del API.
+          // USER (o cualquier otro rol): cliente soy yo, prestador del API
           clienteFinal = localUserName;
           prestadorFinal = p.provider_name || (p.provider_id ? `ID: ${p.provider_id}` : '—');
         }
+        // --- FIN DE LA CORRECCIÓN ---
 
         const pagoNorm = {
           id: p.id,
           cliente: clienteFinal,
           prestador: prestadorFinal,
-          // --- FIN DE LA CORRECCIÓN ---
-          
           solicitud: p.solicitud_id ? `RCOT-${p.solicitud_id}` : '—',
           metodo: getMetodoTag(p.method),
           estado: mapStatus(p.status),
@@ -454,7 +456,10 @@ export default function PagosDetalle() {
       }
     };
     fetchAll();
-  }, [id, isMerchant, localUserName]); // Agregamos dependencias
+    // --- INICIO DE LA CORRECCIÓN ---
+    // Agregamos 'isAdmin' al array de dependencias
+  }, [id, isMerchant, localUserName, isAdmin]); 
+  // --- FIN DE LA CORRECCIÓN ---
 
   const totales = useMemo(() => {
     if (!pago) return { sub: '-', imp: '-', tot: '-' };
