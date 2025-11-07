@@ -551,10 +551,29 @@ export default function PagosLista() {
       const p = await res.json();
       const meta = p.metadata ? JSON.parse(p.metadata) : {};
 
+      const isMerchant = authRole === 'MERCHANT';
+      
+      let clienteFinal;
+      let prestadorFinal;
+
+      if (isAdmin) {
+        // ADMIN: ambos nombres vienen del API
+        clienteFinal = p.user_name || 'Cliente';
+      } else if (isMerchant) {
+        // MERCHANT: cliente del API, prestador soy yo
+        clienteFinal = p.user_name || 'Cliente';
+        prestadorFinal = localStorage.getItem('name') || '—';
+      } else {
+        // USER (default): cliente soy yo, prestador del API
+        clienteFinal = localStorage.getItem('name') || '—';
+        prestadorFinal = p.provider_name || 'Prestador';
+      }
+      // --- FIN DE LA LÓGICA MODIFICADA ---
+
       const pagoDetallado = {
         id: p.id,
-        cliente: localStorage.getItem('name') || '—',
-        prestador: p.provider_name || '—',
+        cliente: clienteFinal,
+        prestador: prestadorFinal,
         metodo: getMetodoTag(p.method),
         subtotal: Number(p.amount_subtotal ?? 0),
         impuestos: Number((p.taxes ?? 0) + (p.fees ?? 0)),
@@ -715,8 +734,8 @@ export default function PagosLista() {
                     <small>{hora}</small>
                   </td>
                   <td className="pl-td--center">
-                    {/* --- INICIO DE LA LÓGICA MODIFICADA --- */}
-                    {p.estado === 'Pendiente de Pago' && authRole !== 'MERCHANT' ? (
+                    {/* --- Lógica de botones (sin cambios respecto a la versión anterior) --- */}
+                    {p.estado === 'Pendiente de Pago' && authRole !== 'MERCHANT' && authRole !== 'ADMIN' ? (
                       <button className="pl-action-btn pl-action-btn--pagar" onClick={() => navigate(`/pago/${p.id}`)}>
                         <i className="ri-wallet-2-line" /> Pagar
                       </button>
@@ -724,14 +743,14 @@ export default function PagosLista() {
                       <button className="pl-action-btn pl-action-btn--factura" onClick={() => onVerFacturaPreview(p)} disabled={loadingDetail}>
                          <i className="ri-file-text-line" /> {loadingDetail ? 'Cargando...' : 'Ver Factura'}
                       </button>
-                    ) : p.estado === 'Rechazado' && authRole !== 'MERCHANT' ? (
+                    ) : p.estado === 'Rechazado' && authRole !== 'MERCHANT' && authRole !== 'ADMIN' ? (
                       <button className="pl-action-btn pl-action-btn--retry" onClick={() => navigate(`/pago/${p.id}`)}>
                         <i className="ri-refresh-line" /> Reintentar
                       </button>
                     ) : (
                       <span className="pl-no-action">—</span>
                     )}
-                    {/* --- FIN DE LA LÓGICA MODIFICADA --- */}
+                    {/* --- FIN Lógica de botones --- */}
                   </td>
                 </tr>
               );
