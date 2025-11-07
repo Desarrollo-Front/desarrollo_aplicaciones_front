@@ -30,11 +30,26 @@ export default function Login() {
         body: JSON.stringify({ email: form.email.trim(), password: form.password }),
       });
 
+      // Si el login NO es exitoso
       if (!res.ok) {
+        // Intentamos leer el cuerpo del error, ya que puede ser JSON
+        try {
+          const errorData = await res.json();
+          // Si tiene un 'code' (como 'USER_DEACTIVATED') y un 'message', usamos ese mensaje
+          if (errorData.code && errorData.message) {
+            throw new Error(errorData.message);
+          }
+        } catch (jsonError) {
+          // El cuerpo del error no era JSON, o no tenía el formato esperado.
+          // Pasamos a la lógica de error genérica.
+        }
+
+        // Lógica de error genérica (si el try/catch de arriba falla)
         if (res.status === 401) throw new Error('Credenciales inválidas.');
-        throw new Error('No se pudo iniciar sesión.');
+        throw new Error('No se pudo iniciar sesión. Verificá tus datos.');
       }
 
+      // Si el login ES exitoso (res.ok === true)
       const data = await res.json(); // { token, userId, email, name, role, type }
       localStorage.setItem('auth', JSON.stringify(data));
       localStorage.setItem('token', data.token);
@@ -47,6 +62,8 @@ export default function Login() {
 
       navigate('/pagos');
     } catch (e2) {
+      // El bloque CATCH ahora recibirá el mensaje específico del backend (si existe)
+      // o uno de los mensajes genéricos
       setErr(e2.message || 'Error inesperado.');
     } finally {
       setLoading(false);
