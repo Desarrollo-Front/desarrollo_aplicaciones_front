@@ -1027,3 +1027,19 @@ body {
   visibility: hidden;
   pointer-events: none;
 }
+/* --- OVERRIDES PARA GATEWAY (VISTA VIBRANTE) --- */
+/* (Añadir al final de Gateway.css) */
+
+/* 1. Header del Resumen "Verde Degradado" */
+.gateway-summary-header {
+  background: linear-gradient(135deg, var(--status-success-bg) 0%, var(--bg-primary) 100%);
+}
+
+/* 2. Icono y Total "Verde Vibrante" */
+.gateway-summary-icon {
+  background: #10b981; /* Icono Verde Vibrante */
+  color: white;
+}
+.gateway-summary-value--total {
+  color: #10b981; /* Total Verde Vibrante */
+}
