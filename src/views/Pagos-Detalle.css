@@ -224,12 +224,12 @@ body {
 .payment-detail-totals-icon {
   width: 40px;
   height: 40px;
-  background: var(--status-success-fg);
+  background: #10b981;
   border-radius: var(--payment-radius, 12px);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-inverted);
+  color: white;
 }
 
 .payment-detail-totals-title {
@@ -276,7 +276,7 @@ body {
 .payment-detail-total-value--main {
   font-size: 1.5rem;
   font-weight: 800;
-  color: var(--status-success-fg);
+  color: #10b981;;
 }
 
 /* Timeline mejorado */
@@ -304,12 +304,12 @@ body {
 .payment-detail-timeline-icon {
   width: 40px;
   height: 40px;
-  background: var(--status-info-fg);
+  background: #06b6d4;;
   border-radius: var(--payment-radius, 12px);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-inverted);
+  color: white;
 }
 
 .payment-detail-timeline-title {
@@ -418,45 +418,35 @@ body {
   background: var(--text-secondary);
 }
 
-.payment-detail-timeline-horizontal-event--state .payment-detail-timeline-horizontal-dot {
-  border-color: var(--status-success-fg); /* <-- CAMBIO */
+.payment-detail-timeline-horizontal-event--warning .payment-detail-timeline-horizontal-dot {
+  border-color: #f59e0b; /* Amarillo Vibrante */
 }
-
-.payment-detail-timeline-horizontal-event--state .payment-detail-timeline-horizontal-dot-inner {
-  background: var(--status-success-fg); /* <-- CAMBIO */
+.payment-detail-timeline-horizontal-event--warning .payment-detail-timeline-horizontal-dot-inner {
+  background: #f59e0b;
 }
 
 .payment-detail-timeline-horizontal-event--error .payment-detail-timeline-horizontal-dot {
-  border-color: var(--status-danger-fg); /* <-- CAMBIO */
+  border-color: #ef4444; /* Rojo Vibrante/Chillón */
 }
-
 .payment-detail-timeline-horizontal-event--error .payment-detail-timeline-horizontal-dot-inner {
-  background: var(--status-danger-fg); /* <-- CAMBIO */
+  background: #ef4444;
 }
 
+.payment-detail-timeline-horizontal-event--info .payment-detail-timeline-horizontal-dot,
 .payment-detail-timeline-horizontal-event--refund .payment-detail-timeline-horizontal-dot {
-  border-color: var(--status-info-fg); /* <-- CAMBIO */
+  border-color: #06b6d4; /* Cian/Celeste Vibrante */
 }
-
+.payment-detail-timeline-horizontal-event--info .payment-detail-timeline-horizontal-dot-inner,
 .payment-detail-timeline-horizontal-event--refund .payment-detail-timeline-horizontal-dot-inner {
-  background: var(--status-info-fg); /* <-- CAMBIO */
+  background: #06b6d4;
 }
 
-.payment-detail-timeline-horizontal-event--info .payment-detail-timeline-horizontal-dot {
-  border-color: var(--status-info-fg); /* <-- CAMBIO */
+.payment-detail-timeline-horizontal-event--state .payment-detail-timeline-horizontal-dot {
+  border-color: #10b981; /* Verde Vibrante */
 }
-
-.payment-detail-timeline-horizontal-event--info .payment-detail-timeline-horizontal-dot-inner {
-  background: var(--status-info-fg); /* <-- CAMBIO */
+.payment-detail-timeline-horizontal-event--state .payment-detail-timeline-horizontal-dot-inner {
+  background: #10b981;
 }
-.payment-detail-timeline-horizontal-event--warning .payment-detail-timeline-horizontal-dot {
-  border-color: var(--status-warning-fg); /* <-- CAMBIO */
-}
-
-.payment-detail-timeline-horizontal-event--warning .payment-detail-timeline-horizontal-dot-inner {
-  background: var(--status-warning-fg); /* <-- CAMBIO */
-}
-
 .payment-detail-timeline-horizontal-content {
   display: flex;
   flex-direction: column;

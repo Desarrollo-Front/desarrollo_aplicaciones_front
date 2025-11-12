@@ -28,25 +28,25 @@
   --border-secondary: #f1f5f9; /* Borde más claro (ej: separadores internos) */
   --border-focus: var(--brand-blue-dark); /* Borde al hacer focus */
 
-  /* Estado: Éxito (Verde Claro/Brillante) */
+  /* Estado: Éxito */
   --status-success-bg: #d1fae5;
-  --status-success-fg: #10b981; /* <-- CAMBIO: Verde brillante (para el ícono y el total) */
+  --status-success-fg: #15803d; /* <-- CAMBIO: Verde más oscuro */
   --status-success-border: #bbf7d0;
 
-  /* Estado: Peligro/Error (Rojo Chillón) */
+  /* Estado: Peligro/Error */
   --status-danger-bg: #fee2e2;
-  --status-danger-fg: #ef4444; /* <-- CAMBIO: Rojo brillante/chillón */
+  --status-danger-fg: #b91c1c; /* <-- CAMBIO: Rojo más oscuro */
   --status-danger-border: #fecaca;
   
-  /* Estado: Advertencia (Amarillo/Naranja) */
+  /* Estado: Advertencia */
   --status-warning-bg: #fef3c7;
-  --status-warning-fg: #f59e0b; /* <-- CAMBIO: Amarillo brillante (no marrón) */
+  --status-warning-fg: #b45309; /* <-- CAMBIO: Naranja/marrón oscuro */
   --status-warning-border: #fde68a;
 
-  /* Estado: Info (Celestito) */
-  --status-info-bg: #cffafe;     /* <-- CAMBIO: Fondo "celestito" */
-  --status-info-fg: #06b6d4;     /* <-- CAMBIO: Icono cian/celeste */
-  --status-info-border: #a5f3fc; /* <-- CAMBIO: Borde cian/celeste */
+  /* Estado: Info (Azules de marca claros) */
+  --status-info-bg: #dbeafe;     /* Era --brand-blue-50 */
+  --status-info-fg: #2563eb;     /* Era --brand-blue-700 */
+  --status-info-border: #bfdbfe;
 
   /* Sombras */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.03);
