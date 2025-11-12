@@ -4,12 +4,14 @@ import PagosLista from './views/Pagos-Lista';
 import PagosDetalle from './views/Pagos-Detalle';
 import Login from './views/Login';
 import Gateway from './views/Gateway';
+import { ThemeToggle } from './components/ThemeToggle';
 const Placeholder = ({ title }) => <div style={{ padding: 24 }}>{title}</div>;
 import './App.css';
 
 export default function App() {
   return (
     <BrowserRouter>
+    <ThemeToggle className="global-fixed" />
       <main className="app-main">
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />

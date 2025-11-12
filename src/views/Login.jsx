@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import './Login.css';
-import { ThemeToggle } from '../components/ThemeToggle';
+
 
 export default function Login() {
   const navigate = useNavigate();
@@ -83,7 +83,6 @@ export default function Login() {
 
   return (
     <div className="login-container">
-    <ThemeToggle />
       <div className="login-box">
         <div className="login-head">
           <i className="ri-secure-payment-line login-brand-ico" />

@@ -115,3 +115,20 @@
     gap: 8px;
   }
 }
+/* (Añadir al final de src/App.css) */
+
+/* Estilo Global para el Botón de Tema */
+.theme-toggle.global-fixed {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  z-index: 9999; /* Asegura que esté por encima de todo */
+}
+
+/* Ajuste para móviles */
+@media (max-width: 480px) {
+  .theme-toggle.global-fixed {
+    top: 1rem;
+    right: 1rem;
+  }
+}

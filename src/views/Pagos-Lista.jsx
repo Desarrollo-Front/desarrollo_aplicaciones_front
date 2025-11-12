@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './Pagos-Lista.css';
 import Select from 'react-select';
 import FacturaPreview from './FacturaPreview'; // Tu componente de previsualización
-import { ThemeToggle } from '../components/ThemeToggle';
+
 
 const METODOS = ['Todos los métodos', 'Tarjeta crédito', 'Tarjeta débito', 'Mercado Pago'];
 const ESTADOS_CHIPS = ['Pendiente', 'Aprobado', 'Rechazado'];
@@ -612,7 +612,6 @@ export default function PagosLista() {
             <span className="pl-user">
               <i className="ri-user-3-line" aria-hidden="true" /> Hola, {userName}
             </span>
-            <ThemeToggle />
             <button className="pl-btn pl-btn--logout" onClick={handleLogout}>
               <i className="ri-logout-circle-r-line" aria-hidden="true" /> Cerrar sesión
             </button>

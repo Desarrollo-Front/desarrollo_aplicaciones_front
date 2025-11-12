@@ -191,14 +191,6 @@
   }
 }
 
-/* Posicionamiento del ThemeToggle */
-.login-container .theme-toggle {
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  z-index: 10;
-}
-
 @media (max-width: 480px) {
   .login-container .theme-toggle {
     top: 1rem;

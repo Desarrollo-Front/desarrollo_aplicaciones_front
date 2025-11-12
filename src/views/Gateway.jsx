@@ -5,7 +5,6 @@ import visaLogo from '../assets/logos/Visa.png';
 import mcLogo from '../assets/logos/mastercard.png';
 import amexLogo from '../assets/logos/amex.png';
 import mpLogo from '../assets/logos/mercadopago.png';
-import { ThemeToggle } from '../components/ThemeToggle';
 
 export default function Gateway() {
   const { id } = useParams();
@@ -231,7 +230,6 @@ export default function Gateway() {
           </div>
         </div>
         <div > 
-          <ThemeToggle />
         </div>
       </div>
 

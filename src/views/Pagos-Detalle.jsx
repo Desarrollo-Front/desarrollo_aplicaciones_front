@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './Pagos-Detalle.css';
-import { ThemeToggle } from '../components/ThemeToggle';
+
 
 const money = (n, curr = 'ARS', locale = 'es-AR') =>
   new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(Number(n || 0));
@@ -674,7 +674,6 @@ window.onload = function(){window.print();}
           </div>
         </div>
         <div>
-          <ThemeToggle />
         </div>
       </div>
 
