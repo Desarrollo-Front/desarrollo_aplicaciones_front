@@ -2,14 +2,14 @@ import React from 'react';
 import { useTheme } from '../context/ThemeContext';
 import './ThemeToggle.css';
 
-export function ThemeToggle() {
+export function ThemeToggle({ className, ...props }) {
   const { theme, toggleTheme } = useTheme();
 
   // Usamos el estado 'theme' para aplicar la clase 'dark' al botón,
   // lo que activará nuestras animaciones CSS.
   return (
     <button
-      className={`theme-toggle ${theme === 'dark' ? 'dark' : ''}`}
+      className={`theme-toggle ${className || ''} ${theme === 'dark' ? 'dark' : ''}`} // <-- 2. APLICA 'className'
       onClick={toggleTheme}
       aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}
       title={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}
