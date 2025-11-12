@@ -363,6 +363,7 @@ body {
   border-radius: 999px;
   font-size: 12px;
   border: 1px solid transparent; /* Añadido para consistencia */
+  white-space: nowrap;
 }
 
 .pl-badge--aprobado {
