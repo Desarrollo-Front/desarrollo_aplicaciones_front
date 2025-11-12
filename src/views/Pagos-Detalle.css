@@ -419,42 +419,42 @@ body {
 }
 
 .payment-detail-timeline-horizontal-event--state .payment-detail-timeline-horizontal-dot {
-  border-color: var(--status-success-fg);
+  border-color: var(--status-success-fg); /* <-- CAMBIO */
 }
 
 .payment-detail-timeline-horizontal-event--state .payment-detail-timeline-horizontal-dot-inner {
-  background: var(--status-success-fg);
+  background: var(--status-success-fg); /* <-- CAMBIO */
 }
 
 .payment-detail-timeline-horizontal-event--error .payment-detail-timeline-horizontal-dot {
-  border-color: var(--status-danger-fg);
+  border-color: var(--status-danger-fg); /* <-- CAMBIO */
 }
 
 .payment-detail-timeline-horizontal-event--error .payment-detail-timeline-horizontal-dot-inner {
-  background: var(--status-danger-fg);
+  background: var(--status-danger-fg); /* <-- CAMBIO */
 }
 
 .payment-detail-timeline-horizontal-event--refund .payment-detail-timeline-horizontal-dot {
-  border-color: var(--status-info-fg);
+  border-color: var(--status-info-fg); /* <-- CAMBIO */
 }
 
 .payment-detail-timeline-horizontal-event--refund .payment-detail-timeline-horizontal-dot-inner {
-  background: var(--status-info-fg);
+  background: var(--status-info-fg); /* <-- CAMBIO */
 }
 
 .payment-detail-timeline-horizontal-event--info .payment-detail-timeline-horizontal-dot {
-  border-color: var(--status-info-fg);
+  border-color: var(--status-info-fg); /* <-- CAMBIO */
 }
 
 .payment-detail-timeline-horizontal-event--info .payment-detail-timeline-horizontal-dot-inner {
-  background: var(--status-info-fg);
+  background: var(--status-info-fg); /* <-- CAMBIO */
 }
 .payment-detail-timeline-horizontal-event--warning .payment-detail-timeline-horizontal-dot {
-  border-color: var(--status-warning-fg);
+  border-color: var(--status-warning-fg); /* <-- CAMBIO */
 }
 
 .payment-detail-timeline-horizontal-event--warning .payment-detail-timeline-horizontal-dot-inner {
-  background: var(--status-warning-fg);
+  background: var(--status-warning-fg); /* <-- CAMBIO */
 }
 
 .payment-detail-timeline-horizontal-content {
