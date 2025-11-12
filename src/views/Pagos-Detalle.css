@@ -217,7 +217,7 @@ body {
   align-items: center;
   gap: 0.75rem;
   padding: 1.5rem 2rem;
-  background: var(--status-success-bg);
+  background: linear-gradient(135deg, var(--status-success-bg) 0%, var(--bg-primary) 100%);
   border-bottom: 1px solid var(--border-secondary);
 }
 
@@ -297,7 +297,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2rem;
-  background: var(--status-info-bg);
+  background: linear-gradient(135deg, var(--status-info-bg) 0%, var(--bg-primary) 100%);
   border-bottom: 1px solid var(--border-secondary);
 }
 
