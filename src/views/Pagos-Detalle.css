@@ -297,19 +297,19 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, #cffafe 0%, var(--bg-primary) 100%);
+  background: var(--bg-header);
   border-bottom: 1px solid var(--border-secondary);
 }
 
 .payment-detail-timeline-icon {
   width: 40px;
   height: 40px;
-  background: #06b6d4;;
+  background: var(--brand-blue);
   border-radius: var(--payment-radius, 12px);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--text-inverted);
 }
 
 .payment-detail-timeline-title {
