@@ -374,8 +374,8 @@ body {
 .pl-badge--pendiente,
 .pl-badge--pendiente-de-pago,
 .pl-badge--pendiente-de-aprobacion {
-  background: var(--status-warning-bg);
-  color: var(--status-warning-fg);
+  background: var(--status-warning-bg); 
+  color: var(--status-warning-fg);     
   border-color: var(--status-warning-border);
 }
 
@@ -402,9 +402,15 @@ body {
 .pl-badge--debito,
 .pl-badge--mercado-pago,
 .pl-badge--billetera {
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  border-color: var(--border-primary);
+  background: transparent;
+  color: var(--text-primary); /* Texto principal (negro/blanco) */
+  border-color: transparent;
+  padding-left: 4px; /* Ajuste para alinear el ícono */
+}
+
+/* Caso especial para el método '---' que no tiene ícono */
+.pl-badge--— {
+   padding-left: 10px;
 }
 
 
