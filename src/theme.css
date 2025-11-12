@@ -30,17 +30,17 @@
 
   /* Estado: Éxito */
   --status-success-bg: #d1fae5;
-  --status-success-fg: #10b981;
+  --status-success-fg: #15803d; /* <-- CAMBIO: Verde más oscuro */
   --status-success-border: #bbf7d0;
 
   /* Estado: Peligro/Error */
   --status-danger-bg: #fee2e2;
-  --status-danger-fg: #ef4444;
+  --status-danger-fg: #b91c1c; /* <-- CAMBIO: Rojo más oscuro */
   --status-danger-border: #fecaca;
   
   /* Estado: Advertencia */
   --status-warning-bg: #fef3c7;
-  --status-warning-fg: #f59e0b;
+  --status-warning-fg: #b45309; /* <-- CAMBIO: Naranja/marrón oscuro */
   --status-warning-border: #fde68a;
 
   /* Estado: Info (Azules de marca claros) */
