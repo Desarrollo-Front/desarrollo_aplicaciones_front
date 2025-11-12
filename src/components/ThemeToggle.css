@@ -1,0 +1,80 @@
+/*
+ * El botón minimalista (luna/sol) con las animaciones solicitadas.
+ */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;  /* Tamaño del botón */
+  height: 40px; /* Tamaño del botón */
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  /* Transición suave para todos los cambios */
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--brand-blue);
+  outline-offset: 2px;
+}
+
+.theme-toggle__icon-wrapper {
+  position: relative;
+  width: 20px; /* Tamaño del ícono */
+  height: 20px; /* Tamaño del ícono */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* El círculo que envuelve la luna/sol */
+.theme-toggle__circle {
+  position: absolute;
+  width: 36px; /* Círculo ligeramente más pequeño que el botón */
+  height: 36px;
+  background-color: var(--bg-secondary); /* Usa el color de fondo secundario */
+  border: 1px solid var(--border-primary); /* Usa el color de borde */
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+/* Efecto Hover: el círculo se expande y cambia de color */
+.theme-toggle:hover .theme-toggle__circle {
+  transform: scale(1.1);
+  background-color: var(--brand-blue-50); /* Resaltado azul al pasar el mouse */
+  border-color: var(--brand-blue);
+}
+
+/* El ícono (SVG) */
+.theme-toggle__icon {
+  position: relative;
+  z-index: 1;
+  color: var(--text-secondary); /* Color del ícono */
+  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), color 0.3s ease;
+}
+
+.theme-toggle:hover .theme-toggle__icon {
+  color: var(--brand-blue-700);
+}
+
+/* ---- La Magia de la Animación ---- */
+
+/* Estado Oscuro: Gira la luna para convertirla en sol */
+.theme-toggle.dark .theme-toggle__icon {
+  transform: rotate(180deg);
+  color: var(--payment-warning); /* Color de "sol" (amarillo) */
+}
+
+/* Estado Oscuro: Hover */
+.theme-toggle.dark:hover .theme-toggle__circle {
+  background-color: var(--payment-warning-light); /* Resaltado amarillo al pasar el mouse */
+  border-color: var(--payment-warning);
+}
+
+.theme-toggle.dark:hover .theme-toggle__icon {
+  color: var(--payment-warning);
+}

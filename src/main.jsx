@@ -4,6 +4,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
+import './theme.css';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Inicialización de Sentry
 Sentry.init({
@@ -58,7 +60,9 @@ if (import.meta.env.DEV) {
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Sentry.ErrorBoundary fallback={<p>Ups, algo salió mal 😅</p>}>
-      <App />
+      <ThemeProvider> {/* 3. ENVUELVE TU APP */}
+        <App />
+      </ThemeProvider>
     </Sentry.ErrorBoundary>
   </StrictMode>
 );

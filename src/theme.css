@@ -1,0 +1,105 @@
+/*
+ * Paleta de colores centralizada para Light & Dark mode.
+ * Reemplaza las definiciones de color en tus otros archivos CSS.
+ */
+
+:root {
+  /* === Colores de Marca (Se mantienen en ambos temas) === */
+  --brand-blue: #3BA8E7;
+  --brand-blue-dark: #2c7bbd;
+  --brand-green: #2ecc71;
+  --brand-yellow: #f59e0b; /* Usado en Pagos-Lista para 'pendiente' */
+
+  /* === Colores Semánticos (Modo Claro) === */
+  
+  /* Fondos */
+  --bg-primary: #ffffff;    /* Fondo principal (blanco puro) */
+  --bg-secondary: #f8fafc;  /* Fondo de paneles, cards, inputs (blanco "sucio") */
+  --bg-header: linear-gradient(135deg, #cffafe 0%, #ffffff 100%); /* Gradiente para headers (ej: Pagos-Lista) */
+  
+  /* Texto */
+  --text-primary: #111827;    /* Texto principal (casi negro) */
+  --text-secondary: #6b7280;  /* Texto secundario, labels (gris, era --muted) */
+  --text-inverted: #ffffff;   /* Texto sobre fondos oscuros/de marca */
+  --text-link: var(--brand-blue);
+
+  /* Bordes */
+  --border-primary: #e2e8f0;   /* Borde principal (ej: inputs, cards, era --line o --payment-border) */
+  --border-secondary: #f1f5f9; /* Borde más claro (ej: separadores internos) */
+  --border-focus: var(--brand-blue-dark); /* Borde al hacer focus */
+
+  /* Estado: Éxito */
+  --status-success-bg: #d1fae5;
+  --status-success-fg: #10b981;
+  --status-success-border: #bbf7d0;
+
+  /* Estado: Peligro/Error */
+  --status-danger-bg: #fee2e2;
+  --status-danger-fg: #ef4444;
+  --status-danger-border: #fecaca;
+  
+  /* Estado: Advertencia */
+  --status-warning-bg: #fef3c7;
+  --status-warning-fg: #f59e0b;
+  --status-warning-border: #fde68a;
+
+  /* Estado: Info (Azules de marca claros) */
+  --status-info-bg: #dbeafe;     /* Era --brand-blue-50 */
+  --status-info-fg: #2563eb;     /* Era --brand-blue-700 */
+  --status-info-border: #bfdbfe;
+
+  /* Sombras */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 18px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.06);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+
+/*
+ * ==========================================
+ * 🎨 MODO OSCURO 🎨
+ * ==========================================
+ */
+
+[data-theme="dark"] {
+  /* Fondos */
+  --bg-primary: #1e293b;    /* Fondo principal (azul oscuro) */
+  --bg-secondary: #29374a;  /* Fondo de paneles, cards, inputs (azul más claro) */
+  --bg-header: linear-gradient(135deg, #1c3e4a 0%, #1e293b 100%); /* Gradiente oscuro */
+
+  /* Texto */
+  --text-primary: #f1f5f9;    /* Texto principal (blanco "sucio") */
+  --text-secondary: #94a3b8;  /* Texto secundario, labels (gris claro) */
+  --text-inverted: #1e293b;   /* Texto sobre fondos claros/de marca */
+  --text-link: var(--brand-blue); /* Los links mantienen el color de marca */
+
+  /* Bordes */
+  --border-primary: #475569;   /* Borde principal (gris-azulado) */
+  --border-secondary: #334155; /* Borde más oscuro */
+  --border-focus: var(--brand-blue);
+
+  /* Estado: Éxito */
+  --status-success-bg: #1c3a2e;
+  --status-success-fg: #10b981;
+  --status-success-border: #15803d;
+
+  /* Estado: Peligro/Error */
+  --status-danger-bg: #4d1f1f;
+  --status-danger-fg: #ef4444;
+  --status-danger-border: #b71c1c;
+
+  /* Estado: Advertencia */
+  --status-warning-bg: #4a3a1b;
+  --status-warning-fg: #f59e0b;
+  --status-warning-border: #f59e0b;
+
+  /* Estado: Info */
+  --status-info-bg: #2c3e50;
+  --status-info-fg: #3b82f6;
+  --status-info-border: #2563eb;
+  
+  /* Sombras (sutiles sobre fondo oscuro) */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 18px 0 rgba(0,0,0,0.2), 0 1.5px 4px 0 rgba(0,0,0,0.15);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+}

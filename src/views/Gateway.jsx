@@ -5,6 +5,7 @@ import visaLogo from '../assets/logos/Visa.png';
 import mcLogo from '../assets/logos/mastercard.png';
 import amexLogo from '../assets/logos/amex.png';
 import mpLogo from '../assets/logos/mercadopago.png';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export default function Gateway() {
   const { id } = useParams();
@@ -229,7 +230,9 @@ export default function Gateway() {
             <p className="gateway-subtitle">Elegí cómo querés pagar tu compra</p>
           </div>
         </div>
-        <div className="gateway-back-btn gateway-header-invisible-spacer" aria-hidden="true"></div>
+        <div className="gateway-back-btn"> 
+          <ThemeToggle />
+        </div>
       </div>
 
       {/* Banner de éxito */}

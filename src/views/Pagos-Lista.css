@@ -2,39 +2,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import url('https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css');
 
-:root {
-  --bg: #ffffff;
-  --panel: #ffffff;
-  --muted: #6b7280;
-  --text: #000000;
-  --line: #e5e7eb;
-  --chip: #eef2f7;
-  --brand-blue: #3BA8E7;
-  --brand-blue-dark: #2c7bbd;
-  --brand-yellow: #2ecc71;
-  --success-50:#e8f6ef;
-  --success-700:#15803d;
-  --warn-50:#fdecec;
-  --brand-blue-50: #dbeafe;   /* Azul claro (para el fondo) */
-  --brand-blue-700: #2563eb;
-  --warn-700:#e21948;
-  --danger-50:#fdecec;
-  --danger-700:#b71c1c;
-  --radius: 16px;
-  --masthead-h: 0px;
-  --brand-green: #2ecc71;
-  --brand-green-dark: #27ae60;
-  --payment-border: #e2e8f0;
-  --payment-info-light: #cffafe;
-  --payment-background: #ffffff;
-  --payment-surface: #f8fafc;
-}
+/* Eliminamos el :root local. Ahora usa theme.css */
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: var(--bg-primary);
   font-family: Inter, sans-serif;
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 .pl-wrap {
@@ -51,11 +25,11 @@ body {
   position: sticky;
   top: 0;
   z-index: 200;
-  background: #fff;
+  background: var(--bg-primary);
   padding-top: 8px;
   margin-bottom: 16px;
   border-bottom: 1px solid transparent;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.3s ease; /* Añadida transición de fondo */
 }
 
 /* Cuando el contenido choca con el masthead */
@@ -65,15 +39,15 @@ body {
 
 /* === Topbar === */
 .pl-topbar {
-  background: linear-gradient(135deg, var(--payment-info-light) 0%, var(--payment-background) 100%);
-  border: 1px solid var(--payment-border);
+  background: var(--bg-header);
+  border: 1px solid var(--border-primary);
   border-radius: 16px;
   padding: 10px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
-  box-shadow: 0 4px 18px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .pl-topbar__brand {
@@ -86,8 +60,8 @@ body {
 }
 
 .pl-topbar__brand i {
-  background: #3BA8E7;
-  color: #fff;
+  background: var(--brand-blue);
+  color: var(--text-inverted);
   padding: 6px;
   font-size: 25px;
   border-radius: 8px;
@@ -106,7 +80,7 @@ body {
 
 .pl-user {
   font-size: 14px;
-  color: var(--muted);
+  color: var(--text-secondary);
   display: flex;
   gap: 6px;
   align-items: center;
@@ -119,17 +93,17 @@ body {
   gap: 14px;
   align-items: end;
   padding: 12px 16px;
-  background: var(--panel);
-  border: 1px solid var(--payment-border);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
   border-radius: 12px;
-  box-shadow: 0 4px 18px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .pl-field label {
   display: block;
   font-size: 12px;
   font-weight: 500;
-  color: var(--text);
+  color: var(--text-primary);
   margin-bottom: 4px;
 }
 
@@ -144,7 +118,7 @@ body {
   left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: #7b8794;
+  color: var(--text-secondary);
 }
 
 /* Inputs */
@@ -152,11 +126,11 @@ body {
   width: 100%;
   height: 34px;
   border-radius: 12px;
-  border: 1px solid var(--payment-border);
+  border: 1px solid var(--border-primary);
   padding: 12px 16px;
   font-size: 13px;
-  color: var(--text);
-  background: var(--panel);
+  color: var(--text-primary);
+  background: var(--bg-secondary);
   box-sizing: border-box;
 }
 
@@ -170,15 +144,15 @@ body {
 
 .pl-wrap .pl-input:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px var(--status-info-bg);
 }
 
 /* Reset */
 .pl-btn--reset {
   background: transparent;
   border: none;
-  color: var(--muted);
+  color: var(--text-secondary);
   font-size: 13px;
   cursor: pointer;
   display: inline-flex;
@@ -188,7 +162,7 @@ body {
 }
 
 .pl-btn--reset:hover {
-  color: var(--text);
+  color: var(--text-primary);
   text-decoration: underline;
 }
 
@@ -202,8 +176,8 @@ body {
 }
 
 .pl-chip {
-  border: 1px solid var(--line);
-  background: var(--chip);
+  border: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
   border-radius: 999px;
   padding: 0 12px;
   height: 32px;
@@ -211,14 +185,14 @@ body {
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  color: var(--text);
+  color: var(--text-primary);
   font-size: 13px;
 }
 
 .pl-chip.is-on {
   background: var(--brand-blue);
   border-color: var(--brand-blue-dark);
-  color: #fff;
+  color: var(--text-inverted);
 }
 
 /* Export CSV link */
@@ -227,7 +201,7 @@ body {
   margin-right: 6px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--brand-blue);
+  color: var(--text-link);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -240,10 +214,10 @@ body {
 
 /* === Tabla === */
 .pl-card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
   border-radius: 16px;
-  box-shadow: 0 4px 18px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-md);
   overflow-y: auto;
   flex-grow: 1; /* Crece para llenar el espacio disponible */
   scrollbar-width: none; /* Oculta la barra en Firefox */
@@ -263,8 +237,8 @@ body {
 .pl-tbl th,
 .pl-tbl td {
   padding: 12px;
-  color: var(--text);
-  border-bottom: 1px solid var(--line);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-primary);
   text-align: left;
 }
 
@@ -288,7 +262,7 @@ body {
 }
 
 .pl-tbl thead th {
-  background: var(--payment-surface);
+  background: var(--bg-secondary);
   font-weight: 600;
   border-bottom: none; /* Eliminamos el borde inferior original */
   box-shadow: inset 0 -2px 0 var(--brand-blue); /* Lo reemplazamos con una sombra interna */
@@ -296,15 +270,15 @@ body {
 
 /* Estilo para las filas pares (fondo blanco) */
 .pl-tbl tbody tr:nth-child(even) {
-  background: #fff;
+  background: var(--bg-primary);
 }
 /* Estilo para las filas impares (fondo gris) */
 .pl-tbl tbody tr:nth-child(odd) {
-  background-color: #f8f8f8;
+  background-color: var(--bg-secondary);
 }
 
 .pl-tbl tbody tr:hover {
-  background: #E6F4FB;
+  background: var(--status-info-bg);
 }
 
 .pl-bold {
@@ -313,7 +287,7 @@ body {
 
 .pl-empty {
   text-align: center;
-  color: var(--muted);
+  color: var(--text-secondary);
   padding: 20px;
 }
 
@@ -337,16 +311,16 @@ body {
 .pl-btn {
   height: 32px;
   border-radius: 8px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--border-primary);
   padding: 0 10px;
   display: flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  background: #fff;
+  background: var(--bg-primary);
   transition: .15s;
   font-size: 13px;
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 .pl-btn:hover {
@@ -356,30 +330,28 @@ body {
 
 .pl-btn--primary {
   background: linear-gradient(180deg, var(--brand-blue), var(--brand-blue-dark));
-  color: #fff;
+  color: var(--text-inverted);
 }
 
 .pl-btn--logout {
-  background: #dc3545;
-  color: #fff;
-  border: 1px solid #dc3545;
+  background: var(--status-danger-bg);
+  color: var(--status-danger-fg);
+  border: 1px solid var(--status-danger-border);
 }
 
 .pl-btn--logout:hover {
-  background: #c82333;
+  background: var(--status-danger-fg);
+  color: var(--text-inverted);
 }
-
-
-
 
 .pl-btn--ghost {
   background: transparent;
-  border: 1px solid var(--line);
-  color: var(--text);
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
 }
 
 .pl-btn--ghost:hover {
-  background: #f9fafb;
+  background: var(--bg-secondary);
 }
 
 /* === Badges === */
@@ -390,32 +362,51 @@ body {
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 12px;
+  border: 1px solid transparent; /* Añadido para consistencia */
 }
 
 .pl-badge--aprobado {
-  background: var(--success-50);
-  color: var(--success-700);
+  background: var(--status-success-bg);
+  color: var(--status-success-fg);
+  border-color: var(--status-success-border);
 }
 
-.pl-badge--pendiente {
-  background: #fff8db;
-  color: var(--brand-yellow);
+.pl-badge--pendiente,
+.pl-badge--pendiente-de-pago,
+.pl-badge--pendiente-de-aprobacion {
+  background: var(--status-warning-bg);
+  color: var(--status-warning-fg);
+  border-color: var(--status-warning-border);
 }
 
 .pl-badge--rechazado {
-  background: var(--danger-50);
-  color: var(--danger-700);
+  background: var(--status-danger-bg);
+  color: var(--status-danger-fg);
+  border-color: var(--status-danger-border);
 }
 
 .pl-badge--expirado {
-  background: #eef0f3;
-  color: #374151;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border-color: var(--border-primary);
 }
 
-.pl-badge--reembolsado {
-  background: #E6F4FB;
-  color: var(--brand-blue-dark);
+.pl-badge--reembolsado,
+.pl-badge--disputa {
+  background: var(--status-info-bg);
+  color: var(--status-info-fg);
+  border-color: var(--status-info-border);
 }
+
+.pl-badge--credito,
+.pl-badge--debito,
+.pl-badge--mercado-pago,
+.pl-badge--billetera {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border-color: var(--border-primary);
+}
+
 
 /* === Responsive === */
 @media (max-width: 960px) {
@@ -442,26 +433,26 @@ body {
 }
 
 /* === Selects === */
-/* Estilos para el componente de Select (restaurados a un estado funcional) */
+/* Estilos para el componente de Select (actualizados a variables) */
 .pl-wrap .pl-sel__control {
   width: 100%;
   height: 34px !important;
   min-height: 34px !important;
-  border: 1px solid var(--payment-border) !important;
+  border: 1px solid var(--border-primary) !important;
   border-radius: 12px !important;
   padding: 0 !important;
   box-shadow: none !important;
   font-size: 13px !important;
-  background: var(--panel) !important;
+  background: var(--bg-secondary) !important;
   box-sizing: border-box !important;
   cursor: pointer;
-  display: flex !important; /* Asegura que el contenido se alinee */
-  align-items: center !important; /* Centra verticalmente */
+  display: flex !important;
+  align-items: center !important;
 }
 
 .pl-wrap .pl-sel__control--is-focused {
-  border-color: #2563eb !important;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
+  border-color: var(--border-focus) !important;
+  box-shadow: 0 0 0 2px var(--status-info-bg) !important;
 }
 
 .pl-sel__value-container {
@@ -473,7 +464,7 @@ body {
 
 .pl-sel__single-value {
   margin: 0 !important;
-  color: var(--text) !important;
+  color: var(--text-primary) !important;
   line-height: 1 !important;
   transform: none !important;
   top: auto !important;
@@ -482,7 +473,7 @@ body {
 
 .pl-sel__placeholder {
   margin: 0 !important;
-  color: #999 !important;
+  color: var(--text-secondary) !important;
   font-size: 13px !important;
   line-height: 1 !important;
   transform: none !important;
@@ -491,36 +482,36 @@ body {
 }
 
 .pl-sel__input {
-  /* Se eliminan estilos problemáticos */
   margin: 0 !important;
   padding: 0 !important;
-  color: var(--text) !important;
+  color: var(--text-primary) !important;
   line-height: 1 !important;
 }
 
 .pl-sel__menu {
   border-radius: 12px !important;
-  box-shadow: 0 4px 18px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.06) !important;
+  box-shadow: var(--shadow-md) !important;
   margin-top: 4px;
   font-size: 13px;
   z-index: 9999 !important;
-  border: 1px solid var(--payment-border) !important;
+  border: 1px solid var(--border-primary) !important;
+  background: var(--bg-primary) !important; /* Añadido */
 }
 
 .pl-sel__option {
   padding: 8px 16px !important;
   cursor: pointer !important;
-  color: var(--text) !important;
+  color: var(--text-primary) !important;
 }
 
 .pl-sel__option--is-focused {
-  background-color: #f0f4ff !important;
-  color: var(--text) !important;
+  background-color: var(--status-info-bg) !important;
+  color: var(--text-primary) !important;
 }
 
 .pl-sel__option--is-selected {
-  background-color: #2563eb !important;
-  color: #fff !important;
+  background-color: var(--brand-blue) !important;
+  color: var(--text-inverted) !important;
 }
 
 .pl-sel__indicator-separator {
@@ -528,12 +519,12 @@ body {
 }
 
 .pl-sel__dropdown-indicator {
-  color: #7b8794 !important;
+  color: var(--text-secondary) !important;
   padding-right: 8px !important;
 }
 
 .pl-sel__dropdown-indicator:hover {
-  color: #2563eb !important;
+  color: var(--brand-blue) !important;
 }
 
 /* Kebab menu y otros componentes */
@@ -559,7 +550,7 @@ body {
 }
 
 .pl-kebab__btn:hover {
-  background: rgba(0,0,0,0.05);
+  background: var(--border-secondary);
 }
 
 .pl-kebab__dots {
@@ -571,7 +562,7 @@ body {
 .pl-kebab__dots span {
   width: 4px;
   height: 4px;
-  background: #111;
+  background: var(--text-primary);
   border-radius: 50%;
 }
 
@@ -579,10 +570,10 @@ body {
   position: absolute;
   right: 0;
   top: 110%;
-  background: #fff;
-  border: 1px solid #e6eaf0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
   border-radius: 10px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.08);
+  box-shadow: var(--shadow-lg);
   min-width: 170px;
   padding: 4px;
   z-index: 10000;
@@ -605,18 +596,18 @@ body {
   border: 0;
   cursor: pointer;
   font-size: 14px;
-  color: #111;
+  color: var(--text-primary);
   border-radius: 8px;
 }
 
 .pl-kebab__item:hover {
-  background: #f7f9fc;
+  background: var(--bg-secondary);
 }
 
 .pl-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.5);
+  background: rgba(0,0,0,.6); /* Un poco más oscuro */
   display: grid;
   place-items: center;
   z-index: 9999;
@@ -624,11 +615,11 @@ body {
 }
 
 .pl-modal__panel {
-  background: var(--panel);
+  background: var(--bg-primary);
   width: min(1000px, 95vw);
   height: min(85vh, 900px);
   border-radius: var(--radius);
-  box-shadow: 0 10px 30px rgba(0,0,0,.2);
+  box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -637,7 +628,7 @@ body {
 
 .pl-modal__header {
   padding: 12px 16px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--border-primary);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -646,22 +637,22 @@ body {
 .pl-modal__title {
   font-weight: 700;
   font-size: 16px;
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 .pl-modal__close {
-  border: 1px solid var(--line);
-  background: #fff;
+  border: 1px solid var(--border-primary);
+  background: var(--bg-primary);
   border-radius: 8px;
   padding: 6px 10px;
   cursor: pointer;
   font-size: 13px;
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 .pl-modal__body {
   flex: 1;
-  background: #f7f7f8;
+  background: var(--bg-secondary);
 }
 
 .pl-modal__iframe {
@@ -669,16 +660,16 @@ body {
   height: 100%;
   border: none;
   display: block;
-  background: #fff;
+  background: var(--bg-primary);
 }
 
 .pl-modal__footer {
   padding: 12px 16px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--border-primary);
   display: flex;
   gap: 12px;
   justify-content: flex-end;
-  background: var(--panel);
+  background: var(--bg-primary);
 }
 
 .pl-btn--xl {
@@ -690,19 +681,19 @@ body {
 
 .pl-btn--primary {
   background: linear-gradient(180deg, var(--brand-blue), var(--brand-blue-dark));
-  color: #fff;
+  color: var(--text-inverted);
   border: 1px solid var(--brand-blue-dark);
 }
 
 .pl-btn--ghost {
   background: transparent;
-  border: 1px solid var(--line);
-  color: var(--text);
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
 }
 
 .pl-btn--teal {
   background: var(--brand-blue);
-  color: #fff;
+  color: var(--text-inverted);
   border: 1px solid var(--brand-blue-dark);
 }
 
@@ -725,54 +716,42 @@ body {
     width: 100%;
   }
 }
-/* ... (todo tu css existente) ... */
 
 /* Estilos para la fila clickeable */
 .pl-tr--clickable {
   cursor: pointer;
 }
 
-
-
-/* ... (todo tu css existente, incluyendo el de .pl-btn--factura) ... */
-
-
 /* === Botones de Acción de Fila (NUEVO DISEÑO) === */
 .pl-action-btn {
   height: 36px;
-  border-radius: 10px; /* Un radio de borde más moderno y consistente */
+  border-radius: 10px;
   padding: 0 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px; /* Un poco más de espacio entre ícono y texto */
-  min-width: 150px;      /* Establece un ancho mínimo para todos */
+  gap: 8px;
+  min-width: 150px;
   box-sizing: border-box;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); /* Transición suave */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 14px;
-  font-weight: 700; /* Peso de fuente consistente */
+  font-weight: 700;
   letter-spacing: 0.01em;
-  border: 1px solid transparent; /* Empezamos con un borde transparente */
+  border: 1px solid transparent;
   text-decoration: none;
-  white-space: nowrap; /* Evita que el texto se parta en dos líneas */
-  
-  /* Sombra base sutil para dar profundidad */
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 
-              0 1px 2px rgba(0,0,0,0.06);
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
 }
 
 .pl-action-btn:hover:not(:disabled) {
-  /* Animación de hover: se eleva y la sombra crece */
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1), /* Sombra principal */
-              0 2px 4px rgba(0,0,0,0.08); /* Sombra secundaria */
+  box-shadow: var(--shadow-md);
 }
 
 .pl-action-btn:active:not(:disabled) {
-  /* Al hacer clic, vuelve a su posición original */
   transform: translateY(0);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .pl-action-btn:disabled {
@@ -781,58 +760,57 @@ body {
 }
 
 .pl-action-btn i {
-  font-size: 16px; /* Tamaño de ícono consistente */
+  font-size: 16px;
 }
 
 /* Variante Pagar (Acción Primaria - Azul) */
 button.pl-action-btn--pagar {
-  background: var(--brand-blue-50); /* Fondo azul claro */
-  color: var(--brand-blue-700); /* Texto azul oscuro */
-  border-color: #bfdbfe; /* Borde azul claro */
-  box-shadow: none; /* Le quitamos la sombra base */
+  background: var(--status-info-bg);
+  color: var(--status-info-fg);
+  border-color: var(--status-info-border);
+  box-shadow: none;
 }
 
 button.pl-action-btn--pagar:hover:not(:disabled) {
-  background: var(--brand-blue-700); /* Inversión de colores en hover */
-  color: #fff;
-  border-color: var(--brand-blue-700);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); /* Sombra azul en hover */
-  /* Se elimina la animación 'pulse' que ya no es necesaria */
+  background: var(--status-info-fg);
+  color: var(--text-inverted);
+  border-color: var(--status-info-fg);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 /* Variante Factura (Acción de Éxito - Verde) */
 button.pl-action-btn--factura {
-  background: var(--success-50); /* Fondo verde muy claro */
-  color: var(--success-700); /* Texto verde oscuro */
-  border-color: #bbf7d0; /* Borde verde claro */
-  box-shadow: none; /* Sombra base más sutil */
+  background: var(--status-success-bg);
+  color: var(--status-success-fg);
+  border-color: var(--status-success-border);
+  box-shadow: none;
 }
 
 button.pl-action-btn--factura:hover:not(:disabled) {
-  background: var(--success-700); /* Inversión de colores en hover */
-  color: #fff;
-  border-color: var(--success-700);
-  box-shadow: 0 4px 12px rgba(21, 128, 61, 0.2); /* Sombra verde */
+  background: var(--status-success-fg);
+  color: var(--text-inverted);
+  border-color: var(--status-success-fg);
+  box-shadow: 0 4px 12px rgba(21, 128, 61, 0.2);
 }
 
 /* Variante Reintentar (Acción de Peligro - Rojo) */
 button.pl-action-btn--retry {
-  background: var(--danger-50); /* Fondo rojo muy claro */
-  color: var(--danger-700); /* Texto rojo oscuro */
-  border-color: #fecaca; /* Borde rojo claro */
+  background: var(--status-danger-bg);
+  color: var(--status-danger-fg);
+  border-color: var(--status-danger-border);
   box-shadow: none;
 }
 
 button.pl-action-btn--retry:hover:not(:disabled) {
-  background: var(--danger-700); /* Inversión de colores en hover */
-  color: #fff;
-  border-color: var(--danger-700);
-  box-shadow: 0 4px 12px rgba(183, 28, 28, 0.2); /* Sombra roja */
+  background: var(--status-danger-fg);
+  color: var(--text-inverted);
+  border-color: var(--status-danger-fg);
+  box-shadow: 0 4px 12px rgba(183, 28, 28, 0.2);
 }
 
 /* Placeholder para cuando no hay acción (alineado con los botones) */
 .pl-no-action {
-  color: var(--muted);
+  color: var(--text-secondary);
   font-size: 1.2rem;
   display: flex;
   align-items: center;
