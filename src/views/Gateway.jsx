@@ -230,7 +230,7 @@ export default function Gateway() {
             <p className="gateway-subtitle">Elegí cómo querés pagar tu compra</p>
           </div>
         </div>
-        <div className="gateway-back-btn"> 
+        <div > 
           <ThemeToggle />
         </div>
       </div>
