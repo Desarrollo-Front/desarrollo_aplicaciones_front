@@ -1,97 +1,115 @@
-/* ELIMINA TODAS LAS REGLAS CSS PARA:
-  .theme-toggle__icon, 
-  .theme-toggle:hover .theme-toggle__icon, 
-  .theme-toggle.dark .theme-toggle__icon,
-  .theme-toggle.dark:hover .theme-toggle__icon
+/*
+ * Botón de Tema (Sol/Luna) con animación de
+ * rotación y cross-fade (fundido).
+ */
 
-  Y REEMPLÁZALAS CON ESTAS:
-*/
-
-/* Este es el nuevo elemento (el ícono) */
-.theme-toggle__sun-moon {
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;  /* Tamaño del botón */
+  height: 40px; /* Tamaño del botón */
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
   position: relative;
-  z-index: 1;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  
-  /* MODO CLARO (Luna): Es un color de luna (gris) */
-  background-color: var(--text-secondary);
-  
-  /* Animación suave para todo */
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  
-  /* Sombra interna para darle efecto de cráter (opcional) */
-  box-shadow: inset 4px -4px 0 0 rgba(0,0,0,0.1); 
+  /* Transición suave para todos los cambios */
+  transition: all 0.3s ease;
 }
 
-/* Este es el TRUCO:
-  Es una "sombra" (un círculo del color del fondo) que se
-  posiciona encima del ícono para crear la forma de "luna creciente".
-*/
-.theme-toggle__sun-moon::after {
-  content: '';
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--brand-blue);
+  outline-offset: 2px;
+}
+
+.theme-toggle__icon-wrapper {
+  position: relative;
+  width: 20px; /* Tamaño del ícono */
+  height: 20px; /* Tamaño del ícono */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Esto evita que los SVG se "desborden" durante la animación en algunos navegadores */
+  overflow: hidden; 
+}
+
+/* El círculo que envuelve (el que te gustaba) */
+.theme-toggle__circle {
   position: absolute;
-  top: -2px;
-  left: -2px;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  
-  /* Es un círculo del color del fondo (del círculo .theme-toggle__circle) */
+  width: 36px;
+  height: 36px;
   background-color: var(--bg-secondary);
-  
-  /* Lo movemos para crear la media luna */
-  transform: translateX(6px);
-  
-  /* Animación suave */
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s ease;
+  border: 1px solid var(--border-primary);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  z-index: 0; /* Detrás de los íconos */
+}
+
+/* Efecto Hover: el círculo se expande y cambia de color */
+.theme-toggle:hover .theme-toggle__circle {
+  transform: scale(1.1);
+  /* Usamos las variables de tu theme.css para el azul claro */
+  background-color: var(--status-info-bg); 
+  border-color: var(--brand-blue);
+}
+
+/* --- Animación de los Iconos --- */
+
+/* Estilo base para AMBOS íconos (Sol y Luna) */
+.theme-toggle__icon {
+  position: absolute; /* Para que se superpongan */
+  z-index: 1;
+  /* Transiciones para opacidad, rotación y color */
+  transition: opacity 0.3s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s ease;
+}
+
+/* --- MODO CLARO (Default) --- */
+
+/* La LUNA está visible y en su lugar */
+.theme-toggle__icon-moon {
+  opacity: 1;
+  transform: rotate(0deg);
+  color: var(--text-secondary); /* Color de la luna */
+}
+
+/* El SOL está oculto y rotado (listo para "entrar") */
+.theme-toggle__icon-sun {
+  opacity: 0;
+  transform: rotate(-180deg);
+  color: var(--brand-yellow); /* Color del sol (no se ve aún) */
+}
+
+/* Hover en Modo Claro */
+.theme-toggle:hover .theme-toggle__icon-moon {
+  color: var(--brand-blue-dark); /* La luna se pone azul (como el borde) */
 }
 
 
-/* * --- MODO OSCURO (Sol) ---
- */
+/* --- MODO OSCURO (Activado por .dark) --- */
 
-.theme-toggle.dark .theme-toggle__sun-moon {
-  /* 1. El ícono gira (mantenemos esto, queda bien) */
+/* La LUNA se oculta y gira (hacia "atrás") */
+.theme-toggle.dark .theme-toggle__icon-moon {
+  opacity: 0;
   transform: rotate(180deg);
-  
-  /* 2. El núcleo se vuelve amarillo (Sol) */
-  background-color: var(--brand-yellow); /* Usando tu variable de theme.css */
-  
-  /* 3. Quitamos la sombra de cráter */
-  box-shadow: none; 
 }
 
-/* 4. La "sombra" (::after) se esconde 
-   (se mueve completamente fuera del sol)
-*/
-.theme-toggle.dark .theme-toggle__sun-moon::after {
-  transform: translateX(20px);
+/* El SOL aparece y gira a su posición */
+.theme-toggle.dark .theme-toggle__icon-sun {
+  opacity: 1;
+  transform: rotate(0deg);
+  color: var(--brand-yellow); /* Color de "sol" (amarillo) */
 }
 
-
-/* * --- HOVERS (Efectos al pasar el mouse) ---
- */
-
-/* Hover en Modo Claro (Luna) */
-.theme-toggle:hover .theme-toggle__sun-moon {
-  background-color: var(--brand-blue-dark); /* La luna se pone azul */
-}
-/* La sombra (::after) debe tomar el color de fondo del hover */
-.theme-toggle:hover .theme-toggle__sun-moon::after {
-  /* Usamos el color de fondo que definiste para el hover del círculo */
-  background-color: var(--brand-blue-50, #eef6ff); 
-}
-
-/* Hover en Modo Oscuro (Sol) */
-.theme-toggle.dark:hover .theme-toggle__sun-moon {
-  background-color: var(--brand-yellow); /* Se mantiene amarillo */
-  transform: rotate(180deg) scale(1.1); /* Lo hacemos pulsar un poco */
-}
-/* El fondo del círculo grande cambia (como ya tenías) */
+/* Hover en Modo Oscuro (SOBRE EL CÍRCULO) */
 .theme-toggle.dark:hover .theme-toggle__circle {
-  /* Estos valores los tomo de tu CSS original para el modo oscuro */
-  background-color: var(--status-warning-bg, #fef3c7);
+  /* Usamos las variables de tu theme.css para el amarillo claro */
+  background-color: var(--status-warning-bg); 
   border-color: var(--brand-yellow);
+}
+
+/* Hover en Modo Oscuro (SOBRE EL ÍCONO) */
+.theme-toggle.dark:hover .theme-toggle__icon-sun {
+  color: var(--brand-yellow); /* Se mantiene amarillo */
 }
