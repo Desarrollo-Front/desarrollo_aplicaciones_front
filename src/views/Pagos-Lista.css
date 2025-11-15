@@ -772,47 +772,53 @@ body {
 
 /* Variante Pagar (Acción Primaria - Azul) */
 button.pl-action-btn--pagar {
-  background: var(--status-info-bg);
-  color: var(--status-info-fg);
-  border-color: var(--status-info-border);
-  box-shadow: none;
+  background: var(--brand-blue); /* Color de marca sólido */
+  color: var(--text-inverted);  /* Texto blanco */
+  border-color: var(--brand-blue-dark);
+  box-shadow: 0 4px 12px rgba(59, 168, 231, 0.2);
 }
 
 button.pl-action-btn--pagar:hover:not(:disabled) {
-  background: var(--status-info-fg);
-  color: var(--text-inverted);
-  border-color: var(--status-info-fg);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  background: var(--brand-blue-dark);
+  border-color: var(--brand-blue-dark);
+  box-shadow: 0 6px 16px rgba(59, 168, 231, 0.3);
+  transform: translateY(-2px);
 }
 
-/* Variante Factura (Acción de Éxito - Verde) */
+/* Variante Factura (Acción Secundaria - VERDE "OUTLINE")
+   Color semántico, pero sutil.
+*/
 button.pl-action-btn--factura {
-  background: var(--status-success-bg);
-  color: var(--status-success-fg);
-  border-color: var(--status-success-border);
+  background: transparent; /* Fondo transparente */
+  color: var(--status-success-fg); /* Texto verde */
+  border-color: var(--status-success-border); /* Borde verde claro */
   box-shadow: none;
 }
 
 button.pl-action-btn--factura:hover:not(:disabled) {
-  background: var(--status-success-fg);
-  color: var(--text-inverted);
+  background: var(--status-success-bg); /* Fondo verde claro al pasar el mouse */
+  color: var(--status-success-fg);
   border-color: var(--status-success-fg);
-  box-shadow: 0 4px 12px rgba(21, 128, 61, 0.2);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
-/* Variante Reintentar (Acción de Peligro - Rojo) */
+/* Variante Reintentar (Acción Secundaria - ROJO "OUTLINE")
+   Color semántico de peligro, pero sutil.
+*/
 button.pl-action-btn--retry {
-  background: var(--status-danger-bg);
-  color: var(--status-danger-fg);
-  border-color: var(--status-danger-border);
+  background: transparent; /* Fondo transparente */
+  color: var(--status-danger-fg); /* Texto rojo */
+  border-color: var(--status-danger-border); /* Borde rojo claro */
   box-shadow: none;
 }
 
 button.pl-action-btn--retry:hover:not(:disabled) {
-  background: var(--status-danger-fg);
-  color: var(--text-inverted);
+  background: var(--status-danger-bg); /* Fondo rojo claro al pasar el mouse */
+  color: var(--status-danger-fg);
   border-color: var(--status-danger-fg);
-  box-shadow: 0 4px 12px rgba(183, 28, 28, 0.2);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 /* Placeholder para cuando no hay acción (alineado con los botones) */
