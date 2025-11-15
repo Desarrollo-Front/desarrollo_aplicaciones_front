@@ -1,6 +1,7 @@
 /*
  * Botón de Tema (Sol/Luna) con animación de
  * rotación y cross-fade (fundido).
+ * --- VERSIÓN MINIMALISTA (HOVERS NEUTROS, SOL SIEMPRE AMARILLO) ---
  */
 
 .theme-toggle {
@@ -26,52 +27,54 @@
 
 .theme-toggle__icon-wrapper {
   position: relative;
-  width: 20px; /* Tamaño del ícono */
-  height: 20px; /* Tamaño del ícono */
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Esto evita que los SVG se "desborden" durante la animación en algunos navegadores */
   overflow: hidden; 
 }
 
-/* El círculo que envuelve (el que te gustaba) */
+/*
+ * El círculo ahora usa el fondo secundario
+ * y un borde del color del texto primario (negro/blanco).
+ */
 .theme-toggle__circle {
   position: absolute;
   width: 36px;
   height: 36px;
   background-color: var(--bg-secondary);
-  border: 1px solid var(--border-primary);
+  border: 1px solid var(--text-primary);
   border-radius: 50%;
   transition: all 0.3s ease;
   z-index: 0; /* Detrás de los íconos */
 }
 
-/* Efecto Hover: el círculo se expande y cambia de color */
+/*
+ * Hover minimalista en Modo Claro:
+ * Fondo gris claro -> Fondo blanco. Borde y luna se mantienen negros.
+ */
 .theme-toggle:hover .theme-toggle__circle {
   transform: scale(1.1);
-  /* Usamos las variables de tu theme.css para el azul claro */
-  background-color: var(--status-info-bg); 
-  border-color: var(--brand-blue);
+  background-color: var(--bg-primary);
+  border-color: var(--text-primary);
 }
 
 /* --- Animación de los Iconos --- */
 
-/* Estilo base para AMBOS íconos (Sol y Luna) */
 .theme-toggle__icon {
   position: absolute; /* Para que se superpongan */
   z-index: 1;
-  /* Transiciones para opacidad, rotación y color */
   transition: opacity 0.3s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s ease;
 }
 
 /* --- MODO CLARO (Default) --- */
 
-/* La LUNA está visible y en su lugar */
+/* La luna es negra (color texto primario) */
 .theme-toggle__icon-moon {
   opacity: 1;
   transform: rotate(0deg);
-  color: var(--text-secondary); /* Color de la luna */
+  color: var(--text-primary);
 }
 
 /* El SOL está oculto y rotado (listo para "entrar") */
@@ -81,9 +84,9 @@
   color: var(--brand-yellow); /* Color del sol (no se ve aún) */
 }
 
-/* Hover en Modo Claro */
+/* Hover en Modo Claro (Icono se mantiene negro) */
 .theme-toggle:hover .theme-toggle__icon-moon {
-  color: var(--brand-blue-dark); /* La luna se pone azul (como el borde) */
+  color: var(--text-primary);
 }
 
 
@@ -95,21 +98,26 @@
   transform: rotate(180deg);
 }
 
-/* El SOL aparece y gira a su posición */
+/* El SOL aparece y gira a su posición (Amarillo) */
 .theme-toggle.dark .theme-toggle__icon-sun {
   opacity: 1;
   transform: rotate(0deg);
-  color: var(--brand-yellow); /* Color de "sol" (amarillo) */
+  color: var(--brand-yellow);
 }
 
-/* Hover en Modo Oscuro (SOBRE EL CÍRCULO) */
+/*
+ * Hover minimalista en Modo Oscuro (CÍRCULO).
+ * Ya no se pone amarillo.
+ */
 .theme-toggle.dark:hover .theme-toggle__circle {
-  /* Usamos las variables de tu theme.css para el amarillo claro */
-  background-color: var(--status-warning-bg); 
-  border-color: var(--brand-yellow);
+  background-color: var(--bg-primary); /* Fondo secundario -> Fondo primario */
+  border-color: var(--text-primary);   /* Borde se mantiene (blanco) */
 }
 
-/* Hover en Modo Oscuro (SOBRE EL ÍCONO) */
+/*
+ * CAMBIO: Hover en Modo Oscuro (ICONO).
+ * El sol se MANTIENE amarillo.
+ */
 .theme-toggle.dark:hover .theme-toggle__icon-sun {
-  color: var(--brand-yellow); /* Se mantiene amarillo */
+  color: var(--brand-yellow); /* Amarillo -> Amarillo (Se queda) */
 }
