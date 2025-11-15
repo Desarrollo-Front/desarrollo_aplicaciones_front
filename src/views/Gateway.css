@@ -1,60 +1,4 @@
-/* Variables CSS modernas para Gateway */
-:root {
-  --gateway-primary: #3b82f6;
-  --gateway-primary-dark: #2563eb;
-  --gateway-primary-light: #dbeafe;
-  --gateway-secondary: #6b7280;
-  --gateway-success: #10b981;
-  --gateway-success-light: #d1fae5;
-  --gateway-warning: #f59e0b;
-  --gateway-warning-light: #fef3c7;
-  --gateway-danger: #ef4444;
-  --gateway-danger-light: #fee2e2;
-  --gateway-info: #06b6d4;
-  --gateway-info-light: #cffafe;
-  --gateway-background: #ffffff;
-  --gateway-surface: #f8fafc;
-  --gateway-surface-hover: #f1f5f9;
-  --gateway-border: #e2e8f0;
-  --gateway-border-light: #f1f5f9;
-  --gateway-text: #1e293b;
-  --gateway-text-muted: #64748b;
-  --gateway-text-light: #94a3b8;
-  --gateway-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --gateway-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --gateway-shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  --gateway-radius: 12px;
-  --gateway-radius-lg: 16px;
-  --gateway-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --gateway-font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
-  
-  /* Variables para el modal (compatibilidad con invoice) */
-  --invoice-primary: #3b82f6;
-  --invoice-primary-dark: #2563eb;
-  --invoice-primary-light: #dbeafe;
-  --invoice-success: #10b981;
-  --invoice-success-light: #d1fae5;
-  --invoice-warning: #f59e0b;
-  --invoice-warning-light: #fef3c7;
-  --invoice-danger: #ef4444;
-  --invoice-danger-light: #fee2e2;
-  --invoice-info: #06b6d4;
-  --invoice-info-light: #cffafe;
-  --invoice-background: #ffffff;
-  --invoice-surface: #f8fafc;
-  --invoice-surface-hover: #f1f5f9;
-  --invoice-border: #e2e8f0;
-  --invoice-border-light: #f1f5f9;
-  --invoice-text: #1e293b;
-  --invoice-text-muted: #64748b;
-  --invoice-text-light: #94a3b8;
-  --invoice-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --invoice-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --invoice-shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  --invoice-radius: 12px;
-  --invoice-radius-lg: 16px;
-  --invoice-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* Eliminamos los :root locales. Ahora usa theme.css */
 
 /* Reset y base */
 * {
@@ -64,9 +8,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap');
 
 body {
-  font-family: var(--gateway-font-family);
+  font-family: var(--gateway-font-family, 'Inter', sans-serif);
   line-height: 1.6;
-  color: var(--gateway-text);
+  color: var(--text-primary);
 }
 
 /* Contenedor principal */
@@ -74,7 +18,7 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
-  background: var(--gateway-background);
+  background: var(--bg-primary);
   min-height: 100vh;
 }
 
@@ -86,29 +30,31 @@ body {
   gap: 2rem;
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--gateway-border-light);
+  border-bottom: 1px solid var(--border-secondary);
 }
 
 .gateway-back-btn {
   display: flex;
   align-items: center;
+  justify-content: center; /* Añadido para centrar el ThemeToggle */
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: var(--gateway-surface);
-  border: 1px solid var(--gateway-border);
-  border-radius: var(--gateway-radius);
-  color: var(--gateway-text);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--payment-radius, 12px);
+  color: var(--text-primary);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--gateway-transition);
+  transition: var(--payment-transition, all 0.2s ease);
   text-decoration: none;
+  min-width: 100px; /* Asegura un ancho mínimo */
 }
 
 .gateway-back-btn:hover {
-  background: var(--gateway-surface-hover);
+  background: var(--border-secondary);
   transform: translateY(-1px);
-  box-shadow: var(--gateway-shadow);
+  box-shadow: var(--shadow-sm);
 }
 
 .gateway-title-section {
@@ -116,19 +62,18 @@ body {
   text-align: center; /* Centra el título y subtítulo */
 }
 
-
 .gateway-title {
-  font-family: 'Poppins', sans-serif; /* <-- Tipografía actualizada */
-  font-size: 2.25rem; /* <-- Ajuste de tamaño */
-  font-weight: 700; /* <-- Ajuste de peso */
-  color: var(--gateway-text);
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
   margin: 0;
   line-height: 1.2;
 }
 
 .gateway-subtitle {
   font-size: 1rem;
-  color: var(--gateway-text-muted);
+  color: var(--text-secondary);
   margin: 0.25rem 0 0 0;
   font-weight: 400;
 }
@@ -139,16 +84,16 @@ body {
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 1.5rem;
-  border-radius: var(--gateway-radius);
+  border-radius: var(--payment-radius, 12px);
   margin-bottom: 2rem;
   font-weight: 600;
   animation: slideInDown 0.3s ease-out;
 }
 
 .gateway-banner--success {
-  background: var(--gateway-success-light);
-  color: var(--gateway-success);
-  border: 1px solid var(--gateway-success);
+  background: var(--status-success-bg);
+  color: var(--status-success-fg);
+  border: 1px solid var(--status-success-border);
 }
 
 @keyframes slideInDown {
@@ -175,10 +120,10 @@ body {
 }
 
 .gateway-methods-card {
-  background: var(--gateway-background);
-  border: 1px solid var(--gateway-border);
-  border-radius: var(--gateway-radius-lg);
-  box-shadow: var(--gateway-shadow);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--payment-radius-lg, 16px);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
 }
 
@@ -187,25 +132,25 @@ body {
   align-items: center;
   gap: 0.75rem;
   padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, var(--gateway-surface) 0%, var(--gateway-background) 100%);
-  border-bottom: 1px solid var(--gateway-border-light);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-secondary);
 }
 
 .gateway-methods-icon {
   width: 40px;
   height: 40px;
-  background: var(--gateway-primary-light);
-  border-radius: var(--gateway-radius);
+  background: var(--status-info-bg);
+  border-radius: var(--payment-radius, 12px);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--gateway-primary);
+  color: var(--status-info-fg);
 }
 
 .gateway-methods-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--gateway-text);
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -220,7 +165,7 @@ body {
 .gateway-method-option {
   position: relative;
   cursor: pointer;
-  transition: var(--gateway-transition);
+  transition: var(--payment-transition, all 0.2s ease);
 }
 
 .gateway-method-radio {
@@ -234,10 +179,10 @@ body {
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  background: var(--gateway-background);
-  border: 2px solid var(--gateway-border);
-  border-radius: var(--gateway-radius);
-  transition: var(--gateway-transition);
+  background: var(--bg-primary);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--payment-radius, 12px);
+  transition: var(--payment-transition, all 0.2s ease);
   position: relative;
   overflow: hidden;
 }
@@ -249,7 +194,8 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, var(--status-info-bg), transparent);
+  opacity: 0.5;
   transition: left 0.5s;
 }
 
@@ -259,13 +205,13 @@ body {
 
 .gateway-method-option:hover .gateway-method-content {
   transform: translateY(-2px);
-  box-shadow: var(--gateway-shadow-lg);
+  box-shadow: var(--shadow-lg);
 }
 
 .gateway-method-option--selected .gateway-method-content {
-  border-color: var(--gateway-primary);
-  background: var(--gateway-primary-light);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--brand-blue);
+  background: var(--status-info-bg);
+  box-shadow: 0 0 0 3px var(--status-info-bg);
 }
 
 .gateway-method-logos {
@@ -294,38 +240,38 @@ body {
 .gateway-method-title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--gateway-text);
+  color: var(--text-primary);
   margin: 0 0 0.25rem 0;
 }
 
 .gateway-method-description {
   font-size: 0.875rem;
-  color: var(--gateway-text-muted);
+  color: var(--text-secondary);
   margin: 0;
   line-height: 1.4;
 }
 
 .gateway-method-description--selected {
-  color: var(--gateway-primary);
+  color: var(--status-info-fg);
   font-weight: 600;
 }
 
 .gateway-method-check {
   width: 24px;
   height: 24px;
-  background: var(--gateway-border);
+  background: var(--border-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--gateway-background);
+  color: var(--bg-primary);
   flex-shrink: 0;
-  transition: var(--gateway-transition);
+  transition: var(--payment-transition, all 0.2s ease);
 }
 
 .gateway-method-option--selected .gateway-method-check {
-  background: var(--gateway-primary);
-  color: white;
+  background: var(--brand-blue);
+  color: var(--text-inverted);
 }
 
 /* Sección de resumen */
@@ -336,10 +282,10 @@ body {
 }
 
 .gateway-summary-card {
-  background: var(--gateway-background);
-  border: 1px solid var(--gateway-border);
-  border-radius: var(--gateway-radius-lg);
-  box-shadow: var(--gateway-shadow);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--payment-radius-lg, 16px);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
 }
 
@@ -348,25 +294,25 @@ body {
   align-items: center;
   gap: 0.75rem;
   padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, var(--gateway-success-light) 0%, var(--gateway-background) 100%);
-  border-bottom: 1px solid var(--gateway-border-light);
+  background: var(--status-success-bg);
+  border-bottom: 1px solid var(--border-secondary);
 }
 
 .gateway-summary-icon {
   width: 40px;
   height: 40px;
-  background: var(--gateway-success);
-  border-radius: var(--gateway-radius);
+  background: var(--status-success-fg);
+  border-radius: var(--payment-radius, 12px);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--text-inverted);
 }
 
 .gateway-summary-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--gateway-text);
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -382,12 +328,12 @@ body {
 }
 
 .gateway-summary-loading {
-  color: var(--gateway-text-muted);
+  color: var(--text-secondary);
 }
 
 .gateway-summary-error {
-  color: var(--gateway-danger);
-  background: var(--gateway-danger-light);
+  color: var(--status-danger-fg);
+  background: var(--status-danger-bg);
 }
 
 .gateway-summary-content {
@@ -403,31 +349,31 @@ body {
 }
 
 .gateway-summary-label {
-  color: var(--gateway-text-muted);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .gateway-summary-value {
-  color: var(--gateway-text);
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 .gateway-summary-divider {
   height: 1px;
-  background: var(--gateway-border);
+  background: var(--border-primary);
   margin: 1rem 0;
 }
 
 .gateway-summary-row--total {
   padding: 1rem 0 0.75rem 0;
-  border-top: 2px solid var(--gateway-border);
+  border-top: 2px solid var(--border-primary);
   margin-top: 0.5rem;
 }
 
 .gateway-summary-value--total {
   font-size: 1.5rem;
   font-weight: 800;
-  color: var(--gateway-success);
+  color: var(--status-success-fg);
 }
 
 /* Botón de pago */
@@ -438,14 +384,14 @@ body {
   justify-content: center;
   gap: 0.5rem;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, var(--gateway-primary) 0%, var(--gateway-primary-dark) 100%);
+  background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-blue-dark) 100%);
   border: none;
-  border-radius: var(--gateway-radius);
-  color: white;
+  border-radius: var(--payment-radius, 12px);
+  color: var(--text-inverted);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: var(--gateway-transition);
+  transition: var(--payment-transition, all 0.2s ease);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   margin-top: 1.5rem;
   position: relative;
@@ -549,6 +495,10 @@ body {
   .gateway-container {
     padding: 0.75rem;
   }
+
+  .gateway-header {
+    grid-template-columns: auto 1fr auto; /* Restaurado */
+  }
   
   .gateway-title-section {
     flex-direction: column;
@@ -637,16 +587,16 @@ body {
 }
 
 .gateway-container::-webkit-scrollbar-track {
-  background: var(--gateway-surface);
+  background: var(--bg-secondary);
 }
 
 .gateway-container::-webkit-scrollbar-thumb {
-  background: var(--gateway-border);
+  background: var(--border-primary);
   border-radius: 4px;
 }
 
 .gateway-container::-webkit-scrollbar-thumb:hover {
-  background: var(--gateway-text-muted);
+  background: var(--text-secondary);
 }
 
 /* Estados de carga */
@@ -661,21 +611,21 @@ body {
 
 /* Focus states para accesibilidad */
 .gateway-method-option:focus-within .gateway-method-content {
-  outline: 2px solid var(--gateway-primary);
+  outline: 2px solid var(--brand-blue);
   outline-offset: 2px;
 }
 
 .gateway-pay-btn:focus-visible {
-  outline: 2px solid var(--gateway-primary);
+  outline: 2px solid var(--brand-blue);
   outline-offset: 2px;
 }
 
 .gateway-back-btn:focus-visible {
-  outline: 2px solid var(--gateway-primary);
+  outline: 2px solid var(--brand-blue);
   outline-offset: 2px;
 }
 
-/* ===== ESTILOS DEL MODAL DE TARJETA (RESTAURADOS) ===== */
+/* ===== ESTILOS DEL MODAL DE TARJETA (RESTAURADOS Y ADAPTADOS) ===== */
 
 /* Modal overlay */
 .card-modal-overlay {
@@ -705,9 +655,9 @@ body {
 
 /* Modal container */
 .card-modal {
-  background: var(--invoice-background);
-  border-radius: var(--invoice-radius-lg);
-  box-shadow: var(--invoice-shadow-xl);
+  background: var(--bg-primary);
+  border-radius: var(--payment-radius-lg, 16px);
+  box-shadow: var(--shadow-lg);
   width: 100%;
   max-width: 480px;
   max-height: 90vh;
@@ -731,8 +681,8 @@ body {
 
 /* Modal header */
 .card-modal-header {
-  background: linear-gradient(135deg, var(--invoice-primary) 0%, var(--invoice-primary-dark) 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-blue-dark) 100%);
+  color: var(--text-inverted);
   padding: 1.5rem 2rem;
   display: flex;
   align-items: center;
@@ -767,7 +717,7 @@ body {
   width: 32px;
   height: 32px;
   background: rgba(255, 255, 255, 0.2);
-  border-radius: var(--invoice-radius);
+  border-radius: var(--payment-radius, 12px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -779,33 +729,33 @@ body {
   opacity: 0.9;
   margin: 0.25rem 0 0 0;
   font-weight: 400;
-  color: white;
+  color: var(--text-inverted);
   display: block;
 }
 
 .card-modal-close {
-  font-size: 1.3rem; /* Ajusta este tamaño si es necesario */
+  font-size: 1.3rem;
   line-height: 1;
   background: rgba(255, 255, 255, 0.2);
   border: none;
-  border-radius: var(--invoice-radius);
-  color: white;
+  border-radius: var(--payment-radius, 12px);
+  color: var(--text-inverted);
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: var(--invoice-transition);
+  transition: var(--payment-transition, all 0.2s ease);
   backdrop-filter: blur(10px);
   position: relative;
   z-index: 1;
 }
 
 .card-modal-close:hover {
-  background: var(--gateway-danger); /* Fondo rojo */
-  color: white;                      /* Ícono/texto blanco para contraste */
-  transform: scale(1.1);             /* Mantenemos la animación de escala */
+  background: var(--status-danger-fg);
+  color: var(--text-inverted);
+  transform: scale(1.1);
   opacity: 0.9;
 }
 
@@ -815,6 +765,7 @@ body {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  background: var(--bg-primary); /* Añadido */
 }
 
 .card-modal-body::-webkit-scrollbar {
@@ -822,16 +773,16 @@ body {
 }
 
 .card-modal-body::-webkit-scrollbar-track {
-  background: var(--invoice-surface);
+  background: var(--bg-secondary);
 }
 
 .card-modal-body::-webkit-scrollbar-thumb {
-  background: var(--invoice-border);
+  background: var(--border-primary);
   border-radius: 3px;
 }
 
 .card-modal-body::-webkit-scrollbar-thumb:hover {
-  background: var(--invoice-text-muted);
+  background: var(--text-secondary);
 }
 
 /* Form fields */
@@ -868,40 +819,40 @@ body {
 .card-field-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--invoice-text);
+  color: var(--text-primary);
   margin-bottom: 0.25rem;
 }
 
 .card-input {
   padding: 0.75rem 1rem;
-  border: 2px solid var(--invoice-border);
-  border-radius: var(--invoice-radius);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--payment-radius, 12px);
   font-size: 1rem;
-  transition: var(--invoice-transition);
-  background: var(--invoice-background);
-  color: var(--invoice-text);
+  transition: var(--payment-transition, all 0.2s ease);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   width: 100%;
   box-sizing: border-box;
 }
 
 .card-input:focus {
   outline: none;
-  border-color: var(--invoice-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--status-info-bg);
 }
 
 .card-input::placeholder {
-  color: var(--invoice-text-muted);
+  color: var(--text-secondary);
 }
 
 .card-field--error .card-input {
-  border-color: var(--invoice-danger);
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  border-color: var(--status-danger-fg);
+  box-shadow: 0 0 0 3px var(--status-danger-bg);
 }
 
 .card-field-error {
   font-size: 0.75rem;
-  color: var(--invoice-danger);
+  color: var(--status-danger-fg);
   font-weight: 500;
   margin-top: 0.25rem;
 }
@@ -909,8 +860,8 @@ body {
 /* Modal footer */
 .card-modal-footer {
   padding: 1.5rem 2rem;
-  background: var(--invoice-surface);
-  border-top: 1px solid var(--invoice-border-light);
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-secondary);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -925,11 +876,11 @@ body {
 
 .card-btn {
   padding: 0.75rem 1.5rem;
-  border-radius: var(--invoice-radius);
+  border-radius: var(--payment-radius, 12px);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--invoice-transition);
+  transition: var(--payment-transition, all 0.2s ease);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -939,8 +890,8 @@ body {
 }
 
 .card-btn--primary {
-  background: linear-gradient(135deg, var(--invoice-primary) 0%, var(--invoice-primary-dark) 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-blue-dark) 100%);
+  color: var(--text-inverted);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
@@ -950,15 +901,15 @@ body {
 }
 
 .card-btn--secondary {
-  background: var(--invoice-surface);
-  color: var(--invoice-text);
-  border: 2px solid var(--invoice-border);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-primary);
 }
 
 .card-btn--secondary:hover:not(:disabled) {
-  background: var(--invoice-surface-hover);
+  background: var(--border-secondary);
   transform: translateY(-1px);
-  box-shadow: var(--invoice-shadow);
+  box-shadow: var(--shadow-sm);
 }
 
 .card-btn:disabled {
@@ -972,7 +923,7 @@ body {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.75rem;
-  color: var(--invoice-text-muted);
+  color: var(--text-secondary);
   text-align: center;
   justify-content: center;
 }
@@ -1073,6 +1024,22 @@ body {
 }
 
 .gateway-header-invisible-spacer {
-  visibility: hidden; /* Oculta el elemento, pero sigue ocupando su espacio */
-  pointer-events: none; /* Asegura que no sea interactivo */
+  visibility: hidden;
+  pointer-events: none;
+}
+/* --- OVERRIDES PARA GATEWAY (VISTA VIBRANTE) --- */
+/* (Añadir al final de Gateway.css) */
+
+/* 1. Header del Resumen "Verde Degradado" */
+.gateway-summary-header {
+  background: linear-gradient(135deg, var(--status-success-bg) 0%, var(--bg-primary) 100%);
+}
+
+/* 2. Icono y Total "Verde Vibrante" */
+.gateway-summary-icon {
+  background: #10b981; /* Icono Verde Vibrante */
+  color: white;
+}
+.gateway-summary-value--total {
+  color: #10b981; /* Total Verde Vibrante */
 }

@@ -4,6 +4,7 @@ import './Pagos-Lista.css';
 import Select from 'react-select';
 import FacturaPreview from './FacturaPreview'; // Tu componente de previsualización
 
+
 const METODOS = ['Todos los métodos', 'Tarjeta crédito', 'Tarjeta débito', 'Mercado Pago'];
 const ESTADOS_CHIPS = ['Pendiente', 'Aprobado', 'Rechazado'];
 

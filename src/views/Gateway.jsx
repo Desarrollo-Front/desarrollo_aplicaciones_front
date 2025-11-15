@@ -229,7 +229,8 @@ export default function Gateway() {
             <p className="gateway-subtitle">Elegí cómo querés pagar tu compra</p>
           </div>
         </div>
-        <div className="gateway-back-btn gateway-header-invisible-spacer" aria-hidden="true"></div>
+        <div > 
+        </div>
       </div>
 
       {/* Banner de éxito */}
