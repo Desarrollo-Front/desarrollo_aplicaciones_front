@@ -15,7 +15,17 @@ export default defineConfig({
         statements: 0,
         branches: 0,
       },
-      exclude: ['e2e/**', 'playwright.config.ts', 'vite.config.ts', 'vitest.config.ts'],
+      // exclude test runner and build config files and editor artifacts
+      exclude: [
+        'e2e/**',
+        'playwright.config.ts',
+        'vite.config.ts',
+        'vitest.config.ts',
+        // ignore root JS config files so they don't appear as 0% in coverage
+  'vite.config.js',
+  'vitest.config.js',
+  'eslint.config.js',
+      ],
     },
   },
 });

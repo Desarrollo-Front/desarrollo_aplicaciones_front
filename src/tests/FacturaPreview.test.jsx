@@ -20,43 +20,7 @@ describe('FacturaPreview', () => {
     }
   });
 
-  test('calls URL.createObjectURL when Descargar HTML es clicked', async () => {
-    const html = '<h1>Factura</h1>';
-    const onClose = vi.fn();
-
-    // make sure URL.createObjectURL exists so spyOn won't throw
-    if (!URL.createObjectURL) {
-      // mark the mock so we can clean up later
-      const fn = () => 'blob:url';
-      fn._isMock = true;
-      URL.createObjectURL = fn;
-    }
-    if (!URL.revokeObjectURL) {
-      const fn = () => {};
-      fn._isMock = true;
-      URL.revokeObjectURL = fn;
-    }
-
-    const createSpy = vi.spyOn(URL, 'createObjectURL').mockImplementation(() => 'blob:url');
-    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
-
-    // mock anchor creation to avoid actually navigating
-    const origCreate = document.createElement.bind(document);
-    const mockAnchor = { href: '', download: '', click: vi.fn() };
-    vi.spyOn(document, 'createElement').mockImplementation((tag) => {
-      if (tag === 'a') return mockAnchor;
-      return origCreate(tag);
-    });
-
-    render(<FacturaPreview html={html} onClose={onClose} />);
-
-    const btn = screen.getByRole('button', { name: /Descargar HTML/i });
-    fireEvent.click(btn);
-
-    expect(createSpy).toHaveBeenCalled();
-    expect(mockAnchor.click).toHaveBeenCalled();
-    expect(revokeSpy).toHaveBeenCalled();
-  });
+  // The download-by-HTML flow was removed from the UI; keep print and close behavior tests
 
   test('calls iframe print when Imprimir is clicked', () => {
     const html = '<p>Hola</p>';
