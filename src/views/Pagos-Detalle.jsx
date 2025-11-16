@@ -412,8 +412,10 @@ export default function PagosDetalle() {
           creadoISO: p.created_at || p.createdAt || null,
           capturadoISO: p.captured_at || p.capturedAt || null,
           fees: Number(p.fees ?? 0),
-          descripcion: meta.description || '',
-          categoria: meta.category || '',
+          // --- CAMBIO AQUÍ ---
+          // Se prioriza 'descripcion_solicitud', luego 'descripcion', y al final un string vacío
+          descripcion: p.descripcion_solicitud || p.descripcion || '',
+          // --- FIN CAMBIO ---
           refund_reason: meta.refund_reason || '',
           refundId: p.refund_id ?? null,
           rawStatus: String(p.status || '').toUpperCase(),
@@ -701,16 +703,6 @@ window.onload = function(){window.print();}
                   Descripción
                 </div>
                 <div className="payment-detail-info-value">{pago.descripcion || '—'}</div>
-              </div>
-              <div className="payment-detail-info-item">
-                <div className="payment-detail-info-label">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7 7H17V17H7V7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M7 7L12 12L17 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  Categoría
-                </div>
-                <div className="payment-detail-info-value">{pago.categoria || '—'}</div>
               </div>
               <div className="payment-detail-info-item">
                 <div className="payment-detail-info-label">

@@ -163,6 +163,10 @@ body {
   row-gap: 0.5rem;
 }
 
+.payment-detail-info-grid .payment-detail-info-item:first-child {
+  grid-column: span 2;
+}
+
 .payment-detail-info-label-icon {
   width: 16px;
   height: 16px;
