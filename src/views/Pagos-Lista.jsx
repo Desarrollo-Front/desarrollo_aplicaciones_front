@@ -37,8 +37,7 @@ const generarHtmlFactura = (pago) => {
   const cliente = pago.cliente || 'Consumidor Final';
   const metodo = pago.metodo || '—';
   const descripcion = pago.descripcion || 'Cargo por servicio';
-  // --- CAMBIO: LÍNEA ELIMINADA ---
-  // const categoria = pago.categoria || 'General';
+  // 'categoria' ya no se define ni se usa
   const fechaEmision = fechaHoraUI(pago.creadoISO);
   const fechaCobro = fechaHoraUI(pago.capturadoISO);
 
@@ -124,8 +123,6 @@ const generarHtmlFactura = (pago) => {
             <div><strong>Fecha de Emisión:</strong> ${fechaEmision}</div>
             <div><strong>Fecha de Cobro:</strong> ${fechaCobro}</div>
             <div><strong>Método de Pago:</strong> ${metodo}</div>
-            {/* --- CAMBIO: LÍNEA ELIMINADA --- */}
-            {/* <div><strong>Categoría:</strong> ${categoria}</div> */}
         </div>
     </section>
     <table>
@@ -588,8 +585,7 @@ export default function PagosLista() {
         creadoISO: p.created_at || p.createdAt || null,
         capturadoISO: p.captured_at || p.capturedAt || null,
         descripcion: meta.description || 'Cargo por servicio',
-        // --- CAMBIO: LÍNEA ELIMINADA ---
-        // categoria: meta.category || 'General',
+        // 'categoria' ya no se pasa
       };
 
       const html = generarHtmlFactura(pagoDetallado);
