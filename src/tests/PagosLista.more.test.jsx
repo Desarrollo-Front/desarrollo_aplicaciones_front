@@ -8,6 +8,8 @@ beforeAll(() => {
   // polyfill observers used by the component
   global.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
   global.IntersectionObserver = class { constructor() {} observe() {} unobserve() {} disconnect() {} };
+  // ensure React is globally available for modules that expect a global React
+  global.React = React;
 });
 
 describe('PagosLista additional branches', () => {
@@ -88,14 +90,13 @@ describe('PagosLista additional branches', () => {
 
     await waitFor(() => expect(screen.getByText(/#600/)).toBeInTheDocument());
 
-    // open kebab menu (there is a pl-kebab__btn inside the row)
-    const kebabBtn = document.querySelector('.pl-kebab__btn');
-    expect(kebabBtn).toBeInTheDocument();
-    fireEvent.click(kebabBtn);
+  // verify the visible 'Ver Factura' action is present and opens the preview
+  const verFacturaBtn = screen.getByRole('button', { name: /Ver Factura/i });
+  expect(verFacturaBtn).toBeInTheDocument();
+  fireEvent.click(verFacturaBtn);
 
-    // now the menu should render with 'Ver factura' and 'Ver pago'
-    await waitFor(() => expect(screen.getByText(/Ver factura/i)).toBeInTheDocument());
-    expect(screen.getByText(/Ver pago/i)).toBeInTheDocument();
+  // FacturaPreview opens as a dialog/modal
+  await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument());
   });
 
   test('export CSV triggers URL.createObjectURL and revoke', async () => {

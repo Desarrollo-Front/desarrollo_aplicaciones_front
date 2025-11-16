@@ -124,16 +124,12 @@ describe('PagosLista extra branches', () => {
 
     await waitFor(() => expect(screen.getByText(/#99/)).toBeInTheDocument());
 
-    // open kebab menu
-    const kebabBtn = document.querySelector('.pl-kebab__btn');
-    fireEvent.click(kebabBtn);
+  // click the visible 'Ver Factura' button in the row
+  const verFactura = await screen.findByRole('button', { name: /Ver Factura/i });
+  fireEvent.click(verFactura);
 
-    // click Ver factura
-    const verFactura = await screen.findByText(/Ver factura/i);
-    fireEvent.click(verFactura);
-
-    // FacturaPreview should render (it contains 'Descargar HTML' button according to its tests)
-    const descargarBtn = await screen.findByText(/Descargar HTML/i);
-    expect(descargarBtn).toBeInTheDocument();
+  // FacturaPreview should render and show the print/save button
+  const imprimirBtn = await screen.findByRole('button', { name: /Imprimir \/ Guardar PDF/i });
+  expect(imprimirBtn).toBeInTheDocument();
   });
 });

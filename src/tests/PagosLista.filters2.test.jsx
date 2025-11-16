@@ -98,9 +98,9 @@ describe('PagosLista filters, date range and reset', () => {
     expect(screen.queryByText(/#11/)).not.toBeInTheDocument();
     expect(screen.queryByText(/#12/)).not.toBeInTheDocument();
 
-    // click reset button to clear filters
-    const resetBtn = screen.getByText(/Reset/i);
-    fireEvent.click(resetBtn);
+  // click reset button to clear filters (label is 'Reiniciar' in the UI)
+  const resetBtn = screen.getByRole('button', { name: /Reiniciar/i });
+  fireEvent.click(resetBtn);
 
     // after reset the other rows should reappear
     await waitFor(() => expect(screen.getByText(/#11/)).toBeInTheDocument());
@@ -116,15 +116,13 @@ describe('PagosLista filters, date range and reset', () => {
 
     await waitFor(() => expect(screen.getByText(/#10/)).toBeInTheDocument());
 
-  // Click the Reembolsado chip to filter refunded payments
-  const reembMatches = screen.getAllByText(/Reembolsado/i);
-  // pick the button (chip) not the badge span
-  const reembChip = reembMatches.find((el) => el.tagName === 'BUTTON' || el.closest('button'));
-  fireEvent.click(reembChip);
+  // Click the Aprobado chip to filter approved payments (UI chips: Pendiente/Aprobado/Rechazado)
+  const aprobadoBtn = screen.getByRole('button', { name: /Aprobado/i });
+  fireEvent.click(aprobadoBtn);
 
-    // should show only the refunded row (id 12)
-    await waitFor(() => expect(screen.getByText(/#12/)).toBeInTheDocument());
-    expect(screen.queryByText(/#10/)).not.toBeInTheDocument();
+    // should show only the approved row (id 10)
+    await waitFor(() => expect(screen.getByText(/#10/)).toBeInTheDocument());
+    expect(screen.queryByText(/#11/)).not.toBeInTheDocument();
 
   // Now set 'desde' to 2021-01-01 and 'hasta' to 2022-12-31 to include id 10 and 11 but not 12
   // set dates (labels are siblings of inputs in the component, so locate inputs via the label's parent)
@@ -135,10 +133,8 @@ describe('PagosLista filters, date range and reset', () => {
   fireEvent.change(desdeInput, { target: { value: '2021-01-01' } });
   fireEvent.change(hastaInput, { target: { value: '2022-12-31' } });
 
-  // Reset chips to allow date filter to show results
-  const reembMatches2 = screen.getAllByText(/Reembolsado/i);
-  const reembChip2 = reembMatches2.find((el) => el.tagName === 'BUTTON' || el.closest('button'));
-  fireEvent.click(reembChip2); // toggle off
+  // Toggle Aprobado off to allow date filter to show results
+  fireEvent.click(aprobadoBtn); // toggle off
 
     // now only rows within the date range should be present (10 and 11)
     await waitFor(() => expect(screen.getByText(/#10/)).toBeInTheDocument());
