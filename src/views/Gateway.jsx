@@ -140,27 +140,87 @@ export default function Gateway() {
     return res.json();
   };
 
+  // --- FUNCIÓN MODIFICADA ---
   const ensurePendingBeforePurchase = async (paymentId) => {
-  const current = payment?.status ? payment : await loadPayment(paymentId);
-  if (String(current.status || '').toUpperCase() === 'REJECTED') {
-    const res = await api(`/api/payments/${paymentId}/retry-balance`, { method: 'POST' });
-    if (!res.ok) {
-      const serverMsg = res.headers.get('Error-Message');
-      const fallback = await fetchJsonOrText(res);
-      const msg = serverMsg || fallback || 'No hay saldo suficiente para reintentar el pago.';
-      throw new Error(msg);
+    // 1. Carga el estado actual del pago
+    const current = payment?.status ? payment : await loadPayment(paymentId);
+    
+    // 2. Si está 'REJECTED', intentamos el reintento
+    if (String(current.status || '').toUpperCase() === 'REJECTED') {
+
+      // 3. Validamos que haya un método seleccionado
+      if (!method) {
+        throw new Error('Por favor, seleccioná un método de pago para reintentar.');
+      }
+
+      // 4. Determinamos el 'paymentMethodType'
+      const type =
+        method === 'card'
+          ? cardData?.kind === 'debit'
+            ? 'DEBIT_CARD'
+            : 'CREDIT_CARD'
+          : 'MERCADO_PAGO';
+
+      // 5. Validamos que estén los datos de la tarjeta si fue seleccionada
+      if ((type === 'CREDIT_CARD' || type === 'DEBIT_CARD') && !cardData) {
+        throw new Error('Por favor, completá los datos de la tarjeta para reintentar.');
+      }
+
+      // 6. Construimos el BODY para el reintento (igual al de 'setPaymentMethod')
+      const body =
+        type === 'CREDIT_CARD' || type === 'DEBIT_CARD'
+          ? {
+              paymentMethodType: type,
+              cardNumber: cardData?.cardNumber,
+              cardHolderName: cardData?.cardHolderName,
+              expirationMonth: cardData?.expirationMonth,
+              expirationYear: cardData?.expirationYear,
+              cvv: cardData?.cvv,
+              documentType: cardData?.docType,
+              documentNumber: cardData?.doc,
+              brand: cardData?.brand,
+            }
+          : { paymentMethodType: 'MERCADO_PAGO' };
+      
+      // 7. Llamamos a 'retry-balance' CON el body
+      const res = await api(`/api/payments/${paymentId}/retry-balance`, {
+        method: 'POST',
+        body: JSON.stringify(body), // <-- ESTE ES EL CAMBIO PRINCIPAL
+      });
+
+      // 8. Manejo de error personalizado para 'Saldo insuficiente'
+      if (!res.ok) {
+        const serverMsg = res.headers.get('Error-Message');
+        const fallback = await fetchJsonOrText(res);
+        const rawError = (serverMsg || fallback || '').toLowerCase(); // Convertimos a minúscula
+
+        // Verificamos si el error incluye "saldo insuficiente"
+        if (rawError.includes('saldo insuficiente')) {
+          throw new Error('No se puede reintentar: Saldo insuficiente'); // Tu mensaje personalizado
+        }
+        
+        // Si es otro error, usamos el mensaje del servidor
+        const msg = serverMsg || fallback || 'No se pudo reintentar el pago.';
+        throw new Error(msg);
+      }
+
+      // 9. Si el reintento fue exitoso (200 OK), actualizamos el estado
+      const updated = await res.json();
+      setPayment(updated);
+      const s = String(updated.status || '').toUpperCase();
+      
+      // Verificamos que el pago haya quedado PENDIENTE (listo para confirmar)
+      if (s !== 'PENDING_PAYMENT') {
+        mostrarAlerta('No pudimos reservar el saldo para este pago.', 'error');
+        throw new Error('Retry balance no dejó el pago en PENDING_PAYMENT');
+      }
+      return updated;
     }
-    const updated = await res.json();
-    setPayment(updated);
-    const s = String(updated.status || '').toUpperCase();
-    if (s !== 'PENDING_PAYMENT') {
-      mostrarAlerta('No pudimos reservar el saldo para este pago.', 'error');
-      throw new Error('Retry balance no dejó el pago en PENDING_PAYMENT');
-    }
-    return updated;
-  }
-  return current;
-};
+    
+    // Si no estaba 'REJECTED', solo devolvemos el pago actual
+    return current;
+  };
+  // --- FIN DE LA FUNCIÓN MODIFICADA ---
 
 
   const comprar = async () => {
@@ -188,8 +248,14 @@ export default function Gateway() {
         return;
       }
 
+      // AHORA ESTA FUNCIÓN HARÁ EL REINTENTO SI ES NECESARIO
       const readyPayment = await ensurePendingBeforePurchase(payment.id);
 
+      // Si el pago NO fue rechazado originalmente, 'setPaymentMethod'
+      // se sigue llamando. Si fue rechazado, 'ensurePending...' ya hizo este paso.
+      // Para simplificar, lo llamamos siempre. El backend (si es la versión nueva)
+      // debería manejar esto (actualizar el método si es PENDING o si es un REINTENTO).
+      // Si `ensurePending` ya lo hizo, esta llamada solo re-confirma el método.
       await setPaymentMethod(readyPayment.id, type);
 
       const res2 = await api(`/api/payments/${readyPayment.id}/confirm`, {
