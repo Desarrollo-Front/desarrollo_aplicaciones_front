@@ -364,7 +364,7 @@ body {
 /* Timeline horizontal */
 .payment-detail-timeline-horizontal {
   position: relative;
-  padding: 2rem;
+  padding: 0 2rem;
   overflow-x: auto;
 }
 
@@ -387,6 +387,8 @@ body {
   min-width: max-content;
   justify-content: space-between;
   width: 100%;
+  padding-top: 2rem;    /* <--- AGREGÁ ESTA LÍNEA */
+  padding-bottom: 2rem;
 }
 
 .payment-detail-timeline-horizontal-event {

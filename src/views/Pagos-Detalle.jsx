@@ -842,8 +842,9 @@ window.onload = function(){window.print();}
 
           {!tlErr && filteredTimeline.length > 0 && (
             <div className="payment-detail-timeline-horizontal">
-              <div className="payment-detail-timeline-horizontal-line"></div>
+              
               <div className="payment-detail-timeline-horizontal-events">
+                <div className="payment-detail-timeline-horizontal-line"></div>
                 {filteredTimeline.map((ev, i) => {
                   const cat = ev.category;
                   return (

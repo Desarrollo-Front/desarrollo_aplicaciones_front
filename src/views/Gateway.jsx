@@ -141,26 +141,74 @@ export default function Gateway() {
   };
 
   const ensurePendingBeforePurchase = async (paymentId) => {
-  const current = payment?.status ? payment : await loadPayment(paymentId);
-  if (String(current.status || '').toUpperCase() === 'REJECTED') {
-    const res = await api(`/api/payments/${paymentId}/retry-balance`, { method: 'POST' });
-    if (!res.ok) {
-      const serverMsg = res.headers.get('Error-Message');
-      const fallback = await fetchJsonOrText(res);
-      const msg = serverMsg || fallback || 'No hay saldo suficiente para reintentar el pago.';
-      throw new Error(msg);
+    const current = payment?.status ? payment : await loadPayment(paymentId);
+    
+    if (String(current.status || '').toUpperCase() === 'REJECTED') {
+      if (!method) {
+        throw new Error('Por favor, seleccioná un método de pago para reintentar.');
+      }
+
+      const type =
+        method === 'card'
+          ? cardData?.kind === 'debit'
+            ? 'DEBIT_CARD'
+            : 'CREDIT_CARD'
+          : 'MERCADO_PAGO';
+
+      if ((type === 'CREDIT_CARD' || type === 'DEBIT_CARD') && !cardData) {
+        throw new Error('Por favor, completá los datos de la tarjeta para reintentar.');
+      }
+
+      const body =
+        type === 'CREDIT_CARD' || type === 'DEBIT_CARD'
+          ? {
+              paymentMethodType: type,
+              cardNumber: cardData?.cardNumber,
+              cardHolderName: cardData?.cardHolderName,
+              expirationMonth: cardData?.expirationMonth,
+              expirationYear: cardData?.expirationYear,
+              cvv: cardData?.cvv,
+              documentType: cardData?.docType,
+              documentNumber: cardData?.doc,
+              brand: cardData?.brand,
+            }
+          : { paymentMethodType: 'MERCADO_PAGO' };
+      
+      const res = await api(`/api/payments/${paymentId}/retry-balance`, {
+        method: 'POST',
+        body: JSON.stringify(body), 
+      });
+
+      if (!res.ok) {
+        const serverMsg = res.headers.get('Error-Message');
+        const fallback = await fetchJsonOrText(res);
+        const rawError = (serverMsg || fallback || '').toLowerCase(); 
+
+        if (rawError.includes('saldo insuficiente')) {
+          throw new Error('Saldo insuficiente para completar el pago'); 
+        }
+        
+        const msg = serverMsg || fallback || 'No se pudo reintentar el pago.';
+        throw new Error(msg);
+      }
+
+      const updated = await res.json();
+      setPayment(updated);
+      const s = String(updated.status || '').toUpperCase();
+      
+      // --- INICIO DE LA CORRECCIÓN 1 ---
+      // Aceptamos PENDING_PAYMENT, PENDING_APPROVAL, o APPROVED (para MP)
+      if (s !== 'PENDING_PAYMENT' && s !== 'PENDING_APPROVAL' && s !== 'APPROVED') {
+      // --- FIN DE LA CORRECCIÓN 1 ---
+        mostrarAlerta('No pudimos reservar el saldo para este pago.', 'error');
+        throw new Error(`El reintento no dejó el pago en estado pendiente (se recibió ${s})`);
+      }
+      
+      return updated;
     }
-    const updated = await res.json();
-    setPayment(updated);
-    const s = String(updated.status || '').toUpperCase();
-    if (s !== 'PENDING_PAYMENT') {
-      mostrarAlerta('No pudimos reservar el saldo para este pago.', 'error');
-      throw new Error('Retry balance no dejó el pago en PENDING_PAYMENT');
-    }
-    return updated;
-  }
-  return current;
-};
+    
+    return current;
+  };
 
 
   const comprar = async () => {
@@ -190,7 +238,19 @@ export default function Gateway() {
 
       const readyPayment = await ensurePendingBeforePurchase(payment.id);
 
-      await setPaymentMethod(readyPayment.id, type);
+      // --- INICIO DE LA CORRECCIÓN 2 ---
+      // Si el pago ya fue aprobado (ej: reintento de MP), saltamos a la navegación
+      if (String(readyPayment.status).toUpperCase() === 'APPROVED') {
+        setOkMsg('Pago confirmado correctamente.');
+        navigate(`/pagos`);
+        return; // Salimos de la función
+      }
+      // --- FIN DE LA CORRECCIÓN 2 ---
+
+      // Si el pago NO fue rechazado, seteamos el método.
+      if (String(payment.status).toUpperCase() !== 'REJECTED') {
+         await setPaymentMethod(readyPayment.id, type);
+      }
 
       const res2 = await api(`/api/payments/${readyPayment.id}/confirm`, {
         method: 'PUT',
@@ -205,8 +265,15 @@ export default function Gateway() {
       setPayment(updated);
       setOkMsg('Pago confirmado correctamente.');
       navigate(`/pagos`);
+
     } catch (e) {
-      setError(e.message || 'Error al procesar el pago.');
+      let msg = e.message || 'Error al procesar el pago.';
+      
+      if (msg.toLowerCase().includes('primeros 3 dígitos')) {
+        msg = 'Tarjeta inválida';
+      }
+      
+      setError(msg);
     } finally {
       setProcessing(false);
     }
