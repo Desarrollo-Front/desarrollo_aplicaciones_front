@@ -185,21 +185,19 @@ export default function Gateway() {
       // 7. Llamamos a 'retry-balance' CON el body
       const res = await api(`/api/payments/${paymentId}/retry-balance`, {
         method: 'POST',
-        body: JSON.stringify(body), // <-- ESTE ES EL CAMBIO PRINCIPAL
+        body: JSON.stringify(body), 
       });
 
       // 8. Manejo de error personalizado para 'Saldo insuficiente'
       if (!res.ok) {
         const serverMsg = res.headers.get('Error-Message');
         const fallback = await fetchJsonOrText(res);
-        const rawError = (serverMsg || fallback || '').toLowerCase(); // Convertimos a minúscula
+        const rawError = (serverMsg || fallback || '').toLowerCase(); 
 
-        // Verificamos si el error incluye "saldo insuficiente"
         if (rawError.includes('saldo insuficiente')) {
-          throw new Error('No se puede reintentar: Saldo insuficiente'); // Tu mensaje personalizado
+          throw new Error('No se puede reintentar: Saldo insuficiente'); 
         }
         
-        // Si es otro error, usamos el mensaje del servidor
         const msg = serverMsg || fallback || 'No se pudo reintentar el pago.';
         throw new Error(msg);
       }
@@ -209,11 +207,15 @@ export default function Gateway() {
       setPayment(updated);
       const s = String(updated.status || '').toUpperCase();
       
-      // Verificamos que el pago haya quedado PENDIENTE (listo para confirmar)
-      if (s !== 'PENDING_PAYMENT') {
+      // --- INICIO DE LA CORRECCIÓN ---
+      // Aceptamos PENDING_PAYMENT o PENDING_APPROVAL como estados válidos
+      if (s !== 'PENDING_PAYMENT' && s !== 'PENDING_APPROVAL') {
         mostrarAlerta('No pudimos reservar el saldo para este pago.', 'error');
-        throw new Error('Retry balance no dejó el pago en PENDING_PAYMENT');
+        // Actualizamos el mensaje de error para ser más claros
+        throw new Error(`El reintento no dejó el pago en estado pendiente (se recibió ${s})`);
       }
+      // --- FIN DE LA CORRECCIÓN ---
+      
       return updated;
     }
     
@@ -248,15 +250,16 @@ export default function Gateway() {
         return;
       }
 
-      // AHORA ESTA FUNCIÓN HARÁ EL REINTENTO SI ES NECESARIO
       const readyPayment = await ensurePendingBeforePurchase(payment.id);
 
-      // Si el pago NO fue rechazado originalmente, 'setPaymentMethod'
-      // se sigue llamando. Si fue rechazado, 'ensurePending...' ya hizo este paso.
-      // Para simplificar, lo llamamos siempre. El backend (si es la versión nueva)
-      // debería manejar esto (actualizar el método si es PENDING o si es un REINTENTO).
-      // Si `ensurePending` ya lo hizo, esta llamada solo re-confirma el método.
-      await setPaymentMethod(readyPayment.id, type);
+      // Si el pago NO fue rechazado, seteamos el método.
+      // Si fue rechazado, 'ensurePending' ya mandó el método en el body del reintento,
+      // así que esta llamada a 'setPaymentMethod' podría no ser necesaria.
+      // La dejamos por ahora, ya que el backend debería manejarla (si el pago
+      // ya tiene el método, no hace nada).
+      if (String(payment.status).toUpperCase() !== 'REJECTED') {
+         await setPaymentMethod(readyPayment.id, type);
+      }
 
       const res2 = await api(`/api/payments/${readyPayment.id}/confirm`, {
         method: 'PUT',
