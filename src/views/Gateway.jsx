@@ -140,20 +140,14 @@ export default function Gateway() {
     return res.json();
   };
 
-  // --- FUNCIÓN MODIFICADA ---
   const ensurePendingBeforePurchase = async (paymentId) => {
-    // 1. Carga el estado actual del pago
     const current = payment?.status ? payment : await loadPayment(paymentId);
     
-    // 2. Si está 'REJECTED', intentamos el reintento
     if (String(current.status || '').toUpperCase() === 'REJECTED') {
-
-      // 3. Validamos que haya un método seleccionado
       if (!method) {
         throw new Error('Por favor, seleccioná un método de pago para reintentar.');
       }
 
-      // 4. Determinamos el 'paymentMethodType'
       const type =
         method === 'card'
           ? cardData?.kind === 'debit'
@@ -161,12 +155,10 @@ export default function Gateway() {
             : 'CREDIT_CARD'
           : 'MERCADO_PAGO';
 
-      // 5. Validamos que estén los datos de la tarjeta si fue seleccionada
       if ((type === 'CREDIT_CARD' || type === 'DEBIT_CARD') && !cardData) {
         throw new Error('Por favor, completá los datos de la tarjeta para reintentar.');
       }
 
-      // 6. Construimos el BODY para el reintento (igual al de 'setPaymentMethod')
       const body =
         type === 'CREDIT_CARD' || type === 'DEBIT_CARD'
           ? {
@@ -182,47 +174,41 @@ export default function Gateway() {
             }
           : { paymentMethodType: 'MERCADO_PAGO' };
       
-      // 7. Llamamos a 'retry-balance' CON el body
       const res = await api(`/api/payments/${paymentId}/retry-balance`, {
         method: 'POST',
         body: JSON.stringify(body), 
       });
 
-      // 8. Manejo de error personalizado para 'Saldo insuficiente'
       if (!res.ok) {
         const serverMsg = res.headers.get('Error-Message');
         const fallback = await fetchJsonOrText(res);
         const rawError = (serverMsg || fallback || '').toLowerCase(); 
 
+        // --- INICIO DE LA MODIFICACIÓN (ERROR 2) ---
+        // Aquí cambiamos el mensaje de saldo insuficiente
         if (rawError.includes('saldo insuficiente')) {
-          throw new Error('No se puede reintentar: Saldo insuficiente'); 
+          throw new Error('Saldo insuficiente para completar el pago'); 
         }
+        // --- FIN DE LA MODIFICACIÓN (ERROR 2) ---
         
         const msg = serverMsg || fallback || 'No se pudo reintentar el pago.';
         throw new Error(msg);
       }
 
-      // 9. Si el reintento fue exitoso (200 OK), actualizamos el estado
       const updated = await res.json();
       setPayment(updated);
       const s = String(updated.status || '').toUpperCase();
       
-      // --- INICIO DE LA CORRECCIÓN ---
-      // Aceptamos PENDING_PAYMENT o PENDING_APPROVAL como estados válidos
       if (s !== 'PENDING_PAYMENT' && s !== 'PENDING_APPROVAL') {
         mostrarAlerta('No pudimos reservar el saldo para este pago.', 'error');
-        // Actualizamos el mensaje de error para ser más claros
         throw new Error(`El reintento no dejó el pago en estado pendiente (se recibió ${s})`);
       }
-      // --- FIN DE LA CORRECCIÓN ---
       
       return updated;
     }
     
-    // Si no estaba 'REJECTED', solo devolvemos el pago actual
     return current;
   };
-  // --- FIN DE LA FUNCIÓN MODIFICADA ---
 
 
   const comprar = async () => {
@@ -252,11 +238,6 @@ export default function Gateway() {
 
       const readyPayment = await ensurePendingBeforePurchase(payment.id);
 
-      // Si el pago NO fue rechazado, seteamos el método.
-      // Si fue rechazado, 'ensurePending' ya mandó el método en el body del reintento,
-      // así que esta llamada a 'setPaymentMethod' podría no ser necesaria.
-      // La dejamos por ahora, ya que el backend debería manejarla (si el pago
-      // ya tiene el método, no hace nada).
       if (String(payment.status).toUpperCase() !== 'REJECTED') {
          await setPaymentMethod(readyPayment.id, type);
       }
@@ -274,8 +255,20 @@ export default function Gateway() {
       setPayment(updated);
       setOkMsg('Pago confirmado correctamente.');
       navigate(`/pagos`);
+
+    // --- INICIO DE LA MODIFICACIÓN (ERROR 1) ---
+    // Aquí es donde atrapamos todos los errores (de 'ensurePending' o 'setPaymentMethod')
     } catch (e) {
-      setError(e.message || 'Error al procesar el pago.');
+      let msg = e.message || 'Error al procesar el pago.';
+      
+      // Reemplazamos el error de BIN (3 dígitos)
+      if (msg.toLowerCase().includes('primeros 3 dígitos')) {
+        msg = 'Tarjeta inválida';
+      }
+      // El error de "Saldo insuficiente" ya fue reemplazado dentro de 'ensurePendingBeforePurchase'
+      
+      setError(msg);
+    // --- FIN DE LA MODIFICACIÓN (ERROR 1) ---
     } finally {
       setProcessing(false);
     }
