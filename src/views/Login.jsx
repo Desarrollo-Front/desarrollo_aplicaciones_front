@@ -46,15 +46,27 @@ export default function Login() {
           } else if (res.status === 401) {
             // Si no hay mensaje pero es 401, es credencial inválida.
             errorMessage = 'Credenciales inválidas.';
+          } else if (res.status === 500) {
+            errorMessage = 'Error en el servidor. Intentá más tarde.';
+          } else if (res.status === 503) {
+            errorMessage = 'Servicio no disponible. Intentá más tarde.';
           }
         } catch (parseError) {
           // El cuerpo del error no era JSON.
-          // Usamos el status code para un mensaje genérico.
+          // Usamos el status code para un mensaje específico.
           if (res.status === 401) {
             errorMessage = 'Credenciales inválidas.';
+          } else if (res.status === 500) {
+            errorMessage = 'Error en el servidor. Intentá más tarde.';
+          } else if (res.status === 503) {
+            errorMessage = 'Servicio no disponible. Intentá más tarde.';
+          } else if (res.status >= 500) {
+            errorMessage = 'Error en el servidor. Intentá más tarde.';
+          } else if (res.status >= 400) {
+            errorMessage = 'Error en la solicitud. Verificá tus datos.';
           }
         }
-        
+
         // Lanzamos el error con el mensaje determinado (ya sea el del back o el genérico)
         throw new Error(errorMessage);
       }
@@ -74,8 +86,14 @@ export default function Login() {
       navigate('/pagos');
 
     } catch (e2) {
-      // Este CATCH ahora recibirá el error con el mensaje correcto.
-      setErr(e2.message || 'Error inesperado.');
+      // Detectar si es un error de red (servidor caído) vs error de credenciales
+      if (e2 instanceof TypeError && (e2.message.includes('fetch') || e2.message.includes('Failed to fetch') || e2.message.includes('NetworkError'))) {
+        // Error de red: el servidor no responde
+        setErr('No hay respuesta del servidor. Verificá tu conexión o intentá más tarde.');
+      } else {
+        // Otros errores (credenciales inválidas, etc.)
+        setErr(e2.message || 'Error inesperado.');
+      }
     } finally {
       setLoading(false);
     }
