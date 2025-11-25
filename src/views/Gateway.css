@@ -1035,6 +1035,200 @@ body {
   background: linear-gradient(135deg, var(--status-success-bg) 0%, var(--bg-primary) 100%);
 }
 
+.card-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.card-field--error .card-input {
+  border-color: var(--status-danger-fg);
+  box-shadow: 0 0 0 3px var(--status-danger-bg);
+}
+
+.card-field-error {
+  font-size: 0.75rem;
+  color: var(--status-danger-fg);
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+/* Modal footer */
+.card-modal-footer {
+  padding: 1.5rem 2rem;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.card-modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.card-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--payment-radius, 12px);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--payment-transition, all 0.2s ease);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.card-btn--primary {
+  background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-blue-dark) 100%);
+  color: var(--text-inverted);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.card-btn--primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.card-btn--secondary {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-primary);
+}
+
+.card-btn--secondary:hover:not(:disabled) {
+  background: var(--border-secondary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.card-modal-help {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: center;
+  justify-content: center;
+}
+
+/* Responsive para modal */
+@media (max-width: 768px) {
+  .card-modal {
+    max-width: 100%;
+    margin: 0.5rem;
+    max-height: 95vh;
+  }
+  
+  .card-modal-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .card-modal-title {
+    font-size: 1.25rem;
+  }
+  
+  .card-modal-body {
+    padding: 1.5rem;
+  }
+  
+  .card-modal-footer {
+    padding: 1rem 1.5rem;
+  }
+  
+  .card-modal-actions {
+    justify-content: center;
+  }
+  
+  .card-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .card-field-row {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-modal-overlay {
+    padding: 0.5rem;
+  }
+  
+  .card-modal {
+    margin: 0.25rem;
+    max-height: 98vh;
+  }
+  
+  .card-modal-header {
+    padding: 1rem;
+  }
+  
+  .card-modal-body {
+    padding: 1rem;
+  }
+  
+  .card-modal-footer {
+    padding: 1rem;
+  }
+  
+  .card-field-row {
+    gap: 1rem;
+  }
+}
+
+/* Animaciones de salida */
+.card-modal-overlay.card-modal-overlay--closing {
+  animation: modalOverlayOut 0.2s ease-in;
+}
+
+.card-modal.card-modal--closing {
+  animation: modalOut 0.2s ease-in;
+}
+
+@keyframes modalOverlayOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modalOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+}
+
+.gateway-header-invisible-spacer {
+  visibility: hidden;
+  pointer-events: none;
+}
+/* --- OVERRIDES PARA GATEWAY (VISTA VIBRANTE) --- */
+/* (Añadir al final de Gateway.css) */
+
+/* 1. Header del Resumen "Verde Degradado" */
+.gateway-summary-header {
+  background: linear-gradient(135deg, var(--status-success-bg) 0%, var(--bg-primary) 100%);
+}
+
 /* 2. Icono y Total "Verde Vibrante" */
 .gateway-summary-icon {
   background: #10b981; /* Icono Verde Vibrante */
@@ -1042,4 +1236,82 @@ body {
 }
 .gateway-summary-value--total {
   color: #10b981; /* Total Verde Vibrante */
+}
+
+/* ===== ALERTAS (NUEVO DISEÑO CENTRADO) ===== */
+.pd-alert {
+  position: fixed;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-radius: var(--payment-radius, 12px);
+  background: var(--bg-primary);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  min-width: 320px;
+  max-width: 90vw;
+  animation: alertSlideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+@keyframes alertSlideDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.pd-alert--info {
+  background: var(--bg-primary);
+  border-color: var(--brand-blue);
+  color: var(--text-primary);
+  border-left: 4px solid var(--brand-blue);
+}
+
+.pd-alert--error {
+  background: #FEF2F2; /* Rojo muy suave */
+  border-color: #FCA5A5;
+  color: #991B1B;
+  border-left: 4px solid #EF4444;
+}
+
+/* Dark mode overrides para error */
+@media (prefers-color-scheme: dark) {
+  .pd-alert--error {
+    background: #450a0a;
+    border-color: #7f1d1d;
+    color: #fecaca;
+  }
+}
+
+.pd-alert-x {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 1.25rem;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 0.25rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.pd-alert-x:hover {
+  opacity: 1;
+  background: rgba(0,0,0,0.05);
 }
