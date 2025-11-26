@@ -196,10 +196,7 @@ export default function Gateway() {
       setPayment(updated);
       const s = String(updated.status || '').toUpperCase();
       
-      // --- INICIO DE LA CORRECCIÓN 1 ---
-      // Aceptamos PENDING_PAYMENT, PENDING_APPROVAL, o APPROVED (para MP)
       if (s !== 'PENDING_PAYMENT' && s !== 'PENDING_APPROVAL' && s !== 'APPROVED') {
-      // --- FIN DE LA CORRECCIÓN 1 ---
         mostrarAlerta('No pudimos reservar el saldo para este pago.', 'error');
         throw new Error(`El reintento no dejó el pago en estado pendiente (se recibió ${s})`);
       }
@@ -238,18 +235,14 @@ export default function Gateway() {
 
       const readyPayment = await ensurePendingBeforePurchase(payment.id);
 
-      // --- INICIO DE LA CORRECCIÓN 2 ---
-      // Si el pago ya fue aprobado (ej: reintento de MP), saltamos a la navegación
       if (String(readyPayment.status).toUpperCase() === 'APPROVED') {
         setOkMsg('Pago confirmado correctamente.');
         navigate(`/pagos`);
-        return; // Salimos de la función
+        return; 
       }
-      // --- FIN DE LA CORRECCIÓN 2 ---
 
-      // Si el pago NO fue rechazado, seteamos el método.
       if (String(payment.status).toUpperCase() !== 'REJECTED') {
-         await setPaymentMethod(readyPayment.id, type);
+          await setPaymentMethod(readyPayment.id, type);
       }
 
       const res2 = await api(`/api/payments/${readyPayment.id}/confirm`, {
@@ -273,7 +266,24 @@ export default function Gateway() {
         msg = 'Tarjeta inválida';
       }
       
-      setError(msg);
+      const msgLower = msg.toLowerCase();
+      // Si el error es Saldo o Tarjeta:
+      if (msgLower.includes('saldo insuficiente') || msgLower.includes('tarjeta inválida')) {
+        
+        // 1. Usamos setError en lugar de mostrarAlerta. 
+        // Esto hace que se renderice el DIV rojo dentro de la tarjeta de resumen.
+        setError(msg);
+
+        // 2. Esperamos 2 segundos con el mensaje en pantalla y redirigimos.
+        setTimeout(() => {
+          navigate('/pagos');
+        }, 2000);
+
+      } else {
+        // Error genérico, también lo mostramos en la tarjeta
+        setError(msg);
+      }
+
     } finally {
       setProcessing(false);
     }
