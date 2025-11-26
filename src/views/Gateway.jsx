@@ -30,7 +30,7 @@ export default function Gateway() {
   const [loading, setLoading] = useState(!state);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
-  const [okMsg, setOkMsg] = useState(''); // Ahora esto controlará la vista de éxito en la tarjeta
+  const [okMsg, setOkMsg] = useState('');
   const [cardData, setCardData] = useState(null);
   const [alerta, setAlerta] = useState({ show: false, tipo: 'info', mensaje: '' });
 
@@ -235,10 +235,9 @@ export default function Gateway() {
 
       const readyPayment = await ensurePendingBeforePurchase(payment.id);
 
-      // --- CASO 1: YA APROBADO ---
+      // --- CASO 1: YA APROBADO PREVIAMENTE ---
       if (String(readyPayment.status).toUpperCase() === 'APPROVED') {
         setOkMsg('Pago aprobado correctamente.');
-        // Redirigir tras 2 segundos
         setTimeout(() => navigate('/pagos'), 2000);
         return; 
       }
@@ -259,9 +258,17 @@ export default function Gateway() {
       const updated = await res2.json();
       setPayment(updated);
       
-      // --- CASO 2: APROBADO TRAS CONFIRMAR ---
-      setOkMsg('Pago aprobado correctamente.');
-      // Redirigir tras 2 segundos
+      // --- NUEVA LÓGICA DE MENSAJE DE ÉXITO ---
+      const finalStatus = String(updated.status || '').toUpperCase();
+
+      if (finalStatus === 'APPROVED') {
+        setOkMsg('Pago aprobado correctamente.');
+      } else {
+        // Caso: PENDING_APPROVAL u otros estados intermedios/exitosos pero no aprobados aún
+        setOkMsg('Transacción realizada.');
+      }
+
+      // Redirigir tras 2 segundos en ambos casos
       setTimeout(() => navigate('/pagos'), 2000);
 
     } catch (e) {
@@ -271,17 +278,13 @@ export default function Gateway() {
         msg = 'Tarjeta inválida';
       }
       
-      // Lógica de errores con redirección (Saldo o Tarjeta)
       const msgLower = msg.toLowerCase();
       if (msgLower.includes('saldo insuficiente') || msgLower.includes('tarjeta inválida')) {
-        // Usamos setError para que salga en la tarjeta (rojo)
         setError(msg);
-        // Redirigimos
         setTimeout(() => {
           navigate('/pagos');
         }, 2000);
       } else {
-        // Error genérico en tarjeta
         setError(msg);
       }
 
@@ -292,6 +295,7 @@ export default function Gateway() {
 
   return (
     <div className="gateway-container">
+      {/* Header */}
       <div className="gateway-header">
         <button className="gateway-back-btn" onClick={() => navigate('/pagos')}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -308,8 +312,6 @@ export default function Gateway() {
         <div > 
         </div>
       </div>
-
-      {/* NOTA: He quitado el banner de éxito de aquí porque ahora se mostrará dentro de la tarjeta */}
 
       <div className="gateway-main-layout">
         {/* Sección de métodos de pago */}
@@ -404,7 +406,7 @@ export default function Gateway() {
               </div>
             )}
             
-            {/* Caso ERROR: Muestra div rojo en lugar del contenido */}
+            {/* Caso ERROR */}
             {!loading && error && (
               <div className="gateway-summary-error">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -416,7 +418,7 @@ export default function Gateway() {
               </div>
             )}
 
-            {/* Caso ÉXITO: Muestra div verde en lugar del contenido */}
+            {/* Caso ÉXITO */}
             {!loading && !error && okMsg && (
               <div className="gateway-summary-success">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -426,7 +428,7 @@ export default function Gateway() {
               </div>
             )}
             
-            {/* Caso NORMAL: Si no carga, no hay error y no hay éxito, muestra resumen y botón */}
+            {/* Caso NORMAL */}
             {!loading && !error && !okMsg && resumen && (
               <div className="gateway-summary-content">
                 <div className="gateway-summary-row">
