@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState, useRef, useLayoutEffect } from 'react';
+import React, { useEffect, useMemo, useState, useRef, useLayoutEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Pagos-Lista.css';
 import Select from 'react-select';
-import FacturaPreview from './FacturaPreview'; // Tu componente de previsualización
-
+import FacturaPreview from './FacturaPreview';
 
 const METODOS = ['Todos los métodos', 'Tarjeta crédito', 'Tarjeta débito', 'Mercado Pago'];
 const ESTADOS_CHIPS = ['Pendiente', 'Aprobado', 'Rechazado'];
@@ -27,11 +26,6 @@ const fechaHoraUI = (iso, locale = 'es-AR') => {
   return `${f} ${h}`;
 };
 
-/**
- * Genera el HTML de la factura a partir de los datos detallados de un pago.
- * @param {object} pago - El objeto con los detalles del pago.
- * @returns {string} - El string HTML de la factura.
- */
 const generarHtmlFactura = (pago) => {
   const emisor = pago.prestador || 'N/A';
   const cliente = pago.cliente || 'Consumidor Final';
@@ -40,7 +34,6 @@ const generarHtmlFactura = (pago) => {
   const fechaEmision = fechaHoraUI(pago.creadoISO);
   const fechaCobro = fechaHoraUI(pago.capturadoISO);
 
-  // Desglose de ítems (modificado para mostrar solo la línea principal)
   const items = [
     {
       descripcion: descripcion,
@@ -48,7 +41,6 @@ const generarHtmlFactura = (pago) => {
       precioUnitario: pago.subtotal,
     },
   ];
-  
 
   const itemRows = items.map(item => `
     <tr>
@@ -387,47 +379,70 @@ export default function PagosLista() {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchPayments = async () => {
-      setLoading(true);
-      setFetchErr('');
-      try {
-        const authHeader =
-          localStorage.getItem('authHeader') ||
-          `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
+  // --- INICIO MODIFICACIÓN: AUTO-REFRESH ---
+  
+  // 1. Extraemos la lógica de fetch en una función reutilizable
+  // El parámetro isBackground indica si es una actualización silenciosa (sin spinner)
+  const fetchPayments = useCallback(async (isBackground = false) => {
+    if (!isBackground) setLoading(true);
+    // Opcional: si quieres limpiar errores viejos al reintentar, descomenta:
+    // setFetchErr(''); 
 
-        const res = await fetch('/api/payments/my-payments', {
-          headers: { 'Content-Type': 'application/json', Authorization: authHeader },
-        });
+    try {
+      const authHeader =
+        localStorage.getItem('authHeader') ||
+        `${localStorage.getItem('tokenType') || 'Bearer'} ${localStorage.getItem('token') || ''}`;
 
-        if (!res.ok) {
-          if (res.status === 401) throw new Error('No autorizado. Iniciá sesión nuevamente.');
-          throw new Error('No se pudieron obtener los pagos.');
-        }
+      const res = await fetch('/api/payments/my-payments', {
+        headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+      });
 
-        const list = await res.json();
-        const mapped = (Array.isArray(list) ? list : []).map((p) => ({
-          id: p.id,
-          cliente: p.user_name ?? '-',
-          prestador: p.provider_name ?? '-',
-          metodo: getMetodoTag(p.method),
-          estado: mapStatus(p.status),
-          subtotal: Number(p.amount_subtotal ?? 0),
-          impuestos: Number((p.taxes ?? 0) + (p.fees ?? 0)),
-          total: Number(p.amount_total ?? 0),
-          moneda: String(p.currency || 'ARS').toUpperCase(),
-          fechaISO: p.created_at,
-        }));
-        setServerData(mapped);
-      } catch (e) {
-        setFetchErr(e.message || 'Error inesperado obteniendo pagos.');
-        setServerData([]);
-      } finally {
-        setLoading(false);
+      if (!res.ok) {
+        if (res.status === 401) throw new Error('No autorizado. Iniciá sesión nuevamente.');
+        throw new Error('No se pudieron obtener los pagos.');
       }
-    };
-    fetchPayments();
+
+      const list = await res.json();
+      const mapped = (Array.isArray(list) ? list : []).map((p) => ({
+        id: p.id,
+        cliente: p.user_name ?? '-',
+        prestador: p.provider_name ?? '-',
+        metodo: getMetodoTag(p.method),
+        estado: mapStatus(p.status),
+        subtotal: Number(p.amount_subtotal ?? 0),
+        impuestos: Number((p.taxes ?? 0) + (p.fees ?? 0)),
+        total: Number(p.amount_total ?? 0),
+        moneda: String(p.currency || 'ARS').toUpperCase(),
+        fechaISO: p.created_at,
+      }));
+      setServerData(mapped);
+      // Si fue exitoso, limpiamos cualquier error previo
+      setFetchErr(''); 
+    } catch (e) {
+      // Si es background, quizas no quieras mostrar el error para no interrumpir, 
+      // pero si es critico (401) sí. Por ahora lo mostramos siempre.
+      setFetchErr(e.message || 'Error inesperado obteniendo pagos.');
+      if (!isBackground) setServerData([]);
+    } finally {
+      if (!isBackground) setLoading(false);
+    }
   }, []);
+
+  // 2. useEffect para la carga inicial Y el intervalo
+  useEffect(() => {
+    // Carga inicial (con spinner)
+    fetchPayments(false);
+
+    // Configurar intervalo de 5 segundos (5000ms) para actualizaciones silenciosas
+    const intervalId = setInterval(() => {
+      fetchPayments(true); // true = sin spinner
+    }, 5000);
+
+    // Limpiar intervalo al desmontar el componente
+    return () => clearInterval(intervalId);
+  }, [fetchPayments]);
+
+  // --- FIN MODIFICACIÓN ---
 
   useEffect(() => {
     const sentinel = document.createElement('div');
@@ -548,9 +563,7 @@ export default function PagosLista() {
       if (!res.ok) throw new Error('No se pudieron obtener los detalles para la factura.');
 
       const p = await res.json();
-      const meta = p.metadata ? JSON.parse(p.metadata) : {};
-
-      // --- INICIO DE LA LÓGICA MODIFICADA (PARA ADMIN) ---
+      
       const isAdmin = authRole === 'ADMIN';
       const isMerchant = authRole === 'MERCHANT';
       
@@ -558,19 +571,15 @@ export default function PagosLista() {
       let prestadorFinal;
 
       if (isAdmin) {
-        // ADMIN: ambos nombres vienen del API
         clienteFinal = p.user_name || 'Cliente';
         prestadorFinal = p.provider_name || 'Prestador';
       } else if (isMerchant) {
-        // MERCHANT: cliente del API, prestador soy yo
         clienteFinal = p.user_name || 'Cliente';
         prestadorFinal = localStorage.getItem('name') || '—';
       } else {
-        // USER (default): cliente soy yo, prestador del API
         clienteFinal = localStorage.getItem('name') || '—';
         prestadorFinal = p.provider_name || 'Prestador';
       }
-      // --- FIN DE LA LÓGICA MODIFICADA ---
 
       const pagoDetallado = {
         id: p.id,
@@ -583,10 +592,7 @@ export default function PagosLista() {
         moneda: String(p.currency || 'ARS').toUpperCase(),
         creadoISO: p.created_at || p.createdAt || null,
         capturadoISO: p.captured_at || p.capturedAt || null,
-        // --- CAMBIO AQUÍ ---
-        // Se prioriza 'descripcion_solicitud', luego 'descripcion', y al final un texto por defecto
         descripcion: p.descripcion_solicitud || p.descripcion || 'Cargo por servicio',
-        // --- FIN CAMBIO ---
       };
 
       const html = generarHtmlFactura(pagoDetallado);
@@ -716,7 +722,6 @@ export default function PagosLista() {
             {!loading && !fetchErr && pagos.map((p) => {
               const { fecha, hora } = fechaFmt(p.fechaISO);
               const handleRowClick = (e) => {
-                // Evita la navegación si el clic fue en un botón
                 if (e.target.closest('button')) {
                   return;
                 }
@@ -738,7 +743,6 @@ export default function PagosLista() {
                     <small>{hora}</small>
                   </td>
                   <td className="pl-td--center">
-                    {/* --- Lógica de botones (sin cambios respecto a la versión anterior) --- */}
                     {p.estado === 'Pendiente de Pago' && authRole !== 'MERCHANT' && authRole !== 'ADMIN' ? (
                       <button className="pl-action-btn pl-action-btn--pagar" onClick={() => navigate(`/pago/${p.id}`)}>
                         <i className="ri-wallet-2-line" /> Pagar
@@ -754,7 +758,6 @@ export default function PagosLista() {
                     ) : (
                       <span className="pl-no-action">—</span>
                     )}
-                    {/* --- FIN Lógica de botones --- */}
                   </td>
                 </tr>
               );
