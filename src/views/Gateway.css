@@ -1318,20 +1318,35 @@ body {
 /* ... Estilos existentes ... */
 
 .gateway-summary-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+  font-weight: 600;
   color: var(--status-danger-fg);
-  background: var(--status-danger-bg);
+  /* Degradado suave en lugar de color sólido */
+  background: linear-gradient(135deg, var(--status-danger-bg) 0%, var(--bg-primary) 100%);
+  /* Borde sutil para mantener la forma */
+  border: 1px solid var(--status-danger-border);
+  animation: fadeInUp 0.4s ease-out;
 }
 
 /* AGREGAR ESTO: Estilo para el mensaje de éxito dentro de la tarjeta */
 .gateway-summary-success {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
   padding: 2rem;
   text-align: center;
-  justify-content: center;
   font-weight: 600;
   color: var(--status-success-fg);
-  background: var(--status-success-bg);
+  /* Degradado suave en lugar de color sólido */
+  background: linear-gradient(135deg, var(--status-success-bg) 0%, var(--bg-primary) 100%);
+  /* Borde sutil para mantener la forma */
+  border: 1px solid var(--status-success-border);
+  animation: fadeInUp 0.4s ease-out;
   animation: fadeInUp 0.4s ease-out;
 }
