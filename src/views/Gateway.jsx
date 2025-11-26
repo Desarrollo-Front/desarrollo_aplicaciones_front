@@ -196,7 +196,10 @@ export default function Gateway() {
       setPayment(updated);
       const s = String(updated.status || '').toUpperCase();
       
+      // --- INICIO DE LA CORRECCIÓN 1 ---
+      // Aceptamos PENDING_PAYMENT, PENDING_APPROVAL, o APPROVED (para MP)
       if (s !== 'PENDING_PAYMENT' && s !== 'PENDING_APPROVAL' && s !== 'APPROVED') {
+      // --- FIN DE LA CORRECCIÓN 1 ---
         mostrarAlerta('No pudimos reservar el saldo para este pago.', 'error');
         throw new Error(`El reintento no dejó el pago en estado pendiente (se recibió ${s})`);
       }
@@ -235,14 +238,18 @@ export default function Gateway() {
 
       const readyPayment = await ensurePendingBeforePurchase(payment.id);
 
+      // --- INICIO DE LA CORRECCIÓN 2 ---
+      // Si el pago ya fue aprobado (ej: reintento de MP), saltamos a la navegación
       if (String(readyPayment.status).toUpperCase() === 'APPROVED') {
         setOkMsg('Pago confirmado correctamente.');
         navigate(`/pagos`);
-        return; 
+        return; // Salimos de la función
       }
+      // --- FIN DE LA CORRECCIÓN 2 ---
 
+      // Si el pago NO fue rechazado, seteamos el método.
       if (String(payment.status).toUpperCase() !== 'REJECTED') {
-          await setPaymentMethod(readyPayment.id, type);
+         await setPaymentMethod(readyPayment.id, type);
       }
 
       const res2 = await api(`/api/payments/${readyPayment.id}/confirm`, {
@@ -266,17 +273,7 @@ export default function Gateway() {
         msg = 'Tarjeta inválida';
       }
       
-      // Lógica de redirección con timer
-      const msgLower = msg.toLowerCase();
-      if (msgLower.includes('saldo insuficiente') || msgLower.includes('tarjeta inválida')) {
-        mostrarAlerta(msg, 'error');
-        setTimeout(() => {
-          navigate('/pagos');
-        }, 2000);
-      } else {
-        setError(msg);
-      }
-
+      setError(msg);
     } finally {
       setProcessing(false);
     }
