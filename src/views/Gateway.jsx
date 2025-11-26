@@ -266,23 +266,16 @@ export default function Gateway() {
         msg = 'Tarjeta inválida';
       }
       
-      // --- LOGICA MODIFICADA ---
+      // Lógica de redirección con timer
       const msgLower = msg.toLowerCase();
-      // Si el error es Saldo insuficiente O Tarjeta inválida
       if (msgLower.includes('saldo insuficiente') || msgLower.includes('tarjeta inválida')) {
-        // 1. Mostrar tu alerta existente
         mostrarAlerta(msg, 'error');
-        
-        // 2. Esperar 2 segundos y redirigir
         setTimeout(() => {
-          navigate('/pagos'); // Asumo que esta es la ruta de "pagos-lista"
+          navigate('/pagos');
         }, 2000);
-
       } else {
-        // Error normal (se muestra en el resumen como tenías antes)
         setError(msg);
       }
-      // ------------------------
 
     } finally {
       setProcessing(false);
