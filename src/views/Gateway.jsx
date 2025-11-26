@@ -196,10 +196,7 @@ export default function Gateway() {
       setPayment(updated);
       const s = String(updated.status || '').toUpperCase();
       
-      // --- INICIO DE LA CORRECCIÓN 1 ---
-      // Aceptamos PENDING_PAYMENT, PENDING_APPROVAL, o APPROVED (para MP)
       if (s !== 'PENDING_PAYMENT' && s !== 'PENDING_APPROVAL' && s !== 'APPROVED') {
-      // --- FIN DE LA CORRECCIÓN 1 ---
         mostrarAlerta('No pudimos reservar el saldo para este pago.', 'error');
         throw new Error(`El reintento no dejó el pago en estado pendiente (se recibió ${s})`);
       }
@@ -238,18 +235,15 @@ export default function Gateway() {
 
       const readyPayment = await ensurePendingBeforePurchase(payment.id);
 
-      // --- INICIO DE LA CORRECCIÓN 2 ---
-      // Si el pago ya fue aprobado (ej: reintento de MP), saltamos a la navegación
+      // --- CASO 1: YA APROBADO PREVIAMENTE ---
       if (String(readyPayment.status).toUpperCase() === 'APPROVED') {
-        setOkMsg('Pago confirmado correctamente.');
-        navigate(`/pagos`);
-        return; // Salimos de la función
+        setOkMsg('Pago aprobado correctamente.');
+        setTimeout(() => navigate('/pagos'), 2000);
+        return; 
       }
-      // --- FIN DE LA CORRECCIÓN 2 ---
 
-      // Si el pago NO fue rechazado, seteamos el método.
       if (String(payment.status).toUpperCase() !== 'REJECTED') {
-         await setPaymentMethod(readyPayment.id, type);
+          await setPaymentMethod(readyPayment.id, type);
       }
 
       const res2 = await api(`/api/payments/${readyPayment.id}/confirm`, {
@@ -263,8 +257,19 @@ export default function Gateway() {
 
       const updated = await res2.json();
       setPayment(updated);
-      setOkMsg('Pago confirmado correctamente.');
-      navigate(`/pagos`);
+      
+      // --- NUEVA LÓGICA DE MENSAJE DE ÉXITO ---
+      const finalStatus = String(updated.status || '').toUpperCase();
+
+      if (finalStatus === 'APPROVED') {
+        setOkMsg('Pago aprobado correctamente.');
+      } else {
+        // Caso: PENDING_APPROVAL u otros estados intermedios/exitosos pero no aprobados aún
+        setOkMsg('Transacción realizada.');
+      }
+
+      // Redirigir tras 2 segundos en ambos casos
+      setTimeout(() => navigate('/pagos'), 2000);
 
     } catch (e) {
       let msg = e.message || 'Error al procesar el pago.';
@@ -273,7 +278,16 @@ export default function Gateway() {
         msg = 'Tarjeta inválida';
       }
       
-      setError(msg);
+      const msgLower = msg.toLowerCase();
+      if (msgLower.includes('saldo insuficiente') || msgLower.includes('tarjeta inválida')) {
+        setError(msg);
+        setTimeout(() => {
+          navigate('/pagos');
+        }, 2000);
+      } else {
+        setError(msg);
+      }
+
     } finally {
       setProcessing(false);
     }
@@ -281,7 +295,7 @@ export default function Gateway() {
 
   return (
     <div className="gateway-container">
-      {/* Header mejorado */}
+      {/* Header */}
       <div className="gateway-header">
         <button className="gateway-back-btn" onClick={() => navigate('/pagos')}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -290,7 +304,6 @@ export default function Gateway() {
           Volver
         </button>
         <div className="gateway-title-section">
-          
           <div>
             <h1 className="gateway-title">Medio de pago</h1>
             <p className="gateway-subtitle">Elegí cómo querés pagar tu compra</p>
@@ -300,17 +313,6 @@ export default function Gateway() {
         </div>
       </div>
 
-      {/* Banner de éxito */}
-      {okMsg && (
-        <div className="gateway-banner gateway-banner--success">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          {okMsg}
-        </div>
-      )}
-
-      {/* Layout principal */}
       <div className="gateway-main-layout">
         {/* Sección de métodos de pago */}
         <section className="gateway-methods-section">
@@ -404,6 +406,7 @@ export default function Gateway() {
               </div>
             )}
             
+            {/* Caso ERROR */}
             {!loading && error && (
               <div className="gateway-summary-error">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -414,8 +417,19 @@ export default function Gateway() {
                 {error}
               </div>
             )}
+
+            {/* Caso ÉXITO */}
+            {!loading && !error && okMsg && (
+              <div className="gateway-summary-success">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                {okMsg}
+              </div>
+            )}
             
-            {!loading && !error && resumen && (
+            {/* Caso NORMAL */}
+            {!loading && !error && !okMsg && resumen && (
               <div className="gateway-summary-content">
                 <div className="gateway-summary-row">
                   <span className="gateway-summary-label">Subtotal</span>
