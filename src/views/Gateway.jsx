@@ -196,10 +196,7 @@ export default function Gateway() {
       setPayment(updated);
       const s = String(updated.status || '').toUpperCase();
       
-      // --- INICIO DE LA CORRECCIÓN 1 ---
-      // Aceptamos PENDING_PAYMENT, PENDING_APPROVAL, o APPROVED (para MP)
       if (s !== 'PENDING_PAYMENT' && s !== 'PENDING_APPROVAL' && s !== 'APPROVED') {
-      // --- FIN DE LA CORRECCIÓN 1 ---
         mostrarAlerta('No pudimos reservar el saldo para este pago.', 'error');
         throw new Error(`El reintento no dejó el pago en estado pendiente (se recibió ${s})`);
       }
@@ -238,18 +235,14 @@ export default function Gateway() {
 
       const readyPayment = await ensurePendingBeforePurchase(payment.id);
 
-      // --- INICIO DE LA CORRECCIÓN 2 ---
-      // Si el pago ya fue aprobado (ej: reintento de MP), saltamos a la navegación
       if (String(readyPayment.status).toUpperCase() === 'APPROVED') {
         setOkMsg('Pago confirmado correctamente.');
         navigate(`/pagos`);
-        return; // Salimos de la función
+        return; 
       }
-      // --- FIN DE LA CORRECCIÓN 2 ---
 
-      // Si el pago NO fue rechazado, seteamos el método.
       if (String(payment.status).toUpperCase() !== 'REJECTED') {
-         await setPaymentMethod(readyPayment.id, type);
+          await setPaymentMethod(readyPayment.id, type);
       }
 
       const res2 = await api(`/api/payments/${readyPayment.id}/confirm`, {
@@ -273,7 +266,24 @@ export default function Gateway() {
         msg = 'Tarjeta inválida';
       }
       
-      setError(msg);
+      // --- LOGICA MODIFICADA ---
+      const msgLower = msg.toLowerCase();
+      // Si el error es Saldo insuficiente O Tarjeta inválida
+      if (msgLower.includes('saldo insuficiente') || msgLower.includes('tarjeta inválida')) {
+        // 1. Mostrar tu alerta existente
+        mostrarAlerta(msg, 'error');
+        
+        // 2. Esperar 2 segundos y redirigir
+        setTimeout(() => {
+          navigate('/pagos'); // Asumo que esta es la ruta de "pagos-lista"
+        }, 2000);
+
+      } else {
+        // Error normal (se muestra en el resumen como tenías antes)
+        setError(msg);
+      }
+      // ------------------------
+
     } finally {
       setProcessing(false);
     }
